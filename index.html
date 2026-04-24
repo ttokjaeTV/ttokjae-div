@@ -173,6 +173,13 @@ header {
   font-size: 20px; letter-spacing: -0.028em;
   line-height: 1.3; margin-bottom: 10px;
 }
+.intro-card h3.tax-rates {
+  display: flex; flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.intro-card h3.tax-rates span {
+  white-space: nowrap;
+}
 .intro-card p { font-size: 14px; color: var(--ink-sub); line-height: 1.6; }
 
 /* ========== MAIN LAYOUT ========== */
@@ -238,88 +245,71 @@ header {
   font-weight: 500;
 }
 
-.preset-chips {
-  display: flex; flex-direction: column; gap: 6px;
+.preset-dropdown-wrap {
+  display: flex; flex-direction: column; gap: 10px;
 }
-.chip-group-label {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.05em;
+.preset-dropdown {
+  width: 100%; padding: 14px 40px 14px 16px;
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: 10px; color: var(--ink);
+  font-size: 14px; font-weight: 600; font-family: inherit;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%238B857B' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  transition: border-color .15s, box-shadow .15s;
+}
+.preset-dropdown:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(212, 87, 42, 0.12);
+}
+.preset-dropdown:hover { border-color: var(--ink); }
+.preset-dropdown optgroup {
+  font-weight: 700; font-size: 12px;
   color: var(--ink-mute);
-  padding: 10px 2px 4px;
-  border-bottom: 1px dashed var(--line);
-  margin-bottom: 2px;
+  letter-spacing: 0.02em;
 }
-.chip-group-label:first-child { padding-top: 2px; }
-.chip {
-  padding: 11px 14px; background: var(--bg);
-  border: 1px solid var(--line); border-radius: 10px;
-  cursor: pointer; transition: all .15s;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 10px;
-  position: relative;
+.preset-dropdown option {
+  font-size: 13px; font-weight: 500;
+  color: var(--ink);
+  padding: 8px;
 }
-.chip:hover { border-color: var(--ink); }
-.chip .chip-left {
-  display: flex; flex-direction: column;
-  gap: 3px;
-  flex: 1; min-width: 0;
-}
-.chip .chip-name-row {
-  display: flex; align-items: center; gap: 6px;
+.preset-info {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-soft);
+  border-radius: 8px;
   flex-wrap: wrap;
-  line-height: 1.3;
-  padding-right: 30px;
 }
-.chip .chip-tag {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-}
-.chip .chip-name {
+.preset-info .info-name {
   font-size: 13px; font-weight: 700; color: var(--ink);
   letter-spacing: -0.025em;
-  line-height: 1.3;
-  word-break: keep-all;
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.chip .chip-code {
-  font-family: var(--mono);
-  font-size: 10px; font-weight: 500;
-  color: var(--ink-mute);
-  letter-spacing: 0.04em;
-  line-height: 1;
+.preset-info .info-tag {
+  font-size: 9px; font-weight: 800;
+  padding: 2px 6px; border-radius: 4px;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
 }
-.chip.active .chip-code { color: rgba(251, 249, 244, 0.55); }
-.chip .chip-data {
-  display: flex; flex-direction: column; gap: 2px;
-  flex-shrink: 0; align-items: flex-end;
-  margin-top: 16px;
+.preset-info .info-tag.us { background: #FBEDE1; color: #B8562C; }
+.preset-info .info-tag.kf { background: #F5EAD0; color: #8A6418; }
+.preset-info .info-tag.kd { background: #E1EFE5; color: #2F6B47; }
+.preset-info .info-data {
+  display: flex; align-items: baseline; gap: 4px;
+  flex-shrink: 0;
 }
-.chip .chip-data .data-cell {
-  display: flex; align-items: baseline; gap: 6px;
-  line-height: 1.2;
+.preset-info .info-data .info-label {
+  font-size: 10px; color: var(--ink-mute); font-weight: 500;
 }
-.chip .chip-data .data-cell .data-label {
-  color: var(--ink-mute); font-weight: 500;
-  font-size: 10px; letter-spacing: 0.02em;
-}
-.chip .chip-data .data-cell .data-value {
+.preset-info .info-data .info-value {
   font-family: var(--mono); font-size: 12px;
   font-weight: 700; color: var(--ink-sub);
   letter-spacing: -0.02em;
-  min-width: 32px; text-align: right;
 }
-.chip.active {
-  background: var(--ink);
-  border-color: var(--ink);
-}
-.chip.active .chip-name { color: var(--bg); }
-.chip.active .chip-data .data-cell .data-label { color: rgba(251, 249, 244, 0.5); }
-.chip.active .chip-data .data-cell .data-value { color: var(--accent); }
-.chip.single-line .chip-data {
-  font-family: var(--sans);
-  font-size: 11px; color: var(--ink-mute); font-weight: 500;
-  margin-top: 0;
-}
-.chip.active.single-line .chip-data { color: rgba(251, 249, 244, 0.6); }
 
 /* Chip Tag (US/KR) */
 .chip-tag {
@@ -894,8 +884,8 @@ footer .disclaimer {
     <div class="intro-grid">
       <div class="intro-card">
         <div class="num">01 / 계좌별 세금</div>
-        <h3>일반 15.4%, ISA 9.9%, 연금 0%</h3>
-        <p>같은 종목을 같은 금액으로 사도, 계좌 하나 바꾸면 20년 뒤 결과가 수천만원 달라집니다.</p>
+        <h3 class="tax-rates"><span>일반 15.4%</span><span>ISA 9.9%</span><span>연금 3.3~5.5%</span></h3>
+        <p>같은 종목을 같은 금액으로 사도, 계좌 하나 바꾸면 20년 뒤 결과가 수천만원 달라집니다. 연금저축은 계좌 내 과세이연 + 수령 시 저율과세가 핵심.</p>
       </div>
       <div class="intro-card">
         <div class="num">02 / 세액공제 복리</div>
@@ -918,171 +908,37 @@ footer .disclaimer {
 
       <div class="section">
         <div class="panel-title">종목 프리셋</div>
-        <div class="preset-chips" id="presetChips">
-          <div class="chip-group-label">🇰🇷 한국상장 국내ETF (완전 절세)</div>
-          <div class="chip active" data-preset="plus">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">PLUS 고배당주</span></div>
-              <div class="chip-code">161510</div>
-            </div>
-            <span class="chip-tag kd">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">4.3%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">5%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="plusCC">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">PLUS 고배당주위클리커버드콜</span></div>
-              <div class="chip-code">493480</div>
-            </div>
-            <span class="chip-tag kd">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">13.7%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">1%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="kodexCC">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">KODEX 200타겟위클리커버드콜</span></div>
-              <div class="chip-code">498400</div>
-            </div>
-            <span class="chip-tag kd">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">17%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">0%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="kodexFin">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">KODEX 금융고배당TOP10위클리</span></div>
-              <div class="chip-code">498410</div>
-            </div>
-            <span class="chip-tag kd">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">15%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">0%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="tigerKrCC">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">TIGER 배당커버드콜액티브</span></div>
-              <div class="chip-code">472160</div>
-            </div>
-            <span class="chip-tag kd">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">12%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">1%</span></div>
-            </div>
-          </div>
-
-          <div class="chip-group-label">🌍 한국상장 해외ETF (외납세 15%)</div>
-          <div class="chip" data-preset="kodexDiv">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">KODEX 미국배당다우존스</span></div>
-              <div class="chip-code">489250</div>
-            </div>
-            <span class="chip-tag kf">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">3.7%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">8%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="tigerCC">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">TIGER 미국배당다우존스타겟커버드콜2호</span></div>
-              <div class="chip-code">458760</div>
-            </div>
-            <span class="chip-tag kf">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">11.6%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">2%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="kodexMDC">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">KODEX 미국배당커버드콜액티브</span></div>
-              <div class="chip-code">441640</div>
-            </div>
-            <span class="chip-tag kf">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">9%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">2%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="kodexNas">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">KODEX 미국나스닥100데일리커버드콜OTM</span></div>
-              <div class="chip-code">495300</div>
-            </div>
-            <span class="chip-tag kf">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">19.8%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">0%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="riseTech">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">RISE 미국테크100데일리고정커버드콜</span></div>
-              <div class="chip-code">491620</div>
-            </div>
-            <span class="chip-tag kf">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">20.3%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">0%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="riseDiv">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">RISE 미국배당100데일리고정커버드콜</span></div>
-              <div class="chip-code">490600</div>
-            </div>
-            <span class="chip-tag kf">KR</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">16.4%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">2%</span></div>
-            </div>
-          </div>
-
-          <div class="chip-group-label">🇺🇸 미국상장 ETF (일반계좌만 가능)</div>
-          <div class="chip" data-preset="schd">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">SCHD</span></div>
-              <div class="chip-code">SCHD · Nasdaq</div>
-            </div>
-            <span class="chip-tag us">US</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">3.5%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">9%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="jepi">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">JEPI</span></div>
-              <div class="chip-code">JEPI · NYSE</div>
-            </div>
-            <span class="chip-tag us">US</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">7.6%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">0%</span></div>
-            </div>
-          </div>
-          <div class="chip" data-preset="jepq">
-            <div class="chip-left">
-              <div class="chip-name-row"><span class="chip-name">JEPQ</span></div>
-              <div class="chip-code">JEPQ · Nasdaq</div>
-            </div>
-            <span class="chip-tag us">US</span>
-            <div class="chip-data">
-              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">9.5%</span></div>
-              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">0%</span></div>
-            </div>
-          </div>
-
-          <div class="chip-group-label">✏️ 사용자 설정</div>
-          <div class="chip single-line" data-preset="custom">
-            <div class="chip-left"><span class="chip-name">직접 입력</span></div>
-            <div class="chip-data">자유 설정</div>
+        <div class="preset-dropdown-wrap">
+          <select id="presetSelect" class="preset-dropdown">
+            <optgroup label="🇰🇷 한국상장 국내ETF (저율 과세)">
+              <option value="plus" selected>PLUS 고배당주 · 161510</option>
+              <option value="plusCC">PLUS 고배당주위클리커버드콜 · 493480</option>
+              <option value="kodexCC">KODEX 200타겟위클리커버드콜 · 498400</option>
+              <option value="kodexFin">KODEX 금융고배당TOP10위클리 · 498410</option>
+              <option value="tigerKrCC">TIGER 배당커버드콜액티브 · 472160</option>
+            </optgroup>
+            <optgroup label="🌍 한국상장 해외ETF (외납세 15%)">
+              <option value="kodexDiv">KODEX 미국배당다우존스 · 489250</option>
+              <option value="tigerCC">TIGER 미국배당다우존스타겟커버드콜2호 · 458760</option>
+              <option value="kodexMDC">KODEX 미국배당커버드콜액티브 · 441640</option>
+              <option value="kodexNas">KODEX 미국나스닥100데일리커버드콜OTM · 495300</option>
+              <option value="riseTech">RISE 미국테크100데일리고정커버드콜 · 491620</option>
+              <option value="riseDiv">RISE 미국배당100데일리고정커버드콜 · 490600</option>
+            </optgroup>
+            <optgroup label="🇺🇸 미국상장 ETF (일반계좌만 가능)">
+              <option value="schd">SCHD · Nasdaq</option>
+              <option value="jepi">JEPI · NYSE</option>
+              <option value="jepq">JEPQ · Nasdaq</option>
+            </optgroup>
+            <optgroup label="✏️ 사용자 설정">
+              <option value="custom">직접 입력</option>
+            </optgroup>
+          </select>
+          <div id="presetInfo" class="preset-info">
+            <span class="info-name">PLUS 고배당주</span>
+            <span class="info-tag kd">KR</span>
+            <span class="info-data"><span class="info-label">배당</span><span class="info-value">4.3%</span></span>
+            <span class="info-data"><span class="info-label">성장</span><span class="info-value">5%</span></span>
           </div>
         </div>
 
@@ -1095,7 +951,7 @@ footer .disclaimer {
           </select>
           <div id="categoryBadge" class="category-badge green">
             <strong>한국상장 국내ETF</strong>
-            <span>연금·ISA에서 완전 절세 (외납세 X)</span>
+            <span>외납세 X · 연금 수령 시 3.3~5.5%만 과세</span>
           </div>
 
           <div id="premiumWrap" class="premium-wrap" style="display:none;">
@@ -1402,39 +1258,58 @@ const PRESETS = {
 };
 let currentCategory = 'kr-domestic';
 let currentPremium = 0;
-document.querySelectorAll('.chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    const preset = PRESETS[chip.dataset.preset];
-    if (preset) {
-      document.getElementById('divYield').value = preset.yield;
-      document.getElementById('divGrowth').value = preset.growth;
-      currentCategory = preset.category;
-      currentPremium = preset.premium;
-      document.getElementById('categorySelect').value = preset.category;
-      document.getElementById('categorySelect').disabled = true;
-      document.getElementById('premiumRatio').value = preset.premium;
-      updateSliderVals();
-      updateCategoryBadge();
-      updatePremiumVisibility();
-    } else {
-      // custom
-      document.getElementById('categorySelect').disabled = false;
-      currentCategory = document.getElementById('categorySelect').value;
-      currentPremium = parseInt(document.getElementById('premiumRatio').value) || 0;
-      updateSliderVals();
-      updateCategoryBadge();
-      updatePremiumVisibility();
-    }
-  });
+
+function applyPreset(presetKey) {
+  const preset = PRESETS[presetKey];
+  if (preset) {
+    document.getElementById('divYield').value = preset.yield;
+    document.getElementById('divGrowth').value = preset.growth;
+    currentCategory = preset.category;
+    currentPremium = preset.premium;
+    document.getElementById('categorySelect').value = preset.category;
+    document.getElementById('categorySelect').disabled = true;
+    document.getElementById('premiumRatio').value = preset.premium;
+    updateSliderVals();
+    updateCategoryBadge();
+    updatePremiumVisibility();
+    updatePresetInfo(preset);
+  } else {
+    // custom
+    document.getElementById('categorySelect').disabled = false;
+    currentCategory = document.getElementById('categorySelect').value;
+    currentPremium = parseInt(document.getElementById('premiumRatio').value) || 0;
+    updateSliderVals();
+    updateCategoryBadge();
+    updatePremiumVisibility();
+    updatePresetInfo(null);
+  }
+}
+
+function updatePresetInfo(preset) {
+  const infoEl = document.getElementById('presetInfo');
+  if (!preset) {
+    infoEl.innerHTML = `<span class="info-name" style="color: var(--ink-mute); font-style: italic;">직접 입력 모드 — 아래에서 값 조정</span>`;
+    return;
+  }
+  const tagClass = preset.category === 'us-etf' ? 'us' : (preset.category === 'kr-foreign' ? 'kf' : 'kd');
+  const tagText = preset.category === 'us-etf' ? 'US' : 'KR';
+  infoEl.innerHTML = `
+    <span class="info-name">${preset.name}</span>
+    <span class="info-tag ${tagClass}">${tagText}</span>
+    <span class="info-data"><span class="info-label">배당</span><span class="info-value">${preset.yield}%</span></span>
+    <span class="info-data"><span class="info-label">성장</span><span class="info-value">${preset.growth}%</span></span>
+  `;
+}
+
+document.getElementById('presetSelect').addEventListener('change', (e) => {
+  applyPreset(e.target.value);
 });
 
 function updateCategoryBadge() {
   const info = {
     'us-etf': { label: '미국상장 해외ETF', desc: '일반계좌만 투자 가능 (연금·ISA 불가)', color: 'orange' },
     'kr-foreign': { label: '한국상장 해외ETF', desc: '외납세 15% 선차감 · ISA 비과세 한도 미적용', color: 'amber' },
-    'kr-domestic': { label: '한국상장 국내ETF', desc: '연금·ISA에서 완전 절세 (외납세 X)', color: 'green' }
+    'kr-domestic': { label: '한국상장 국내ETF', desc: '외납세 X · 연금 수령 시 3.3~5.5%만 과세', color: 'green' }
   };
   const el = document.getElementById('categoryBadge');
   const i = info[currentCategory];
