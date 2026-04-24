@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>배당 눈덩이 시뮬레이터 | 똑재TV</title>
+<meta property="og:title" content="배당 눈덩이 시뮬레이터 - 일반계좌 vs 연금저축 vs ISA">
+<meta property="og:description" content="월 투자금 넣으면 20년 뒤 월 배당금이 보인다. 세금·건보료·인출세까지 모두 반영한 진짜 실수령액 계산기.">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #FBF9F4;
+  --bg-surface: #FFFFFF;
+  --bg-soft: #F4F1EA;
+  --bg-tint: #EFE9DB;
+  --ink: #1A1814;
+  --ink-sub: #4D4A44;
+  --ink-mute: #8B857B;
+  --line: #E4DFD2;
+  --line-soft: #EFE9DB;
+  --accent: #D4572A;
+  --accent-soft: #F5E3D8;
+  --accent-deep: #9B3D15;
+  --normal: #B8562C;
+  --normal-bg: #FBEDE1;
+  --pension: #2F6B47;
+  --pension-bg: #E1EFE5;
+  --isa: #2A5C8A;
+  --isa-bg: #DDE8F2;
+  --gold: #B8912F;
+  --gold-bg: #F5EAD0;
+  --danger: #A8322A;
+  --warn: #B8782F;
+  --serif: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif;
+  --sans: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'tnum' 1, 'ss01' 1;
+  background-image:
+    radial-gradient(circle at 12% 6%, rgba(212, 87, 42, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 92% 90%, rgba(47, 107, 71, 0.04) 0%, transparent 35%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+/* ========== HEADER ========== */
+header {
+  border-bottom: 1px solid var(--line);
+  background: rgba(251, 249, 244, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  position: sticky; top: 0; z-index: 50;
+  padding: 18px 0;
+}
+.header-inner { display: flex; justify-content: space-between; align-items: center; }
+.logo { display: flex; align-items: center; gap: 11px; }
+.logo-mark {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--ink); color: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 17px; letter-spacing: -0.03em;
+}
+.logo-text { font-weight: 800; font-size: 17px; letter-spacing: -0.025em; }
+.logo-text small { display: block; font-size: 10px; color: var(--ink-mute); font-weight: 500; letter-spacing: 0.06em; margin-top: -2px; }
+.header-cta {
+  font-size: 13px; color: var(--ink-sub); text-decoration: none;
+  padding: 9px 16px; border: 1px solid var(--line);
+  border-radius: 99px; transition: all .15s;
+  background: var(--bg-surface); font-weight: 500;
+}
+.header-cta:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* ========== HERO — 매거진 스타일 ========== */
+.hero {
+  padding: 70px 0 60px;
+  position: relative;
+  text-align: center;
+}
+.hero-kicker {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+  color: var(--accent); text-transform: uppercase;
+  padding: 8px 18px; border: 1px solid var(--accent);
+  border-radius: 99px; margin-bottom: 28px;
+  background: var(--bg-surface);
+}
+.hero-kicker::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } }
+
+.hero h1 {
+  font-family: var(--sans);
+  font-size: clamp(42px, 7vw, 82px);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  margin-bottom: 24px;
+  color: var(--ink);
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--accent);
+  font-weight: 900;
+  position: relative;
+  display: inline-block;
+}
+.hero h1 em::after {
+  content: ''; position: absolute; left: -2%; right: -2%;
+  bottom: 5%; height: 14%;
+  background: var(--accent-soft);
+  z-index: -1;
+  border-radius: 2px;
+}
+.hero-sub {
+  font-size: clamp(15px, 1.7vw, 18px);
+  color: var(--ink-sub);
+  max-width: 560px; margin: 0 auto 12px;
+  line-height: 1.6;
+}
+.hero-meta {
+  display: flex; justify-content: center; gap: 24px;
+  margin-top: 24px; flex-wrap: wrap;
+}
+.hero-meta-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--ink-mute); font-weight: 500;
+}
+.hero-meta-item .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+
+/* ========== INTRO CARDS ========== */
+.intro-section {
+  margin-bottom: 52px;
+  padding-top: 12px;
+}
+.section-label {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 22px;
+}
+.section-label::before { content: ''; width: 24px; height: 1px; background: var(--ink); }
+.section-label span {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--ink);
+}
+.intro-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+}
+@media (max-width: 720px) { .intro-grid { grid-template-columns: 1fr; } }
+.intro-card {
+  background: var(--bg-surface); padding: 28px 26px;
+  transition: background .2s;
+}
+.intro-card:hover { background: var(--bg-soft); }
+.intro-card .num {
+  font-family: var(--sans); font-size: 12px; color: var(--accent);
+  font-weight: 700; letter-spacing: 0.05em; margin-bottom: 14px;
+}
+.intro-card h3 {
+  font-family: var(--sans); font-weight: 800;
+  font-size: 20px; letter-spacing: -0.028em;
+  line-height: 1.3; margin-bottom: 10px;
+}
+.intro-card p { font-size: 14px; color: var(--ink-sub); line-height: 1.6; }
+
+/* ========== MAIN LAYOUT ========== */
+.main-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 32px;
+  margin-bottom: 60px;
+}
+@media (max-width: 960px) { .main-grid { grid-template-columns: 1fr; } }
+
+/* ========== INPUT PANEL ========== */
+.input-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 26px;
+  position: sticky; top: 90px;
+  height: fit-content;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.input-panel::-webkit-scrollbar { width: 4px; }
+.input-panel::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+@media (max-width: 960px) { .input-panel { position: static; max-height: none; } }
+
+.panel-title {
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 0.18em; color: var(--ink-mute);
+  text-transform: uppercase; margin-bottom: 14px;
+}
+.section { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px dashed var(--line); }
+.section:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; color: var(--ink-sub); margin-bottom: 8px; font-weight: 500;
+}
+.field label .val-display {
+  color: var(--accent); font-family: var(--mono);
+  font-weight: 700; font-size: 13px;
+}
+.input-wrap { position: relative; }
+.input-wrap input[type=text], .input-wrap select {
+  width: 100%; padding: 12px 14px;
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: 10px; color: var(--ink);
+  font-family: var(--mono); font-size: 14px; font-weight: 500;
+  transition: all .15s;
+}
+.input-wrap input:focus, .input-wrap select:focus {
+  outline: none; border-color: var(--accent);
+  background: var(--bg-surface);
+  box-shadow: 0 0 0 3px rgba(212, 87, 42, 0.12);
+}
+.input-wrap .suffix {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--ink-mute); font-size: 12px; pointer-events: none;
+  font-weight: 500;
+}
+
+.preset-chips {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.chip {
+  padding: 11px 14px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px;
+  cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+}
+.chip:hover { border-color: var(--ink); }
+.chip .chip-left {
+  display: flex; align-items: center;
+  flex: 1; min-width: 0;
+}
+.chip .chip-tag {
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+.chip .chip-name {
+  font-size: 13px; font-weight: 700; color: var(--ink);
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+  word-break: keep-all;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.chip .chip-data {
+  display: flex; flex-direction: column; gap: 2px;
+  flex-shrink: 0; align-items: flex-end;
+}
+.chip .chip-data .data-cell {
+  display: flex; align-items: baseline; gap: 6px;
+  line-height: 1.2;
+}
+.chip .chip-data .data-cell .data-label {
+  color: var(--ink-mute); font-weight: 500;
+  font-size: 10px; letter-spacing: 0.02em;
+}
+.chip .chip-data .data-cell .data-value {
+  font-family: var(--mono); font-size: 12px;
+  font-weight: 700; color: var(--ink-sub);
+  letter-spacing: -0.02em;
+  min-width: 32px; text-align: right;
+}
+.chip.active {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.chip.active .chip-name { color: var(--bg); }
+.chip.active .chip-data .data-cell .data-label { color: rgba(251, 249, 244, 0.5); }
+.chip.active .chip-data .data-cell .data-value { color: var(--accent); }
+.chip.single-line .chip-data {
+  font-family: var(--sans);
+  font-size: 11px; color: var(--ink-mute); font-weight: 500;
+}
+.chip.active.single-line .chip-data { color: rgba(251, 249, 244, 0.6); }
+
+/* Chip Tag (US/KR) */
+.chip-tag {
+  display: inline-block; font-size: 9px; font-weight: 800;
+  padding: 1px 5px; border-radius: 4px;
+  letter-spacing: 0.05em; margin-left: 3px;
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+.chip-tag.us { background: #FBEDE1; color: #B8562C; }
+.chip-tag.kf { background: #F5EAD0; color: #8A6418; }  /* 한국 해외 = 노랑 */
+.chip-tag.kd { background: #E1EFE5; color: #2F6B47; }  /* 한국 국내 = 초록 */
+.chip.active .chip-tag { opacity: 0.95; }
+
+/* Category Selector */
+.category-selector {
+  margin-top: 14px;
+}
+.selector-label {
+  display: block; font-size: 11px; color: var(--ink-sub);
+  font-weight: 600; margin-bottom: 7px;
+  letter-spacing: -0.01em;
+}
+#categorySelect {
+  width: 100%; padding: 10px 14px;
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: 9px; color: var(--ink);
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B857B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+#categorySelect:disabled {
+  opacity: 0.6; cursor: not-allowed;
+  background-color: var(--bg-soft);
+}
+.category-badge {
+  margin-top: 8px; padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid;
+  display: flex; flex-direction: column; gap: 2px;
+  font-size: 11px;
+}
+.category-badge strong {
+  font-size: 12px; font-weight: 700; letter-spacing: -0.01em;
+}
+.category-badge span {
+  font-size: 10px; color: var(--ink-sub); font-weight: 500;
+}
+.category-badge.orange {
+  background: #FBEDE1; border-color: rgba(184, 86, 44, 0.25);
+}
+.category-badge.orange strong { color: #B8562C; }
+.category-badge.amber {
+  background: #F5EAD0; border-color: rgba(138, 100, 24, 0.25);
+}
+.category-badge.amber strong { color: #8A6418; }
+.category-badge.green {
+  background: #E1EFE5; border-color: rgba(47, 107, 71, 0.25);
+}
+.category-badge.green strong { color: #2F6B47; }
+
+/* Premium Slider (국내 커버드콜용) */
+.premium-wrap {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: #E1EFE5;
+  border: 1px solid rgba(47, 107, 71, 0.2);
+  border-radius: 10px;
+}
+.premium-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.premium-header label {
+  font-size: 12px; font-weight: 700; color: #2F6B47;
+  letter-spacing: -0.01em;
+}
+.premium-header .val-display {
+  color: #2F6B47 !important; font-family: var(--mono);
+  font-weight: 700; font-size: 13px;
+}
+.premium-wrap input[type=range] {
+  width: 100%; accent-color: #2F6B47; height: 4px;
+}
+.premium-hint {
+  font-size: 10px; color: var(--ink-sub); line-height: 1.55;
+  margin-top: 8px;
+}
+.premium-hint strong { color: #2F6B47; font-weight: 700; }
+
+.range-row { display: flex; align-items: center; gap: 10px; }
+.range-row input[type=range] {
+  flex: 1; accent-color: var(--accent);
+  height: 4px;
+}
+
+.tax-group {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+  background: var(--bg); padding: 4px; border-radius: 10px;
+  border: 1px solid var(--line);
+}
+.tax-group button {
+  padding: 9px 6px; background: transparent; border: none;
+  border-radius: 7px; color: var(--ink-sub);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: all .15s; font-family: inherit; line-height: 1.25;
+}
+.tax-group button small { display: block; font-size: 10px; opacity: 0.65; margin-top: 2px; font-family: var(--mono); font-weight: 500; }
+.tax-group button.active { background: var(--ink); color: var(--bg); }
+
+.calc-btn {
+  width: 100%; padding: 16px;
+  background: var(--ink); color: var(--bg);
+  border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: all .15s; margin-top: 6px;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.calc-btn:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(212, 87, 42, 0.24); }
+.calc-btn:active { transform: translateY(0); }
+
+/* ========== RESULT AREA ========== */
+.result-panel { min-width: 0; }
+
+/* === HERO RESULT — 눈덩이 애니메이션 === */
+.result-hero {
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 44px 40px 36px;
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.result-hero-label {
+  font-size: 10px; font-weight: 700; color: var(--ink-mute);
+  letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 14px;
+}
+.result-hero-headline {
+  font-family: var(--sans);
+  font-size: clamp(26px, 3.8vw, 42px);
+  font-weight: 900; letter-spacing: -0.035em;
+  line-height: 1.15; margin-bottom: 8px;
+}
+.result-hero-headline .amount {
+  color: var(--accent);
+  font-weight: 900;
+  font-style: normal;
+  display: inline-block;
+  min-width: 1ch;
+}
+.result-hero-sub {
+  font-size: 15px; color: var(--ink-sub); margin-top: 12px;
+  line-height: 1.6;
+}
+.result-hero-sub strong { color: var(--ink); font-weight: 700; }
+
+/* Snowball animation */
+.snowball-visual {
+  position: absolute; right: -60px; top: -20px;
+  width: 340px; height: 340px; pointer-events: none;
+  opacity: 0.12;
+}
+.snowball-visual svg { width: 100%; height: 100%; animation: rotate 40s linear infinite; }
+@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* === COMPARE GRID === */
+.compare-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  margin-top: 28px; position: relative;
+}
+@media (max-width: 640px) { .compare-grid { grid-template-columns: 1fr; } }
+.compare-card {
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: 12px; padding: 20px 18px;
+  position: relative;
+  transition: transform .3s, box-shadow .3s;
+}
+.compare-card.winner {
+  background: var(--bg-surface);
+  border: 2px solid var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(212, 87, 42, 0.15);
+}
+.compare-card .acct-label {
+  display: inline-block; font-size: 10px; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 5px; margin-bottom: 8px;
+}
+.compare-card.normal .acct-label { background: var(--normal-bg); color: var(--normal); }
+.compare-card.pension .acct-label { background: var(--pension-bg); color: var(--pension); }
+.compare-card.isa .acct-label { background: var(--isa-bg); color: var(--isa); }
+
+.compare-card .main-value {
+  font-family: var(--mono); font-size: 32px; font-weight: 700;
+  letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 4px;
+  color: var(--ink);
+}
+.compare-card.winner .main-value { color: var(--accent); }
+.compare-card .sub-value {
+  font-size: 11px; color: var(--ink-mute); margin-bottom: 18px;
+  font-weight: 500; letter-spacing: 0.02em;
+}
+.compare-card .breakdown {
+  border-top: 1px solid var(--line); padding-top: 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.compare-card .breakdown .row {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.compare-card .breakdown .row .label {
+  font-size: 10px; color: var(--ink-mute);
+  font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.compare-card .breakdown .row .num {
+  font-family: var(--mono); font-size: 15px; font-weight: 700;
+  letter-spacing: -0.02em; color: var(--ink);
+  white-space: nowrap;
+}
+.compare-card .breakdown .row.profit .num {
+  color: var(--pension);
+}
+.compare-card .breakdown .footer {
+  margin-top: 4px; padding: 10px 12px;
+  background: var(--bg-soft); border-radius: 8px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.compare-card .breakdown .footer .label {
+  font-size: 10px; color: var(--ink-mute); font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.compare-card .breakdown .footer .num {
+  font-family: var(--mono); font-size: 14px;
+  font-weight: 700; color: var(--ink-sub);
+  letter-spacing: -0.02em; white-space: nowrap;
+}
+.winner-crown {
+  position: absolute; top: -12px; right: 14px;
+  background: var(--accent); color: var(--bg);
+  font-size: 10px; font-weight: 800; padding: 4px 10px;
+  border-radius: 6px; letter-spacing: 0.08em;
+}
+
+/* Unavailable card */
+.compare-card.unavailable {
+  background: var(--bg-soft);
+  border: 1px dashed var(--line);
+  opacity: 0.7;
+}
+.compare-card.unavailable .acct-label {
+  opacity: 0.5;
+}
+.unavailable-content {
+  padding: 28px 10px; text-align: center;
+}
+.unavailable-content .unavail-icon {
+  font-size: 28px; margin-bottom: 8px; filter: grayscale(0.3);
+}
+.unavailable-content .unavail-title {
+  font-size: 15px; font-weight: 800; color: var(--ink-sub);
+  letter-spacing: -0.02em; margin-bottom: 6px;
+}
+.unavailable-content .unavail-desc {
+  font-size: 11px; color: var(--ink-mute); line-height: 1.55;
+}
+
+/* === SHOCK STATS — 임팩트 수치 === */
+.shock-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  margin-bottom: 24px;
+}
+@media (max-width: 680px) { .shock-grid { grid-template-columns: 1fr; } }
+.shock-cell {
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px 22px 20px;
+  position: relative;
+  transition: transform .2s, box-shadow .2s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.shock-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(26, 24, 20, 0.06);
+}
+.shock-cell .shock-label {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+  padding: 4px 10px; border-radius: 99px;
+  margin-bottom: 14px;
+  white-space: nowrap;
+  max-width: 100%;
+  flex-shrink: 0;
+}
+.shock-cell.positive .shock-label {
+  background: var(--pension-bg);
+  color: var(--pension);
+}
+.shock-cell.negative .shock-label {
+  background: var(--normal-bg);
+  color: var(--normal);
+}
+.shock-cell.warning .shock-label {
+  background: var(--gold-bg);
+  color: var(--gold);
+}
+.shock-cell.info .shock-label {
+  background: var(--isa-bg);
+  color: var(--isa);
+}
+.shock-cell .shock-number {
+  display: block;
+  width: 100%;
+  font-family: var(--mono);
+  font-size: clamp(22px, 2.4vw, 26px);
+  font-weight: 700; letter-spacing: -0.03em; line-height: 1.2;
+  margin-bottom: 10px;
+  color: var(--ink-sub);
+}
+.shock-cell.positive .shock-number { color: var(--pension); }
+.shock-cell.negative .shock-number { color: var(--normal); }
+.shock-cell.warning .shock-number { color: var(--accent-deep); }
+.shock-cell.info .shock-number { color: var(--isa); }
+.shock-cell .shock-desc {
+  display: block;
+  width: 100%;
+  font-size: 12px; color: var(--ink-mute);
+  line-height: 1.55;
+}
+
+/* === WARNINGS === */
+.warnings { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.warning {
+  display: flex; gap: 14px; padding: 16px 18px;
+  border-radius: 12px; align-items: flex-start;
+  border: 1px solid;
+}
+.warning.danger { background: #FDEAE8; border-color: #F2C5C0; }
+.warning.warn { background: #FDF3E0; border-color: #F0DDB0; }
+.warning.info { background: #E8EFF7; border-color: #C6D4E5; }
+.warning .w-icon { font-size: 20px; min-width: 24px; line-height: 1.3; }
+.warning .w-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.warning.danger .w-title { color: var(--danger); }
+.warning.warn .w-title { color: var(--warn); }
+.warning.info .w-title { color: var(--isa); }
+.warning .w-desc { font-size: 13px; color: var(--ink-sub); line-height: 1.6; }
+.warning .w-desc strong { color: var(--ink); }
+
+/* === CHART PANEL === */
+.chart-panel {
+  background: var(--bg-surface); border: 1px solid var(--line);
+  border-radius: 16px; padding: 28px; margin-bottom: 20px;
+}
+.chart-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+}
+.chart-title {
+  font-family: var(--sans); font-size: 18px; font-weight: 800;
+  letter-spacing: -0.025em;
+}
+.chart-legend { display: flex; gap: 14px; font-size: 12px; flex-wrap: wrap; }
+.chart-legend span { display: flex; align-items: center; gap: 6px; color: var(--ink-sub); font-weight: 500; }
+.chart-legend span::before {
+  content: ''; width: 12px; height: 12px; border-radius: 3px;
+}
+.chart-legend .l-normal::before { background: var(--normal); }
+.chart-legend .l-pension::before { background: var(--pension); }
+.chart-legend .l-isa::before { background: var(--isa); }
+.chart-wrap { position: relative; height: 360px; padding: 0 2px; }
+
+/* === TABLE === */
+.table-panel {
+  background: var(--bg-surface); border: 1px solid var(--line);
+  border-radius: 16px; padding: 28px; margin-bottom: 20px;
+  overflow-x: auto;
+}
+.table-panel table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+.table-panel th, .table-panel td {
+  padding: 12px 14px; text-align: right;
+  border-bottom: 1px solid var(--line-soft);
+}
+.table-panel th {
+  font-weight: 700; color: var(--ink-mute); font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+}
+.table-panel th:first-child, .table-panel td:first-child { text-align: left; }
+.table-panel td { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+.table-panel tr.highlight td {
+  background: var(--accent-soft); font-weight: 700;
+  color: var(--accent-deep);
+}
+.table-panel tr.highlight td:first-child { border-left: 3px solid var(--accent); }
+
+/* === CTA === */
+.cta-section {
+  background: var(--bg-soft);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 20px; padding: 52px 40px;
+  text-align: center; margin: 52px 0;
+  position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: ''; position: absolute; top: -50%; left: -20%;
+  width: 140%; height: 200%;
+  background: radial-gradient(ellipse at center top, rgba(212, 87, 42, 0.08), transparent 60%);
+  pointer-events: none;
+}
+.cta-kicker {
+  position: relative;
+  display: inline-block; padding: 6px 14px;
+  background: var(--accent-soft); color: var(--accent-deep);
+  border-radius: 99px; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.cta-section h2 {
+  font-family: var(--sans); font-weight: 900;
+  font-size: clamp(26px, 4vw, 40px);
+  letter-spacing: -0.035em; margin-bottom: 16px;
+  line-height: 1.2; position: relative;
+  color: var(--ink);
+}
+.cta-section h2 em { color: var(--accent); font-style: normal; font-weight: 900; }
+.cta-section p {
+  color: var(--ink-sub); font-size: 15px;
+  max-width: 540px; margin: 0 auto 28px;
+  line-height: 1.65; position: relative;
+}
+.cta-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 32px; background: var(--accent); color: #fff;
+  border-radius: 12px; text-decoration: none;
+  font-weight: 700; font-size: 15px;
+  transition: all .2s; position: relative;
+  letter-spacing: -0.01em;
+}
+.cta-btn:hover {
+  transform: translateY(-2px);
+  background: #E96632;
+  box-shadow: 0 14px 36px rgba(212, 87, 42, 0.38);
+}
+
+/* === SHARE === */
+.share-row {
+  display: flex; gap: 10px; justify-content: center;
+  margin-top: 22px; flex-wrap: wrap;
+}
+.share-btn {
+  padding: 11px 18px; background: var(--bg-surface);
+  border: 1px solid var(--line); border-radius: 10px;
+  color: var(--ink-sub); font-size: 13px; cursor: pointer;
+  transition: all .15s; display: inline-flex; align-items: center; gap: 7px;
+  font-family: inherit; font-weight: 600;
+}
+.share-btn:hover { border-color: var(--ink); color: var(--ink); background: var(--bg); }
+
+/* === FOOTER === */
+footer {
+  text-align: center; padding: 44px 0 32px; margin-top: 40px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-mute); font-size: 13px;
+}
+footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+footer a:hover { text-decoration: underline; }
+footer .disclaimer {
+  font-size: 11px; color: var(--ink-mute); margin-top: 18px;
+  max-width: 640px; margin-left: auto; margin-right: auto;
+  line-height: 1.7;
+}
+
+/* === 결과 초기 상태 === */
+.result-section { display: none; }
+.result-section.active { display: block; animation: slideUp .5s ease-out; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* === 계산 중 로딩 === */
+.calculating { opacity: 0.5; pointer-events: none; }
+
+/* === Welcome example === */
+.example-card {
+  background: var(--bg-soft); border-radius: 12px;
+  padding: 26px; display: grid;
+  grid-template-columns: repeat(3, 1fr); gap: 14px; text-align: center;
+  position: relative;
+}
+.example-card .exc-vs {
+  position: absolute; top: 50%;
+  font-family: var(--sans); font-weight: 900;
+  font-size: 13px; letter-spacing: -0.02em;
+  color: var(--ink-mute);
+  transform: translateY(-50%);
+  background: var(--bg-surface);
+  padding: 4px 10px; border-radius: 99px;
+  border: 1px solid var(--line);
+}
+.example-card .exc-vs-1 { left: 33.33%; transform: translate(-50%, -50%); }
+.example-card .exc-vs-2 { left: 66.67%; transform: translate(-50%, -50%); }
+@media (max-width: 600px) {
+  .example-card { grid-template-columns: 1fr; }
+  .example-card .exc-vs { display: none; }
+}
+.example-cell .acct {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 4px;
+  display: inline-block; margin-bottom: 8px;
+}
+.example-cell.normal .acct { background: var(--normal-bg); color: var(--normal); }
+.example-cell.pension .acct { background: var(--pension-bg); color: var(--pension); }
+.example-cell.isa .acct { background: var(--isa-bg); color: var(--isa); }
+.example-cell .ex-num {
+  font-family: var(--mono); font-size: 26px; font-weight: 700;
+  letter-spacing: -0.02em; color: var(--ink);
+}
+.example-cell.pension .ex-num { color: var(--accent); font-weight: 700; }
+.example-cell .ex-lbl { font-size: 11px; color: var(--ink-mute); margin-top: 4px; }
+
+.highlight-note {
+  margin-top: 16px; padding: 14px 18px;
+  background: var(--accent-soft); border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0; font-size: 14px; color: var(--accent-deep);
+  line-height: 1.6;
+}
+.highlight-note strong { color: var(--accent-deep); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container header-inner">
+    <div class="logo">
+      <div class="logo-mark">똑</div>
+      <div class="logo-text">똑재TV<small>DIVIDEND INVESTING</small></div>
+    </div>
+    <a href="https://cafe.naver.com/ttokjae" class="header-cta" target="_blank" rel="noopener">카페 방문</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ========== HERO ========== -->
+  <section class="hero">
+    <span class="hero-kicker">2026년 최신 세법 반영</span>
+    <h1>
+      월 50만원으로,<br>
+      20년 뒤 월 배당 <em>얼마?</em>
+    </h1>
+    <p class="hero-sub">
+      배당성장·세금·세액공제 재투자·인출세·건강보험료까지<br>
+      모두 반영한 진짜 실수령액 시뮬레이터.
+    </p>
+    <div class="hero-meta">
+      <span class="hero-meta-item"><span class="dot"></span>일반계좌 · 연금저축 · ISA 동시 비교</span>
+      <span class="hero-meta-item"><span class="dot"></span>SCHD · JEPI 등 실제 ETF 프리셋</span>
+      <span class="hero-meta-item"><span class="dot"></span>100% 무료 · 회원가입 불필요</span>
+    </div>
+  </section>
+
+  <!-- ========== INTRO ========== -->
+  <section class="intro-section">
+    <div class="section-label"><span>Why this calculator</span></div>
+    <div class="intro-grid">
+      <div class="intro-card">
+        <div class="num">01 / 계좌별 세금</div>
+        <h3>일반 15.4%, ISA 9.9%, 연금 0%</h3>
+        <p>같은 종목을 같은 금액으로 사도, 계좌 하나 바꾸면 20년 뒤 결과가 수천만원 달라집니다.</p>
+      </div>
+      <div class="intro-card">
+        <div class="num">02 / 세액공제 복리</div>
+        <h3>세금이 투자금으로 돌아온다</h3>
+        <p>연금저축 16.5% 세액공제를 매년 재투자하면, 정부가 주는 공돈이 복리로 굴러갑니다.</p>
+      </div>
+      <div class="intro-card">
+        <div class="num">03 / 숨겨진 함정</div>
+        <h3>건보료·종합과세 경고</h3>
+        <p>배당이 일정 수준을 넘으면 피부양자에서 탈락해 월 건보료가 수십만원 붙습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== MAIN ========== -->
+  <div class="main-grid">
+
+    <!-- 입력 -->
+    <aside class="input-panel">
+
+      <div class="section">
+        <div class="panel-title">종목 프리셋</div>
+        <div class="preset-chips" id="presetChips">
+          <div class="chip active" data-preset="schd">
+            <div class="chip-left">
+              <span class="chip-name">SCHD</span>
+            </div>
+            <span class="chip-tag us">US</span>
+            <div class="chip-data">
+              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">3.5%</span></div>
+              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">9%</span></div>
+            </div>
+          </div>
+          <div class="chip" data-preset="jepi">
+            <div class="chip-left">
+              <span class="chip-name">JEPI</span>
+            </div>
+            <span class="chip-tag us">US</span>
+            <div class="chip-data">
+              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">7.6%</span></div>
+              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">0%</span></div>
+            </div>
+          </div>
+          <div class="chip" data-preset="jepq">
+            <div class="chip-left">
+              <span class="chip-name">JEPQ</span>
+            </div>
+            <span class="chip-tag us">US</span>
+            <div class="chip-data">
+              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">9.5%</span></div>
+              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">0%</span></div>
+            </div>
+          </div>
+          <div class="chip" data-preset="tiger">
+            <div class="chip-left">
+              <span class="chip-name">TIGER 미국배당다우존스</span>
+            </div>
+            <span class="chip-tag kf">KR</span>
+            <div class="chip-data">
+              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">3.8%</span></div>
+              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">8%</span></div>
+            </div>
+          </div>
+          <div class="chip" data-preset="tigerCC">
+            <div class="chip-left">
+              <span class="chip-name">TIGER 미국배당다우존스타겟커버드콜2호</span>
+            </div>
+            <span class="chip-tag kf">KR</span>
+            <div class="chip-data">
+              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">10%</span></div>
+              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">2%</span></div>
+            </div>
+          </div>
+          <div class="chip" data-preset="plus">
+            <div class="chip-left">
+              <span class="chip-name">PLUS 고배당주</span>
+            </div>
+            <span class="chip-tag kd">KR</span>
+            <div class="chip-data">
+              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">4.3%</span></div>
+              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">5%</span></div>
+            </div>
+          </div>
+          <div class="chip" data-preset="kodexCC">
+            <div class="chip-left">
+              <span class="chip-name">KODEX 200타겟위클리커버드콜</span>
+            </div>
+            <span class="chip-tag kd">KR</span>
+            <div class="chip-data">
+              <div class="data-cell"><span class="data-label">배당</span><span class="data-value">14%</span></div>
+              <div class="data-cell"><span class="data-label">성장</span><span class="data-value">0%</span></div>
+            </div>
+          </div>
+          <div class="chip single-line" data-preset="custom">
+            <div class="chip-left">
+              <span class="chip-name">직접 입력</span>
+            </div>
+            <div class="chip-data">자유 설정</div>
+          </div>
+        </div>
+
+        <div class="category-selector">
+          <label class="selector-label">ETF 분류 (과세 구조)</label>
+          <select id="categorySelect" disabled>
+            <option value="us-etf">미국상장 해외ETF</option>
+            <option value="kr-foreign">한국상장 해외ETF</option>
+            <option value="kr-domestic">한국상장 국내ETF</option>
+          </select>
+          <div id="categoryBadge" class="category-badge orange">
+            <strong>미국상장 해외ETF</strong>
+            <span>일반계좌만 투자 가능 (연금·ISA 불가)</span>
+          </div>
+
+          <div id="premiumWrap" class="premium-wrap" style="display:none;">
+            <div class="premium-header">
+              <label>비과세 분배금 비중</label>
+              <span class="val-display" id="premiumVal">0%</span>
+            </div>
+            <input type="range" id="premiumRatio" min="0" max="100" value="0" step="1">
+            <div class="premium-hint">
+              💡 국내 커버드콜 ETF의 <strong>옵션프리미엄 수익은 일반계좌에서도 비과세</strong>입니다 (장내파생상품 매매차익). 비중이 높을수록 일반계좌와 절세계좌의 차이가 줄어듭니다.<br>
+              <span style="opacity:0.85;">예: KODEX 200위클리는 연 17% 분배금 중 옵션프리미엄 15% + 배당 2% → 비과세 비중 약 88%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="panel-title">투자 설정</div>
+        <div class="field">
+          <label>초기 투자금</label>
+          <div class="input-wrap">
+            <input type="text" id="initialAmount" value="0" inputmode="numeric">
+            <span class="suffix">원</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>월 투자금</label>
+          <div class="input-wrap">
+            <input type="text" id="monthlyAmount" value="500,000" inputmode="numeric">
+            <span class="suffix">원</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>투자 기간 <span class="val-display" id="yearsVal">20년</span></label>
+          <div class="range-row">
+            <input type="range" id="years" min="5" max="40" value="20" step="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="panel-title">수익률 설정</div>
+        <div class="field">
+          <label>배당률 (연) <span class="val-display" id="divYieldVal">3.5%</span></label>
+          <div class="range-row">
+            <input type="range" id="divYield" min="1" max="15" value="3.5" step="0.1">
+          </div>
+        </div>
+        <div class="field">
+          <label>배당 성장률 (연) <span class="val-display" id="divGrowthVal">9.0%</span></label>
+          <div class="range-row">
+            <input type="range" id="divGrowth" min="0" max="15" value="9" step="0.5">
+          </div>
+        </div>
+        <div class="field">
+          <label>물가상승률 (연) <span class="val-display" id="inflationVal">2.0%</span></label>
+          <div class="range-row">
+            <input type="range" id="inflation" min="0" max="5" value="2" step="0.1">
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="panel-title">연봉 (세액공제율)</div>
+        <div class="tax-group">
+          <button type="button" class="active" data-inc="low">5,500만 이하<small>공제율 16.5%</small></button>
+          <button type="button" data-inc="high">5,500만 초과<small>공제율 13.2%</small></button>
+        </div>
+      </div>
+
+      <button class="calc-btn" id="calcBtn">
+        <span>계산하기</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </aside>
+
+    <!-- 결과 -->
+    <section class="result-panel">
+
+      <!-- Welcome -->
+      <div id="welcomeView">
+        <div class="result-hero">
+          <div class="snowball-visual">
+            <svg viewBox="0 0 300 300">
+              <circle cx="150" cy="150" r="140" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 6"/>
+              <circle cx="150" cy="150" r="100" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 4"/>
+              <circle cx="150" cy="150" r="60" fill="none" stroke="currentColor" stroke-width="1"/>
+              <circle cx="150" cy="150" r="25" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="result-hero-label">지금 바로 계산해보세요</div>
+          <div class="result-hero-headline">
+            왼쪽에서 조건을 설정하고<br>
+            <em>계산하기</em>를 눌러보세요.
+          </div>
+          <p class="result-hero-sub">
+            같은 돈·같은 종목이어도 <strong>어느 계좌에 담느냐</strong>에 따라
+            20년 뒤 실수령 월 배당금이 <strong style="color: var(--accent);">2배 가까이</strong> 차이 납니다.
+            세액공제·배당성장·인출세·건보료·종합과세까지 모두 반영한 시뮬레이션입니다.
+          </p>
+        </div>
+
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title">예시 — 월 50만원 × 20년 (SCHD 기준)</div>
+          </div>
+          <div class="example-card">
+            <div class="exc-vs exc-vs-1">vs</div>
+            <div class="exc-vs exc-vs-2">vs</div>
+            <div class="example-cell normal">
+              <div class="acct">일반계좌</div>
+              <div class="ex-num">110만원</div>
+              <div class="ex-lbl">세후 월배당</div>
+            </div>
+            <div class="example-cell pension">
+              <div class="acct">연금저축 🏆</div>
+              <div class="ex-num">150만원</div>
+              <div class="ex-lbl">인출세 후</div>
+            </div>
+            <div class="example-cell isa">
+              <div class="acct">ISA 계좌</div>
+              <div class="ex-num">123만원</div>
+              <div class="ex-lbl">분리과세 후</div>
+            </div>
+          </div>
+          <div class="highlight-note">
+            같은 돈·같은 종목인데 <strong>계좌만 바꿔도 월 40만원 차이</strong>.
+            연 480만원, 20년이면 <strong>1억원+</strong>가 세금으로 날아갔는지 복리로 굴렀는지 결정됩니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="resultView" class="result-section">
+
+        <div class="result-hero">
+          <div class="snowball-visual">
+            <svg viewBox="0 0 300 300">
+              <circle cx="150" cy="150" r="140" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 6"/>
+              <circle cx="150" cy="150" r="100" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 4"/>
+              <circle cx="150" cy="150" r="60" fill="none" stroke="var(--accent)" stroke-width="1"/>
+              <circle cx="150" cy="150" r="25" fill="var(--accent)"/>
+            </svg>
+          </div>
+          <div class="result-hero-label">당신의 <span id="heroYears">20</span>년 후 월 배당금</div>
+          <div class="result-hero-headline">
+            매달 <span class="amount" id="heroAmount">—</span> 통장에 꽂힙니다
+          </div>
+          <p class="result-hero-sub" id="heroSub"></p>
+          <div class="compare-grid" id="compareGrid"></div>
+        </div>
+
+        <div id="shockSection" class="shock-grid"></div>
+
+        <div id="warnings" class="warnings"></div>
+
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title">연도별 월 배당금 성장</div>
+            <div class="chart-legend">
+              <span class="l-normal">일반계좌</span>
+              <span class="l-pension">연금저축</span>
+              <span class="l-isa">ISA 계좌</span>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="growthChart" role="img" aria-label="3계좌별 연도별 월 배당금 성장 추이"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title">누적 자산 총액 비교</div>
+            <div class="chart-legend">
+              <span class="l-normal">일반계좌</span>
+              <span class="l-pension">연금저축</span>
+              <span class="l-isa">ISA 계좌</span>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="assetChart" role="img" aria-label="3계좌별 누적 자산 비교"></canvas>
+          </div>
+        </div>
+
+        <div class="table-panel">
+          <div class="panel-title" style="margin-bottom: 18px;">5년 단위 상세 표</div>
+          <table id="summaryTable">
+            <thead>
+              <tr>
+                <th>연차</th>
+                <th>누적 투자금</th>
+                <th>일반계좌</th>
+                <th>연금저축</th>
+                <th>ISA 계좌</th>
+                <th>연금저축 현재가치</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="share-row">
+          <button class="share-btn" id="shareBtn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 5L12 5C12.55 5 13 5.45 13 6V12C13 12.55 12.55 13 12 13H2C1.45 13 1 12.55 1 12V6C1 5.45 1.45 5 2 5L5 5M7 1V9M7 1L4 4M7 1L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            결과 링크 복사
+          </button>
+          <button class="share-btn" id="recalcBtn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M13 2V6H9M1 12V8H5M2.5 5C3.5 3 5.5 1.5 8 1.5C10 1.5 11.5 2.5 12.5 4M11.5 9C10.5 11 8.5 12.5 6 12.5C4 12.5 2.5 11.5 1.5 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            조건 바꿔서 다시 계산
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== CTA ========== -->
+  <section id="cta" class="cta-section">
+    <div class="cta-kicker">더 깊은 이야기</div>
+    <h2>계산기로는 풀리지 않는<br><em>당신의 질문</em>, 카페에서 나눠요.</h2>
+    <p>
+      내 상황에 맞는 포트폴리오는 어떻게 짜야 할까?<br>
+      월 300만원 현금흐름, 진짜 가능할까?<br>
+      <strong style="color:var(--ink);">네이버 '부의 자유' 카페</strong>에서 같은 고민을 하는 분들과<br>
+      실전 경험·종목 리뷰·Q&A를 함께 나눠보세요.
+    </p>
+    <a href="https://cafe.naver.com/ttokjae" class="cta-btn" target="_blank" rel="noopener">
+      네이버 카페 방문하기
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7H13M13 7L8 2M13 7L8 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </section>
+
+</main>
+
+<footer class="container">
+  <div>© 2026 <a href="https://cafe.naver.com/ttokjae" target="_blank" rel="noopener">똑재TV</a> · 은퇴 · 배당 · 절세 전문 채널</div>
+  <div class="disclaimer">
+    ※ 본 계산기는 2026년 기준 세법·배당 데이터를 바탕으로 한 참고용 시뮬레이션입니다.
+    실제 투자 수익률은 시장 상황에 따라 달라질 수 있으며, 배당률·배당성장률은 과거 실적 기준 추정치입니다.
+    세법은 개정될 수 있으며, 개인 상황(연봉·종합소득·건강보험·피부양자 여부 등)에 따라 결과가 달라집니다.
+    투자 결정은 본인 책임하에 신중히 하시고, 필요시 세무사·재무설계사와 상담하세요.
+  </div>
+</footer>
+
+<script>
+// ============ 유틸 ============
+const fmt = (n) => Math.round(n).toLocaleString('ko-KR');
+const fmtMan = (n) => {
+  n = Math.round(n);
+  if (n >= 100000000) return (n/100000000).toFixed(1).replace(/\.0$/, '') + '억';
+  if (n >= 10000) return (n/10000).toFixed(0) + '만';
+  return n.toLocaleString('ko-KR');
+};
+
+// 콤마 입력
+['initialAmount','monthlyAmount'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    let v = el.value.replace(/[^0-9]/g, '');
+    el.value = v ? parseInt(v).toLocaleString('ko-KR') : '';
+  });
+  el.addEventListener('blur', () => { if (!el.value) el.value = '0'; });
+});
+
+// ============ 프리셋 ============
+// ETF 카테고리:
+// - us-etf: 미국상장 (일반계좌만 가능)
+// - kr-foreign: 한국상장 해외ETF (외납세 15% 선차감, 연금/ISA도 차감 후 재투자)
+// - kr-domestic: 한국상장 국내ETF (일반 15.4%, 연금/ISA 완전 절세)
+// premium: 국내 커버드콜 옵션프리미엄 비중 (%) — 이 비중만큼은 일반계좌에서도 비과세
+//          국내주식 커버드콜에만 적용 (해외·한국상장 미국 커버드콜은 전부 과세)
+const PRESETS = {
+  schd:       { yield: 3.5,  growth: 9.0, category: 'us-etf',      premium: 0,  name: 'SCHD' },
+  jepi:       { yield: 7.6,  growth: 0.0, category: 'us-etf',      premium: 0,  name: 'JEPI' },
+  jepq:       { yield: 9.5,  growth: 0.0, category: 'us-etf',      premium: 0,  name: 'JEPQ' },
+  tiger:      { yield: 3.8,  growth: 8.0, category: 'kr-foreign',  premium: 0,  name: 'TIGER 미국배당다우존스' },
+  tigerCC:    { yield: 10.0, growth: 2.0, category: 'kr-foreign',  premium: 0,  name: 'TIGER 미국배당다우존스타겟커버드콜2호' },
+  plus:       { yield: 4.3,  growth: 5.0, category: 'kr-domestic', premium: 0,  name: 'PLUS 고배당주' },
+  kodexCC:    { yield: 14.0, growth: 0.0, category: 'kr-domestic', premium: 88, name: 'KODEX 200타겟위클리커버드콜' },
+  custom:     null
+};
+let currentCategory = 'us-etf';
+let currentPremium = 0;
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const preset = PRESETS[chip.dataset.preset];
+    if (preset) {
+      document.getElementById('divYield').value = preset.yield;
+      document.getElementById('divGrowth').value = preset.growth;
+      currentCategory = preset.category;
+      currentPremium = preset.premium;
+      document.getElementById('categorySelect').value = preset.category;
+      document.getElementById('categorySelect').disabled = true;
+      document.getElementById('premiumRatio').value = preset.premium;
+      updateSliderVals();
+      updateCategoryBadge();
+      updatePremiumVisibility();
+    } else {
+      // custom
+      document.getElementById('categorySelect').disabled = false;
+      currentCategory = document.getElementById('categorySelect').value;
+      currentPremium = parseInt(document.getElementById('premiumRatio').value) || 0;
+      updateSliderVals();
+      updateCategoryBadge();
+      updatePremiumVisibility();
+    }
+  });
+});
+
+function updateCategoryBadge() {
+  const info = {
+    'us-etf': { label: '미국상장 해외ETF', desc: '일반계좌만 투자 가능 (연금·ISA 불가)', color: 'orange' },
+    'kr-foreign': { label: '한국상장 해외ETF', desc: '연금·ISA에서도 외납세 15% 선차감', color: 'amber' },
+    'kr-domestic': { label: '한국상장 국내ETF', desc: '연금·ISA에서 완전 절세 (외납세 X)', color: 'green' }
+  };
+  const el = document.getElementById('categoryBadge');
+  const i = info[currentCategory];
+  el.className = 'category-badge ' + i.color;
+  el.innerHTML = `<strong>${i.label}</strong><span>${i.desc}</span>`;
+}
+
+// 국내주식 커버드콜만 옵션프리미엄 슬라이더 표시
+function updatePremiumVisibility() {
+  const wrap = document.getElementById('premiumWrap');
+  if (currentCategory === 'kr-domestic') {
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+    currentPremium = 0;
+  }
+}
+
+function updateSliderVals() {
+  document.getElementById('yearsVal').textContent = document.getElementById('years').value + '년';
+  document.getElementById('divYieldVal').textContent = parseFloat(document.getElementById('divYield').value).toFixed(1) + '%';
+  document.getElementById('divGrowthVal').textContent = parseFloat(document.getElementById('divGrowth').value).toFixed(1) + '%';
+  document.getElementById('inflationVal').textContent = parseFloat(document.getElementById('inflation').value).toFixed(1) + '%';
+  document.getElementById('premiumVal').textContent = document.getElementById('premiumRatio').value + '%';
+}
+['years','divYield','divGrowth','inflation'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateSliderVals);
+});
+updateSliderVals();
+
+let taxCreditRate = 0.165;
+document.querySelectorAll('.tax-group button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tax-group button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    taxCreditRate = btn.dataset.inc === 'low' ? 0.165 : 0.132;
+  });
+});
+
+// 카테고리 선택 변경 (custom일 때만)
+document.getElementById('categorySelect').addEventListener('change', (e) => {
+  currentCategory = e.target.value;
+  updateCategoryBadge();
+  updatePremiumVisibility();
+});
+
+// 옵션프리미엄 슬라이더
+document.getElementById('premiumRatio').addEventListener('input', (e) => {
+  currentPremium = parseInt(e.target.value) || 0;
+  document.getElementById('premiumVal').textContent = currentPremium + '%';
+});
+
+// ============ 핵심 시뮬레이션 ============
+function simulate(p) {
+  const { initial, monthly, years, divYield, divGrowth, inflation, taxCreditRate, category, premium } = p;
+  const results = { normal: [], pension: null, isa: null };
+  const DIV_TAX = 0.154;
+  const ISA_TAX = 0.099;
+  const ISA_EXEMPT = 2000000;
+  const ISA_ANNUAL_LIMIT = 20000000;
+  const ISA_TOTAL_LIMIT = 100000000;
+  const PENSION_CREDIT_LIMIT = 6000000;
+  const PENSION_WITHDRAW_TAX = 0.055;
+  const FOREIGN_TAX = 0.15;
+
+  // 옵션프리미엄 비과세 비중 (0~1), 국내 커버드콜만 0 초과
+  const premiumRatio = (category === 'kr-domestic') ? (premium / 100) : 0;
+  const taxableRatio = 1 - premiumRatio; // 과세되는 비중
+
+  // ===== 일반계좌 =====
+  let n_asset = initial, n_principal = initial, n_inf = 1;
+  for (let y = 1; y <= years; y++) {
+    if (y > 1) n_asset *= (1 + divGrowth);
+    const yearIn = (y === 1) ? (monthly * 12 + initial) : (monthly * 12);
+    n_asset += yearIn;
+    if (y > 1) n_principal += yearIn;
+    const preTaxDiv = n_asset * divYield;
+    // 옵션프리미엄 부분은 비과세, 나머지만 15.4% 과세
+    const taxablePart = preTaxDiv * taxableRatio;
+    const exemptPart = preTaxDiv * premiumRatio;
+    const afterTaxDiv = taxablePart * (1 - DIV_TAX) + exemptPart;
+    n_asset += afterTaxDiv;
+    n_inf *= (1 - inflation);
+    results.normal.push({
+      year: y, principal: n_principal, asset: n_asset,
+      preTaxDiv, afterTaxDiv,
+      monthlyDiv: afterTaxDiv / 12,
+      monthlyDivReal: (afterTaxDiv / 12) * n_inf
+    });
+  }
+
+  // ===== 연금저축 & ISA — 미국상장 ETF는 투자 불가 =====
+  if (category === 'us-etf') {
+    return results;
+  }
+
+  // ===== 연금저축 =====
+  // 국내ETF: 계좌 내 완전 비과세 (옵션프리미엄 여부 무관)
+  // 한국상장 해외ETF: 외납세 15% 선차감
+  results.pension = [];
+  let p_asset = initial, p_principal = initial, p_inf = 1, p_creditBank = 0;
+  for (let y = 1; y <= years; y++) {
+    if (y > 1) p_asset *= (1 + divGrowth);
+    const yearIn = (y === 1) ? (monthly * 12 + initial) : (monthly * 12);
+    const realInput = yearIn + p_creditBank;
+    p_asset += realInput;
+    if (y > 1) p_principal += realInput;
+    const qualified = Math.min(yearIn, PENSION_CREDIT_LIMIT);
+    const taxCredit = qualified * taxCreditRate;
+    p_creditBank = taxCredit;
+    const preTaxDiv = p_asset * divYield;
+    // 한국상장 해외ETF는 외납세 15% 선차감 / 국내ETF는 완전 비과세
+    const afterForeignTax = (category === 'kr-foreign')
+      ? preTaxDiv * (1 - FOREIGN_TAX)
+      : preTaxDiv;
+    p_asset += afterForeignTax;
+    p_inf *= (1 - inflation);
+    // 연금 수령 시 5.5% (원천징수된 금액 기준)
+    const withdrawTax = afterForeignTax * PENSION_WITHDRAW_TAX;
+    const netDiv = afterForeignTax - withdrawTax;
+    results.pension.push({
+      year: y, principal: p_principal, asset: p_asset,
+      preTaxDiv, afterTaxDiv: netDiv,
+      monthlyDiv: netDiv / 12,
+      monthlyDivReal: (netDiv / 12) * p_inf,
+      taxCredit
+    });
+  }
+
+  // ===== ISA =====
+  // 원칙: ISA는 일반계좌의 상위호환 (항상 같거나 유리해야 함)
+  // - 옵션프리미엄 비과세는 ISA에서도 동일 적용
+  // - 과세분에 대해 9.9% 분리과세 (일반계좌 15.4%보다 낮음)
+  // - 연 200만원 비과세 한도 (단순화를 위해 매년 적용, 실제로는 만기정산이라 더 유리할 수 있음)
+  // - 한국상장 해외ETF의 외납세 15%는 실질 차감 효과만 반영 (ISA 9.9%보다 크므로 사실상 외납세가 ISA 과세를 대체)
+  results.isa = [];
+  let i_asset = initial, i_overflow = 0;
+  let i_principal = initial, i_inf = 1, i_cumIn = initial;
+  for (let y = 1; y <= years; y++) {
+    if (y > 1) { i_asset *= (1 + divGrowth); i_overflow *= (1 + divGrowth); }
+    const yearInRaw = (y === 1) ? (monthly * 12 + initial) : (monthly * 12);
+    let yearInISA = Math.min(yearInRaw, ISA_ANNUAL_LIMIT);
+    if (i_cumIn + yearInISA > ISA_TOTAL_LIMIT) {
+      yearInISA = Math.max(0, ISA_TOTAL_LIMIT - i_cumIn);
+    }
+    const overflow = yearInRaw - yearInISA;
+    i_cumIn += yearInISA;
+    i_asset += yearInISA;
+    i_overflow += overflow;
+    if (y > 1) i_principal += yearInRaw;
+
+    // ISA 내부 배당
+    const preDivISA = i_asset * divYield;
+    // 옵션프리미엄 부분은 ISA에서도 비과세
+    const isaExemptPremium = preDivISA * premiumRatio;
+    const isaTaxablePart = preDivISA * taxableRatio;
+
+    let afterDivISA;
+    if (category === 'kr-foreign') {
+      // 한국상장 해외ETF: 외납세 15% 선차감 → ISA 9.9%보다 크므로 추가 과세 없음
+      // 실질적으로는 외납세가 "세금의 전부"가 됨
+      afterDivISA = isaTaxablePart * (1 - FOREIGN_TAX) + isaExemptPremium;
+    } else {
+      // 국내ETF: 과세분에만 ISA 세제 적용 (연 200만 비과세, 초과 9.9%)
+      const exempt = Math.min(isaTaxablePart, ISA_EXEMPT);
+      const taxable = Math.max(0, isaTaxablePart - ISA_EXEMPT);
+      afterDivISA = exempt + taxable * (1 - ISA_TAX) + isaExemptPremium;
+    }
+
+    // 오버플로우(한도초과)분 — 일반계좌 방식 적용
+    const preDivOver = i_overflow * divYield;
+    const overTaxablePart = preDivOver * taxableRatio;
+    const overExemptPremium = preDivOver * premiumRatio;
+    const afterDivOver = overTaxablePart * (1 - DIV_TAX) + overExemptPremium;
+
+    const totalPre = preDivISA + preDivOver;
+    const totalAfter = afterDivISA + afterDivOver;
+    i_asset += afterDivISA;
+    i_overflow += afterDivOver;
+    i_inf *= (1 - inflation);
+    results.isa.push({
+      year: y, principal: i_principal, asset: i_asset + i_overflow,
+      preTaxDiv: totalPre, afterTaxDiv: totalAfter,
+      monthlyDiv: totalAfter / 12,
+      monthlyDivReal: (totalAfter / 12) * i_inf,
+      limitReached: i_cumIn >= ISA_TOTAL_LIMIT
+    });
+  }
+  return results;
+}
+
+// ============ CountUp Animation ============
+function animateNumber(el, targetText, targetValue, duration = 1400) {
+  const start = 0;
+  const startTime = performance.now();
+  function tick(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(start + (targetValue - start) * eased);
+    el.textContent = fmtMan(current) + '원';
+    if (progress < 1) requestAnimationFrame(tick);
+    else el.textContent = targetText;
+  }
+  requestAnimationFrame(tick);
+}
+
+// ============ 렌더링 ============
+let chartGrowth = null;
+let chartAsset = null;
+
+function renderResults(results, inputs) {
+  document.getElementById('welcomeView').style.display = 'none';
+  document.getElementById('resultView').classList.add('active');
+
+  const N = inputs.years - 1;
+  const normal = results.normal[N];
+  const pension = results.pension ? results.pension[N] : null;
+  const isa = results.isa ? results.isa[N] : null;
+  const isUSOnly = (inputs.category === 'us-etf');
+
+  // Winner (일반계좌만 있는 경우 일반계좌가 winner)
+  let accounts;
+  if (isUSOnly) {
+    accounts = [
+      { name: '일반계좌', data: normal, key: 'normal', unavailable: false },
+      { name: '연금저축', data: null, key: 'pension', unavailable: true },
+      { name: 'ISA 계좌', data: null, key: 'isa', unavailable: true }
+    ];
+  } else {
+    accounts = [
+      { name: '일반계좌', data: normal, key: 'normal', unavailable: false },
+      { name: '연금저축', data: pension, key: 'pension', unavailable: false },
+      { name: 'ISA 계좌', data: isa, key: 'isa', unavailable: false }
+    ];
+  }
+
+  // 승자 찾기 (가능한 계좌들 중에서)
+  const available = accounts.filter(a => !a.unavailable);
+  const sortedByDiv = [...available].sort((a, b) => b.data.monthlyDiv - a.data.monthlyDiv);
+  const winner = sortedByDiv[0];
+  const loser = sortedByDiv[sortedByDiv.length - 1];
+
+  document.getElementById('heroYears').textContent = inputs.years;
+  animateNumber(document.getElementById('heroAmount'), fmtMan(winner.data.monthlyDiv) + '원', winner.data.monthlyDiv);
+
+  if (isUSOnly) {
+    document.getElementById('heroSub').innerHTML =
+      `⚠️ 미국상장 ETF는 <strong>일반계좌에서만 투자 가능</strong>하며, 연금저축·ISA에는 담을 수 없습니다. ` +
+      `절세계좌를 활용하려면 <strong>한국상장 ETF</strong>를 선택하세요.`;
+  } else if (sortedByDiv.length > 1) {
+    document.getElementById('heroSub').innerHTML =
+      `<strong>${winner.name}</strong> 기준 · 최저(${loser.name}) 대비 ` +
+      `<strong style="color:var(--accent);">+${fmtMan(winner.data.monthlyDiv - loser.data.monthlyDiv)}원/월</strong> ` +
+      `(연 ${fmtMan((winner.data.monthlyDiv - loser.data.monthlyDiv) * 12)}원) 더 받습니다.`;
+  }
+
+  // Compare Grid
+  const grid = document.getElementById('compareGrid');
+  grid.innerHTML = '';
+  accounts.forEach((acc) => {
+    if (acc.unavailable) {
+      grid.innerHTML += `
+        <div class="compare-card ${acc.key} unavailable">
+          <div class="acct-label">${acc.name}</div>
+          <div class="unavailable-content">
+            <div class="unavail-icon">🚫</div>
+            <div class="unavail-title">투자 불가</div>
+            <div class="unavail-desc">미국상장 ETF는<br>이 계좌에 담을 수 없습니다</div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+    const isWinner = acc.key === winner.key && sortedByDiv.length > 1;
+    const principal = acc.data.principal;
+    const asset = acc.data.asset;
+    const profit = asset - principal;
+    grid.innerHTML += `
+      <div class="compare-card ${acc.key} ${isWinner ? 'winner' : ''}">
+        ${isWinner ? '<span class="winner-crown">🏆 최고</span>' : ''}
+        <div class="acct-label">${acc.name}</div>
+        <div class="main-value">${fmtMan(acc.data.monthlyDiv)}원</div>
+        <div class="sub-value">세후 월배당금</div>
+        <div class="breakdown">
+          <div class="row">
+            <span class="label">총 자산</span>
+            <span class="num">${fmtMan(asset)}원</span>
+          </div>
+          <div class="row">
+            <span class="label">누적 원금</span>
+            <span class="num">${fmtMan(principal)}원</span>
+          </div>
+          <div class="row profit">
+            <span class="label">순수익</span>
+            <span class="num">+${fmtMan(profit)}원</span>
+          </div>
+          <div class="footer">
+            <span class="label">현재가치 (물가반영)</span>
+            <span class="num">${fmtMan(acc.data.monthlyDivReal)}원/월</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  // Shock Stats — 카테고리별로 다르게
+  const allNormalTax = results.normal.reduce((sum, r) => sum + (r.preTaxDiv - r.afterTaxDiv), 0);
+  let shockHTML = '';
+
+  if (isUSOnly) {
+    // 미국상장 ETF: 절세계좌 접근 불가 경고
+    shockHTML = `
+      <div class="shock-cell warning">
+        <div class="shock-label">🚫 절세계좌 불가</div>
+        <div class="shock-number">일반계좌만</div>
+        <div class="shock-desc">미국상장 ETF는 연금저축·ISA에 담을 수 없습니다</div>
+      </div>
+      <div class="shock-cell negative">
+        <div class="shock-label">💸 일반계좌 세금 손실</div>
+        <div class="shock-number">−${fmtMan(allNormalTax)}원</div>
+        <div class="shock-desc">${inputs.years}년간 배당소득세(15.4%)로 사라진 재투자 가능 금액</div>
+      </div>
+      <div class="shock-cell info">
+        <div class="shock-label">💡 절세 전환 검토</div>
+        <div class="shock-number">한국상장 ETF</div>
+        <div class="shock-desc">TIGER·KODEX·PLUS 등으로 절세계좌 활용 가능</div>
+      </div>
+    `;
+  } else {
+    const pensionDiff = pension.monthlyDiv - normal.monthlyDiv;
+    const pensionTotalDiff = pension.asset - normal.asset;
+    const totalTaxCredit = results.pension.reduce((sum, r) => sum + (r.taxCredit || 0), 0);
+    shockHTML = `
+      <div class="shock-cell positive">
+        <div class="shock-label">🔥 연금 vs 일반 차이</div>
+        <div class="shock-number">+${fmtMan(pensionTotalDiff)}원</div>
+        <div class="shock-desc">${inputs.years}년 뒤 총 자산 기준 · 월 +${fmtMan(pensionDiff)}원/월</div>
+      </div>
+      <div class="shock-cell negative">
+        <div class="shock-label">💸 일반계좌 세금 손실</div>
+        <div class="shock-number">−${fmtMan(allNormalTax)}원</div>
+        <div class="shock-desc">${inputs.years}년간 배당소득세(15.4%)로 사라진 재투자 가능 금액</div>
+      </div>
+      <div class="shock-cell positive">
+        <div class="shock-label">🎁 정부 공돈 (세액공제)</div>
+        <div class="shock-number">+${fmtMan(totalTaxCredit)}원</div>
+        <div class="shock-desc">${inputs.years}년간 받은 환급금 · 재투자 시 복리로 굴러가는 원금</div>
+      </div>
+    `;
+  }
+  document.getElementById('shockSection').innerHTML = shockHTML;
+
+  // Warnings
+  const warnings = [];
+
+  // 카테고리별 안내 (최상단)
+  if (inputs.category === 'us-etf') {
+    warnings.push({
+      type: 'warn',
+      icon: '🇺🇸',
+      title: '미국상장 ETF — 일반계좌에서만 투자 가능',
+      desc: `SCHD, JEPI, JEPQ 같은 미국 증권거래소 상장 ETF는 <strong>연금저축·IRP·ISA에 담을 수 없습니다</strong> (국내 금융회사의 해외직투 제한). 분배금은 일반계좌에서 미국 원천징수 15% + 국내 차액 = 총 15.4%가 부과됩니다. 절세를 원한다면 <strong>한국상장 해외ETF(TIGER 미배당·커버드콜)</strong>나 <strong>한국상장 국내ETF(PLUS 고배당주·KODEX 위클리)</strong>를 고려하세요.`
+    });
+  } else if (inputs.category === 'kr-foreign') {
+    warnings.push({
+      type: 'info',
+      icon: '🌍',
+      title: '한국상장 해외ETF — 외납세 15% 선차감 반영',
+      desc: `TIGER 미배당다우, KODEX 미국S&P500 등은 <strong>2025년 세법 개정 이후</strong> 분배금 지급 시점에 외국(미국)에서 15%를 먼저 떼고 입금됩니다. 연금저축·ISA에 담아도 <strong>이 선차감분만큼은 절세 효과가 사라져요</strong>. 연금 수령 시 여기에 추가로 3.3~5.5%가, ISA 만기 시 9.9%가 더 부과됩니다. 완전 절세를 원한다면 <strong>한국상장 국내ETF</strong>(PLUS 고배당주, KODEX 위클리 등)가 유리합니다.`
+    });
+  } else if (inputs.category === 'kr-domestic') {
+    if (inputs.premium > 0) {
+      warnings.push({
+        type: 'info',
+        icon: '💎',
+        title: `국내 커버드콜 비과세 분배금 ${inputs.premium}% 적용`,
+        desc: `국내주식 커버드콜 ETF의 옵션프리미엄 수익은 <strong>장내 파생상품 매매차익으로 분류되어 일반계좌에서도 비과세</strong>입니다 (소득세법 시행령 제26조의2제4항). 분배금 중 배당 재원만 15.4% 과세되고 옵션프리미엄은 비과세이므로, <strong>일반계좌에서도 절세계좌와 유사한 세후 수익</strong>을 얻을 수 있어 금융소득종합과세 대상자나 고액자산가들이 선호합니다. 과세분(${100 - inputs.premium}%)은 주로 국내주식 배당금(연 1~3월 집중)으로 구성됩니다.`
+      });
+    } else {
+      warnings.push({
+        type: 'info',
+        icon: '🇰🇷',
+        title: '한국상장 국내ETF — 절세 효과 100% 적용',
+        desc: `PLUS 고배당주 등 국내주식 편입 ETF는 <strong>외납세 선차감이 없어</strong> 연금저축·ISA의 절세 혜택을 온전히 누릴 수 있습니다. 일반계좌에서는 분배금에 15.4% 배당소득세가 부과됩니다.`
+      });
+    }
+  }
+
+  // 수치 기반 경고 (일반계좌 기준)
+  const normalAnnualDiv = normal.preTaxDiv;
+
+  if (normalAnnualDiv > 20000000) {
+    warnings.push({
+      type: 'danger',
+      icon: '⚠️',
+      title: '금융소득종합과세 경고 (연 2,000만원 초과)',
+      desc: `일반계좌 배당소득이 <strong>연 ${fmtMan(normalAnnualDiv)}원</strong>으로 2,000만원을 넘어갑니다. 초과분은 근로·사업소득 등과 합산되어 종합소득세율(최대 49.5%)이 적용될 수 있습니다. 연금저축·ISA를 활용한 분리과세 전략이 필수입니다.`
+    });
+  }
+
+  if (normalAnnualDiv > 10000000) {
+    warnings.push({
+      type: 'warn',
+      icon: '🚨',
+      title: '건강보험 피부양자 탈락 위험 (연 1,000만원 초과)',
+      desc: `연 배당소득이 1,000만원을 넘으면 건강보험 피부양자 자격을 잃고 지역가입자로 전환되어 <strong>월 건강보험료 10~30만원</strong>이 추가로 부과될 수 있습니다. 배당금이 많아질수록 과세 계좌 분산이 중요해집니다.`
+    });
+  }
+
+  if (pension && pension.preTaxDiv > 15000000) {
+    warnings.push({
+      type: 'warn',
+      icon: '📢',
+      title: '연금 수령액 연 1,500만원 초과 — 세율 상승',
+      desc: `연금저축 수령액이 연 1,500만원을 넘으면 저율 연금소득세(3.3~5.5%)가 아닌 <strong>종합과세 또는 16.5% 분리과세</strong> 중 선택이 됩니다. 결과는 보수적으로 5.5% 적용 기준이며, 실제로는 수령 시점의 세법과 소득 상황에 따라 달라집니다.`
+    });
+  }
+
+  if (isa && isa.limitReached) {
+    warnings.push({
+      type: 'info',
+      icon: 'ℹ️',
+      title: 'ISA 총 납입한도(1억원) 도달',
+      desc: `ISA는 총 1억원까지만 납입 가능합니다. 한도 초과분은 일반계좌로 계산되어 ISA 절세 효과가 제한됩니다. 더 큰 금액은 <strong>연금저축(연 1,800만) 또는 IRP(합산 연 900만 공제)</strong> 병행을 추천합니다.`
+    });
+  }
+
+  document.getElementById('warnings').innerHTML = warnings.map(w => `
+    <div class="warning ${w.type}">
+      <div class="w-icon">${w.icon}</div>
+      <div>
+        <div class="w-title">${w.title}</div>
+        <div class="w-desc">${w.desc}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Charts
+  const years = results.normal.map(r => r.year);
+  const normalDivData = results.normal.map(r => Math.round(r.monthlyDiv / 10000));
+  const pensionDivData = results.pension ? results.pension.map(r => Math.round(r.monthlyDiv / 10000)) : null;
+  const isaDivData = results.isa ? results.isa.map(r => Math.round(r.monthlyDiv / 10000)) : null;
+
+  const commonOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1A1814',
+        borderColor: '#E4DFD2', borderWidth: 0,
+        padding: 14, cornerRadius: 8,
+        titleColor: '#FBF9F4', bodyColor: '#D4CEC0',
+        titleFont: { size: 13, weight: '700' },
+        bodyFont: { size: 12, weight: '500' },
+        callbacks: {
+          label: (ctx) => ctx.dataset.label + ': ' + fmtMan(ctx.parsed.y * 10000) + '원'
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(26, 24, 20, 0.04)' },
+        ticks: { color: '#8B857B', font: { size: 11, weight: '500' } },
+        title: { display: true, text: '투자 연차', color: '#8B857B', font: { size: 11, weight: '600' } }
+      },
+      y: {
+        grid: { color: 'rgba(26, 24, 20, 0.04)' },
+        ticks: { color: '#8B857B', font: { size: 11, weight: '500' }, callback: (v) => fmtMan(v * 10000).replace('원','') },
+        title: { display: true, text: '만원', color: '#8B857B', font: { size: 11, weight: '600' } }
+      }
+    }
+  };
+
+  if (chartGrowth) chartGrowth.destroy();
+  const growthDatasets = [
+    { label: '일반계좌', data: normalDivData, borderColor: '#B8562C', backgroundColor: 'rgba(184, 86, 44, 0.08)', tension: 0.3, fill: true, borderDash: isUSOnly ? [] : [6,5], pointRadius: 0, pointHoverRadius: 6, borderWidth: isUSOnly ? 3 : 2, pointBackgroundColor: '#B8562C', pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2 }
+  ];
+  if (pensionDivData) {
+    growthDatasets.push({ label: '연금저축', data: pensionDivData, borderColor: '#2F6B47', backgroundColor: 'rgba(47, 107, 71, 0.1)', tension: 0.3, fill: true, pointRadius: 0, pointHoverRadius: 7, borderWidth: 3, pointBackgroundColor: '#2F6B47', pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2 });
+  }
+  if (isaDivData) {
+    growthDatasets.push({ label: 'ISA 계좌', data: isaDivData, borderColor: '#2A5C8A', backgroundColor: 'rgba(42, 92, 138, 0.08)', tension: 0.3, fill: true, borderDash: [3,4], pointRadius: 0, pointHoverRadius: 6, borderWidth: 2, pointBackgroundColor: '#2A5C8A', pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2 });
+  }
+  chartGrowth = new Chart(document.getElementById('growthChart'), {
+    type: 'line',
+    data: {
+      labels: years.map(y => y + '년'),
+      datasets: growthDatasets
+    },
+    options: commonOpts
+  });
+
+  // 라벨 개수는 약 7~10개 정도로 균등 배치 + 마지막은 반드시 최종 연차
+  let labelIdx;
+  if (inputs.years <= 10) {
+    // 짧은 기간은 전부 표시
+    labelIdx = years.map((_, i) => i);
+  } else {
+    const step = Math.max(2, Math.ceil(inputs.years / 8));
+    labelIdx = [];
+    for (let i = 0; i < years.length; i += step) labelIdx.push(i);
+    const lastIdx = years.length - 1;
+    // 마지막 연차 보장 (직전 라벨과 최소 2칸 이상 떨어지도록)
+    if (labelIdx[labelIdx.length - 1] !== lastIdx) {
+      if (lastIdx - labelIdx[labelIdx.length - 1] < 2) {
+        labelIdx[labelIdx.length - 1] = lastIdx;
+      } else {
+        labelIdx.push(lastIdx);
+      }
+    }
+  }
+  const pickData = (arr) => labelIdx.map(i => Math.round(arr[i].asset / 10000));
+
+  if (chartAsset) chartAsset.destroy();
+  const assetDatasets = [
+    { label: '일반계좌', data: pickData(results.normal), backgroundColor: '#B8562C', borderRadius: 2, borderSkipped: false }
+  ];
+  if (results.pension) assetDatasets.push({ label: '연금저축', data: pickData(results.pension), backgroundColor: '#2F6B47', borderRadius: 2, borderSkipped: false });
+  if (results.isa) assetDatasets.push({ label: 'ISA 계좌', data: pickData(results.isa), backgroundColor: '#2A5C8A', borderRadius: 2, borderSkipped: false });
+  chartAsset = new Chart(document.getElementById('assetChart'), {
+    type: 'bar',
+    data: {
+      labels: labelIdx.map(i => (i + 1) + '년'),
+      datasets: assetDatasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      layout: { padding: { top: 24, right: 8, left: 4, bottom: 4 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: commonOpts.plugins.tooltip
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#8B857B', font: { size: 11, weight: '500' }, autoSkip: false, maxRotation: 0 },
+          title: { display: true, text: '투자 연차', color: '#8B857B', font: { size: 11, weight: '600' } }
+        },
+        y: {
+          beginAtZero: true,
+          grace: '10%',
+          grid: { color: 'rgba(26, 24, 20, 0.04)' },
+          ticks: { color: '#8B857B', font: { size: 11, weight: '500' }, callback: (v) => fmtMan(v * 10000).replace('원','') },
+          title: { display: true, text: '만원', color: '#8B857B', font: { size: 11, weight: '600' } }
+        }
+      }
+    }
+  });
+
+  // Table
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  const milestones = [1, 5, 10, 15, 20, 25, 30, 35, 40].filter(y => y <= inputs.years);
+  if (!milestones.includes(inputs.years)) milestones.push(inputs.years);
+
+  milestones.forEach(y => {
+    const idx = y - 1;
+    const n = results.normal[idx];
+    const p = results.pension ? results.pension[idx] : null;
+    const i = results.isa ? results.isa[idx] : null;
+    const isLast = y === inputs.years;
+    tbody.innerHTML += `
+      <tr class="${isLast ? 'highlight' : ''}">
+        <td>${y}년차</td>
+        <td>${fmtMan(n.principal)}원</td>
+        <td>${fmtMan(n.monthlyDiv)}원/월</td>
+        <td>${p ? fmtMan(p.monthlyDiv) + '원/월' : '<span style="color:var(--ink-mute);">불가</span>'}</td>
+        <td>${i ? fmtMan(i.monthlyDiv) + '원/월' : '<span style="color:var(--ink-mute);">불가</span>'}</td>
+        <td>${p ? fmtMan(p.monthlyDivReal) + '원/월' : '—'}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById('resultView').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ============ 버튼 이벤트 ============
+document.getElementById('calcBtn').addEventListener('click', () => {
+  const parseNum = (id) => parseInt(document.getElementById(id).value.replace(/[^0-9]/g, '')) || 0;
+  const inputs = {
+    initial: parseNum('initialAmount'),
+    monthly: parseNum('monthlyAmount'),
+    years: parseInt(document.getElementById('years').value),
+    divYield: parseFloat(document.getElementById('divYield').value) / 100,
+    divGrowth: parseFloat(document.getElementById('divGrowth').value) / 100,
+    inflation: parseFloat(document.getElementById('inflation').value) / 100,
+    taxCreditRate: taxCreditRate,
+    category: currentCategory,
+    premium: currentPremium
+  };
+  if (inputs.monthly === 0 && inputs.initial === 0) {
+    alert('초기 투자금이나 월 투자금 중 하나는 입력해주세요.');
+    return;
+  }
+  const results = simulate(inputs);
+  renderResults(results, inputs);
+});
+
+document.getElementById('recalcBtn').addEventListener('click', () => {
+  document.querySelector('.input-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+document.getElementById('shareBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    const btn = document.getElementById('shareBtn');
+    const old = btn.innerHTML;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7L6 11L12 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 복사됨!';
+    btn.style.color = 'var(--pension)';
+    btn.style.borderColor = 'var(--pension)';
+    setTimeout(() => { btn.innerHTML = old; btn.style.color = ''; btn.style.borderColor = ''; }, 1800);
+  }).catch(() => alert('링크: ' + window.location.href));
+});
+
+// 초기 자동 계산
+setTimeout(() => { document.getElementById('calcBtn').click(); }, 200);
+</script>
+
+</body>
+</html>
