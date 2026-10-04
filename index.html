@@ -6,9 +6,8 @@
 <title>배당 눈덩이 시뮬레이터 | 똑재TV</title>
 <meta property="og:title" content="배당 눈덩이 시뮬레이터 - 일반계좌 vs 연금저축 vs ISA">
 <meta property="og:description" content="월 투자금 넣으면 20년 뒤 월 배당금이 보인다. 세금·세액공제·인출세를 반영하고 건보료·종합과세 위험까지 짚어주는 실수령액 계산기.">
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root {
@@ -36,10 +35,12 @@
   --warn: #B8782F;
   --serif: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif;
   --sans: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* 숫자도 Pretendard로 통일 (자리 맞춤은 tabular-nums) */
+  --mono: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+input, select, button, textarea { font-family: inherit; }  /* 폼 요소도 Pretendard */
 html { scroll-behavior: smooth; }
 body {
   font-family: var(--sans);
@@ -48,6 +49,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: 'tnum' 1, 'ss01' 1;
+  font-variant-numeric: tabular-nums;
   background-image:
     radial-gradient(circle at 12% 6%, rgba(212, 87, 42, 0.06) 0%, transparent 40%),
     radial-gradient(circle at 92% 90%, rgba(47, 107, 71, 0.04) 0%, transparent 35%);
@@ -849,6 +851,43 @@ footer .disclaimer {
 @media (max-width: 768px) {
   input[type=text], input[type=number], input[type=search], input[type=tel], input:not([type]), select, textarea { font-size: 16px !important; }
 }
+
+/* ===== 종목 검색 콤보 ===== */
+.combo { position: relative; }
+.ticker-input {
+  width: 100%; padding: 14px 40px 14px 16px;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  color: var(--ink); font-size: 15px; font-weight: 600; font-family: inherit; letter-spacing: -0.02em;
+  transition: border-color .15s, box-shadow .15s;
+}
+.ticker-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212, 87, 42, 0.12); background: #fff; }
+.combo-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--ink-mute); pointer-events: none; }
+.combo-list {
+  position: absolute; left: 0; top: calc(100% + 6px);
+  width: 100%; max-height: 380px; overflow-y: auto;
+  background: #fff; border: 1.5px solid var(--accent);
+  border-radius: 12px; box-shadow: 0 12px 32px rgba(58, 47, 38, 0.18);
+  z-index: 50; padding-bottom: 6px;
+}
+.combo-list[hidden] { display: none; }
+.combo-tabs { position: sticky; top: 0; z-index: 1; display: flex; gap: 6px; padding: 10px 10px 8px; background: #fff; border-bottom: 1px solid var(--line); }
+.mkt-tab { border: 1.5px solid var(--line); background: #fff; color: var(--ink-sub); border-radius: 999px; padding: 6px 13px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.mkt-tab.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.combo-hint { font-size: 12.5px; color: var(--ink-mute); padding: 10px 14px 2px; }
+.combo-hint b { color: var(--accent); }
+.combo-group { font-size: 12px; font-weight: 800; color: var(--accent); letter-spacing: 0.3px; padding: 12px 14px 4px; }
+.combo-opt { padding: 10px 14px; cursor: pointer; border-left: 3px solid transparent; }
+.combo-opt:hover, .combo-opt.active { background: var(--bg-soft); border-left-color: var(--accent); }
+.combo-opt.custom { border-top: 1px dashed var(--line); margin-top: 4px; padding-top: 12px; padding-bottom: 12px; }
+.opt-name { font-size: 14.5px; font-weight: 700; color: var(--ink); line-height: 1.35; }
+.opt-star { margin-left: 6px; font-size: 11px; font-weight: 800; color: var(--accent); background: var(--accent-soft); border-radius: 4px; padding: 1px 6px; vertical-align: 1px; }
+.opt-sub { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin-top: 3px; font-size: 12.5px; color: var(--ink-mute); font-weight: 600; }
+.combo-empty { font-size: 13px; color: var(--ink-mute); padding: 12px 14px; }
+.kbadge { font-size: 11px; font-weight: 800; border-radius: 4px; padding: 1px 6px; }
+.kbadge.kr { background: #E8EEF6; color: #2F4F7F; }
+.kbadge.us { background: #F4E4DA; color: #9A3B1C; }
+.preset-meta { font-size: 12.5px; color: var(--ink-mute); line-height: 1.6; padding: 0 2px; }
+.preset-meta:empty { display: none; }
 </style>
 </head>
 <body>
@@ -878,7 +917,7 @@ footer .disclaimer {
     </p>
     <div class="hero-meta">
       <span class="hero-meta-item"><span class="dot"></span>일반계좌 · 연금저축 · ISA 동시 비교</span>
-      <span class="hero-meta-item"><span class="dot"></span>SCHD · JEPI 등 실제 ETF 프리셋</span>
+      <span class="hero-meta-item"><span class="dot"></span>국내·미국 전체 종목 검색 · 실제 배당률 자동 입력</span>
       <span class="hero-meta-item"><span class="dot"></span>100% 무료 · 회원가입 불필요</span>
     </div>
   </section>
@@ -912,47 +951,25 @@ footer .disclaimer {
     <aside class="input-panel">
 
       <div class="section">
-        <div class="panel-title">종목 프리셋</div>
+        <div class="panel-title">종목 선택</div>
         <div class="preset-dropdown-wrap">
-          <select id="presetSelect" class="preset-dropdown">
-            <optgroup label="🇰🇷 한국상장 국내ETF (저율 과세)">
-              <option value="plus" selected>PLUS 고배당주 · 161510</option>
-              <option value="plusCC">PLUS 고배당주위클리커버드콜 · 493480</option>
-              <option value="kodexCC">KODEX 200타겟위클리커버드콜 · 498400</option>
-              <option value="kodexFin">KODEX 금융고배당TOP10위클리 · 498410</option>
-              <option value="tigerKrCC">TIGER 배당커버드콜액티브 · 472160</option>
-            </optgroup>
-            <optgroup label="🌍 한국상장 해외ETF (외납세 15%)">
-              <option value="kodexDiv">KODEX 미국배당다우존스 · 489250</option>
-              <option value="tigerCC">TIGER 미국배당다우존스타겟커버드콜2호 · 458760</option>
-              <option value="kodexMDC">KODEX 미국배당커버드콜액티브 · 441640</option>
-              <option value="kodexNas">KODEX 미국나스닥100데일리커버드콜OTM · 495300</option>
-              <option value="riseTech">RISE 미국테크100데일리고정커버드콜 · 491620</option>
-              <option value="riseDiv">RISE 미국배당100데일리고정커버드콜 · 490600</option>
-            </optgroup>
-            <optgroup label="🇺🇸 미국상장 ETF (일반계좌만 가능)">
-              <option value="schd">SCHD · Nasdaq</option>
-              <option value="jepi">JEPI · NYSE</option>
-              <option value="jepq">JEPQ · Nasdaq</option>
-            </optgroup>
-            <optgroup label="✏️ 사용자 설정">
-              <option value="custom">직접 입력</option>
-            </optgroup>
-          </select>
-          <div id="presetInfo" class="preset-info">
-            <span class="info-name">PLUS 고배당주</span>
-            <span class="info-tag kd">KR</span>
-            <span class="info-data"><span class="info-label">배당</span><span class="info-value">4.3%</span></span>
-            <span class="info-data"><span class="info-label">성장</span><span class="info-value">5%</span></span>
+          <div class="combo">
+            <input type="text" id="tickerSearch" class="combo-input ticker-input" value="PLUS 고배당주"
+              placeholder="종목명·코드 검색 (예: SCHD, 고배당)" autocomplete="off" spellcheck="false" aria-label="종목 검색">
+            <svg class="combo-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <div id="tickerList" class="combo-list" hidden></div>
           </div>
+          <div id="presetInfo" class="preset-info"></div>
+          <div id="presetMeta" class="preset-meta"></div>
         </div>
 
         <div class="category-selector">
-          <label class="selector-label">ETF 분류 (과세 구조)</label>
+          <label class="selector-label">과세 구조 (종목을 고르면 자동 판정)</label>
           <select id="categorySelect" disabled>
             <option value="kr-domestic">한국상장 국내ETF</option>
             <option value="kr-foreign">한국상장 해외ETF</option>
-            <option value="us-etf">미국상장 해외ETF</option>
+            <option value="kr-stock">국내 개별주</option>
+            <option value="us-etf">미국 직투 (주식·ETF)</option>
           </select>
           <div id="categoryBadge" class="category-badge green">
             <strong>한국상장 국내ETF</strong>
@@ -966,8 +983,8 @@ footer .disclaimer {
             </div>
             <input type="range" id="premiumRatio" min="0" max="100" value="0" step="1">
             <div class="premium-hint">
-              💡 국내 커버드콜 ETF의 <strong>옵션프리미엄 수익은 일반계좌에서도 비과세</strong>입니다 (장내파생상품 매매차익). 비중이 높을수록 일반계좌와 절세계좌의 차이가 줄어듭니다.<br>
-              <span style="opacity:0.85;">예: KODEX 200위클리는 연 17% 분배금 중 옵션프리미엄 15% + 배당 2% → 비과세 비중 약 88%</span>
+              💡 국내상장 ETF는 분배금 전체가 아니라 <strong>과세표준액에만 세금</strong>이 붙습니다. 국내 커버드콜의 옵션프리미엄·국내주식 매매차익처럼 과표에 안 들어가는 몫은 <strong>일반계좌에서도 비과세</strong>예요. 비중이 높을수록 일반계좌와 절세계좌의 차이가 줄어듭니다.<br>
+              <span style="opacity:0.85;">종목을 고르면 최근 12개월 실제 분배금·과세표준으로 자동 계산됩니다 (직접 조정 가능).</span>
             </div>
           </div>
         </div>
@@ -1002,13 +1019,13 @@ footer .disclaimer {
         <div class="field">
           <label>배당률 (연) <span class="val-display" id="divYieldVal">3.5%</span></label>
           <div class="range-row">
-            <input type="range" id="divYield" min="1" max="15" value="3.5" step="0.1">
+            <input type="range" id="divYield" min="0" max="30" value="4.3" step="0.1">
           </div>
         </div>
         <div class="field">
           <label>배당 성장률 (연) <span class="val-display" id="divGrowthVal">9.0%</span></label>
           <div class="range-row">
-            <input type="range" id="divGrowth" min="0" max="15" value="9" step="0.5">
+            <input type="range" id="divGrowth" min="0" max="15" value="5" step="0.5">
           </div>
         </div>
         <div class="field">
@@ -1212,6 +1229,7 @@ footer .disclaimer {
 </footer>
 
 <script>
+if (window.Chart) { Chart.defaults.font.family = "'Pretendard Variable', 'Pretendard', -apple-system, sans-serif"; }
 // ============ 유틸 ============
 const fmt = (n) => Math.round(n).toLocaleString('ko-KR');
 const fmtMan = (n) => {
@@ -1231,107 +1249,474 @@ const fmtMan = (n) => {
   el.addEventListener('blur', () => { if (!el.value) el.value = '0'; });
 });
 
-// ============ 프리셋 ============
-// ETF 카테고리:
-// - us-etf: 미국상장 (일반계좌만 가능)
-// - kr-foreign: 한국상장 해외ETF (외납세 15% 선차감, 연금/ISA도 차감 후 재투자)
-// - kr-domestic: 한국상장 국내ETF (일반 15.4%, 연금/ISA 완전 절세)
-// premium: 국내 커버드콜 옵션프리미엄 비중 (%) — 이 비중만큼은 일반계좌에서도 비과세
-//          국내주식 커버드콜에만 적용 (해외·한국상장 미국 커버드콜은 전부 과세)
+// ============ 종목 선택 (전체 종목 검색 + 추천 프리셋) ============
+// 과세 구조(category):
+// - us-etf     : 미국 직투 (주식·ETF) — 일반계좌만 가능, 미국 원천징수 15%로 종결
+// - kr-foreign : 국내상장 해외ETF — 외국세 15% 선차감, 연금은 2026.7부터 외납세 크레딧
+// - kr-domestic: 국내상장 국내ETF — 일반 15.4%, 연금·ISA 완전 절세
+// - kr-stock   : 국내 개별주 — 일반 15.4%, ISA 가능, 연금계좌(연금저축·IRP) 매수 불가
+// premium: 분배금 중 과세표준에 안 들어가는 몫(%) — 일반계좌에서도 비과세
+//          (국내 커버드콜 옵션프리미엄, 국내주식 매매차익 등). 실데이터가 있으면 최근 12개월 과표 비율로 자동 계산
+// 추천 프리셋: 성장률(가정치)만 프리셋 값을 쓰고, 배당률·비과세 비중은 실데이터가 오면 덮어쓴다
 const PRESETS = {
-  // 한국상장 국내 ETF (완전 절세 + 국내 커버드콜은 옵션프리미엄 비과세)
-  plus:       { yield: 4.3,  growth: 5.0, category: 'kr-domestic', premium: 0,  name: 'PLUS 고배당주', code: '161510' },
-  plusCC:     { yield: 13.7, growth: 1.0, category: 'kr-domestic', premium: 85, name: 'PLUS 고배당주위클리커버드콜', code: '493480' },
-  kodexCC:    { yield: 17.0, growth: 0.0, category: 'kr-domestic', premium: 88, name: 'KODEX 200타겟위클리커버드콜', code: '498400' },
-  kodexFin:   { yield: 15.0, growth: 0.0, category: 'kr-domestic', premium: 85, name: 'KODEX 금융고배당TOP10위클리', code: '498410' },
-  tigerKrCC:  { yield: 12.0, growth: 1.0, category: 'kr-domestic', premium: 82, name: 'TIGER 배당커버드콜액티브', code: '472160' },
-
-  // 한국상장 해외 ETF (외납세 15% 선차감)
-  kodexDiv:   { yield: 3.7,  growth: 8.0, category: 'kr-foreign',  premium: 0,  name: 'KODEX 미국배당다우존스', code: '489250' },
-  tigerCC:    { yield: 11.6, growth: 2.0, category: 'kr-foreign',  premium: 0,  name: 'TIGER 미국배당다우존스타겟커버드콜2호', code: '458760' },
-  kodexMDC:   { yield: 9.0,  growth: 2.0, category: 'kr-foreign',  premium: 0,  name: 'KODEX 미국배당커버드콜액티브', code: '441640' },
-  kodexNas:   { yield: 19.8, growth: 0.0, category: 'kr-foreign',  premium: 0,  name: 'KODEX 미국나스닥100데일리커버드콜OTM', code: '495300' },
-  riseTech:   { yield: 20.3, growth: 0.0, category: 'kr-foreign',  premium: 0,  name: 'RISE 미국테크100데일리고정커버드콜', code: '491620' },
-  riseDiv:    { yield: 16.4, growth: 2.0, category: 'kr-foreign',  premium: 0,  name: 'RISE 미국배당100데일리고정커버드콜', code: '490600' },
-
-  // 미국상장 해외 ETF (일반계좌만 가능)
-  schd:       { yield: 3.5,  growth: 9.0, category: 'us-etf',      premium: 0,  name: 'SCHD',        code: 'SCHD' },
-  jepi:       { yield: 7.6,  growth: 0.0, category: 'us-etf',      premium: 0,  name: 'JEPI',        code: 'JEPI' },
-  jepq:       { yield: 9.5,  growth: 0.0, category: 'us-etf',      premium: 0,  name: 'JEPQ',        code: 'JEPQ' },
-
-  custom:     null
+  plus:      { yield: 4.3,  growth: 5.0, category: 'kr-domestic', premium: 0,  name: 'PLUS 고배당주',                          key: 'KR:161510' },
+  plusCC:    { yield: 13.7, growth: 1.0, category: 'kr-domestic', premium: 78, name: 'PLUS 고배당주위클리커버드콜',            key: 'KR:489030' },
+  kodexCC:   { yield: 15.0, growth: 0.0, category: 'kr-domestic', premium: 96, name: 'KODEX 200타겟위클리커버드콜',            key: 'KR:498400' },
+  kodexFin:  { yield: 16.5, growth: 0.0, category: 'kr-domestic', premium: 80, name: 'KODEX 금융고배당TOP10타겟위클리커버드콜', key: 'KR:498410' },
+  tigerKrCC: { yield: 12.0, growth: 1.0, category: 'kr-domestic', premium: 97, name: 'TIGER 배당커버드콜액티브',               key: 'KR:472150' },
+  kodexDiv:  { yield: 3.7,  growth: 8.0, category: 'kr-foreign',  premium: 0,  name: 'KODEX 미국배당다우존스',                 key: 'KR:489250' },
+  tigerCC:   { yield: 11.6, growth: 2.0, category: 'kr-foreign',  premium: 0,  name: 'TIGER 미국배당다우존스타겟커버드콜2호',  key: 'KR:458760' },
+  kodexMDC:  { yield: 9.0,  growth: 2.0, category: 'kr-foreign',  premium: 0,  name: 'KODEX 미국배당커버드콜액티브',           key: 'KR:441640' },
+  kodexNas:  { yield: 19.8, growth: 0.0, category: 'kr-foreign',  premium: 0,  name: 'KODEX 미국나스닥100데일리커버드콜OTM',   key: 'KR:494300' },
+  riseTech:  { yield: 20.3, growth: 0.0, category: 'kr-foreign',  premium: 0,  name: 'RISE 미국테크100데일리고정커버드콜',     key: 'KR:491620' },
+  riseDiv:   { yield: 16.4, growth: 2.0, category: 'kr-foreign',  premium: 0,  name: 'RISE 미국배당100데일리고정커버드콜',     key: 'KR:490600' },
+  schd:      { yield: 3.5,  growth: 9.0, category: 'us-etf',      premium: 0,  name: 'SCHD',                                  key: 'US:SCHD' },
+  jepi:      { yield: 7.6,  growth: 0.0, category: 'us-etf',      premium: 0,  name: 'JEPI',                                  key: 'US:JEPI' },
+  jepq:      { yield: 9.5,  growth: 0.0, category: 'us-etf',      premium: 0,  name: 'JEPQ',                                  key: 'US:JEPQ' },
 };
+const PRESET_GROUPS = [
+  ['한국상장 국내ETF', ['plus', 'plusCC', 'kodexCC', 'kodexFin', 'tigerKrCC']],
+  ['한국상장 해외ETF', ['kodexDiv', 'tigerCC', 'kodexMDC', 'kodexNas', 'riseTech', 'riseDiv']],
+  ['미국 직투', ['schd', 'jepi', 'jepq']],
+];
+const KEY_TO_PRESET = {};
+Object.entries(PRESETS).forEach(([k, p]) => { KEY_TO_PRESET[p.key] = k; });
+
+let currentKey = 'KR:161510';
 let currentCategory = 'kr-domestic';
 let currentPremium = 0;
+let currentNoPension = false;
+let currentSrc = { yield: 'preset', growth: 'preset', premium: 'preset' };
+let userTouched = false;   // 사용자가 종목을 직접 골랐는지 (데이터 도착 후 기본 종목 재적용 여부)
 
-function applyPreset(presetKey) {
-  const preset = PRESETS[presetKey];
-  if (preset) {
-    document.getElementById('divYield').value = preset.yield;
-    document.getElementById('divGrowth').value = preset.growth;
-    currentCategory = preset.category;
-    currentPremium = preset.premium;
-    document.getElementById('categorySelect').value = preset.category;
-    document.getElementById('categorySelect').disabled = true;
-    document.getElementById('premiumRatio').value = preset.premium;
-    updateSliderVals();
-    updateCategoryBadge();
-    updatePremiumVisibility();
-    updatePresetInfo(preset);
-  } else {
-    // custom
-    document.getElementById('categorySelect').disabled = false;
-    currentCategory = document.getElementById('categorySelect').value;
-    currentPremium = parseInt(document.getElementById('premiumRatio').value) || 0;
-    updateSliderVals();
-    updateCategoryBadge();
-    updatePremiumVisibility();
-    updatePresetInfo(null);
+// ---------- 데이터 (portfolio-sheet-data · etf-selector, 매일 자동 갱신) ----------
+const DATA_BASE = 'https://ttokjaetv.github.io/portfolio-sheet-data/data/';
+const MASTER_URL = 'https://ttokjaetv.github.io/etf-selector/data/krx_etf_master.json';
+const UNIVERSE = new Map();
+let UNIVERSE_LIST = [];
+const DATA_STATE = { kr: 'loading', us: 'loading' };
+const MASTER = new Map();
+
+function parseCSV(text) {
+  const rows = []; let row = [], field = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; }
+      else field += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    else if (c !== '\r') field += c;
   }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  const head = (rows.shift() || []).map(h => h.replace(/^﻿/, '').trim());
+  return rows.filter(r => r.length > 1).map(r => { const o = {}; head.forEach((h, i) => { o[h] = (r[i] ?? '').trim(); }); return o; });
+}
+async function fetchCSV(name) {
+  const res = await fetch(DATA_BASE + name, { cache: 'no-cache' });
+  if (!res.ok) throw new Error(name + ' ' + res.status);
+  return parseCSV(await res.text());
+}
+const num = v => { const n = parseFloat(v); return isFinite(n) ? n : null; };
+const normText = s => String(s || '').toLowerCase().replace(/[\s·\-_().&,+]/g, '');
+const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const FREQ_LABEL = { '월': '월배당', '분기': '분기배당', '반기': '반기배당', '연': '연배당', '격월': '격월배당', '불규칙': '불규칙 배당' };
+
+// 최근 12개월 과세표준액 합 ÷ 분배금 합 (국내상장 ETF)
+async function loadTaxBaseRatio() {
+  const out = new Map();
+  const results = await Promise.allSettled(['etf_tax_base.json', 'funetf_tax_base.json']
+    .map(f => fetch(DATA_BASE + f, { cache: 'no-cache' }).then(r => r.ok ? r.json() : null)));
+  results.forEach(res => {
+    const data = res.status === 'fulfilled' && res.value && res.value.data;
+    if (!data) return;
+    Object.entries(data).forEach(([code, rows]) => {
+      if (!Array.isArray(rows) || !rows.length) return;
+      const latest = rows.reduce((m, r) => (r[0] > m ? r[0] : m), '');
+      const from = new Date(new Date(latest.replace(/\//g, '-')).getTime() - 365 * 864e5);
+      let dist = 0, base = 0;
+      rows.forEach(([d, amt, tb]) => {
+        if (new Date(String(d).replace(/\//g, '-')) > from && amt > 0 && tb != null) { dist += amt; base += Math.max(0, tb); }
+      });
+      if (dist > 0) out.set(code, Math.min(1, base / dist));
+    });
+  });
+  return out;
+}
+async function loadMaster() {
+  try {
+    const res = await fetch(MASTER_URL, { cache: 'no-cache' });
+    if (!res.ok) return;
+    const d = await res.json();
+    (d.etfs || []).forEach(e => MASTER.set(e.ticker, e));
+  } catch (e) { /* 분류표 없이도 이름 규칙으로 판정 */ }
+}
+function addItem(it) {
+  it.norm = normText(it.name);
+  it.codeNorm = it.code.toLowerCase();
+  it.preset = KEY_TO_PRESET[it.key] || null;
+  it.type = classify(it);
+  UNIVERSE.set(it.key, it);
+}
+async function loadKR() {
+  const [etfs, stocks, divs, taxRatio] = await Promise.all([fetchCSV('etf_prices.csv'), fetchCSV('kr_stocks.csv'), fetchCSV('dividends.csv'), loadTaxBaseRatio()]);
+  const dmap = new Map(divs.map(d => [d['종목코드'], d]));
+  const mk = (code, name, kind, price, extra) => {
+    const d = dmap.get(code);
+    let ttm = null;
+    if (d) {
+      const paid = num(d['연배당_실지급']);
+      ttm = num(d['배당수익률']);
+      if (ttm == null && paid != null && price) ttm = paid / price * 100;
+    }
+    addItem(Object.assign({
+      key: 'KR:' + code, code, name, market: 'KR', kind, price,
+      yieldTTM: ttm ?? 0, hasDiv: !!d && (ttm ?? 0) > 0,
+      freq: d ? d['지급주기'] : '', updated: (d && d['갱신시각']) || '',
+    }, extra));
+  };
+  etfs.forEach(r => mk(r['종목코드'], r['종목명'], '국내ETF', num(r['현재가']), {
+    asset: r['자산군'], taxRatio: taxRatio.has(r['종목코드']) ? taxRatio.get(r['종목코드']) : null,
+  }));
+  stocks.forEach(r => mk(r['종목코드'], r['종목명'], '국내주식', num(r['현재가']), {}));
+}
+async function loadUS() {
+  const [prices, divs] = await Promise.all([fetchCSV('us_prices.csv'), fetchCSV('us_dividends.csv')]);
+  const dmap = new Map(divs.map(d => [d['티커'], d]));
+  prices.forEach(r => {
+    const t = r['티커']; const d = dmap.get(t); const price = num(r['현재가USD']);
+    let ttm = 0;
+    if (d) { ttm = num(d['배당수익률']); if (ttm == null) { const a = num(d['연배당USD']); ttm = (a && price) ? a / price * 100 : 0; } }
+    addItem({
+      key: 'US:' + t, code: t, name: r['종목명'], market: 'US', kind: r['구분'] === 'ETF' ? '미국ETF' : '미국주식',
+      price, yieldTTM: ttm, hasDiv: !!d && ttm > 0, freq: d ? d['지급주기'] : '', updated: (d && d['갱신시각']) || '',
+    });
+  });
 }
 
-function updatePresetInfo(preset) {
+// 유형 → 배당(자산) 성장률 기본값 (실데이터 아님 · 가정치)
+const TYPE_DEFAULTS = {
+  levInv:      { label: '레버리지·인버스', dg: 0 },
+  cc:          { label: '커버드콜', dg: 0.5 },
+  rate:        { label: '금리·초단기채', dg: 0 },
+  bond:        { label: '채권', dg: 0 },
+  reit:        { label: '리츠·부동산', dg: 2.0 },
+  mixed:       { label: '채권혼합', dg: 2.0 },
+  commod:      { label: '원자재·가상자산', dg: 0 },
+  currency:    { label: '통화', dg: 0 },
+  etc:         { label: '기타', dg: 0 },
+  krDivEtf:    { label: '배당주 ETF(국내상장)', dg: 6.0 },
+  overseasEtf: { label: '해외주식 ETF(국내상장)', dg: 6.0 },
+  krEqEtf:     { label: '국내주식 ETF', dg: 5.0 },
+  krStock:     { label: '국내 개별주', dg: 4.0 },
+  spac:        { label: '스팩', dg: 0 },
+  usDivEtf:    { label: '미국 배당 ETF', dg: 6.0 },
+  usEtf:       { label: '미국 주식 ETF', dg: 6.0 },
+  usStock:     { label: '미국 개별주', dg: 5.0 },
+};
+const RATE_RE = /금리|KOFR|SOFR|CD|머니마켓|단기자금/;
+function classify(it) {
+  const n = it.name;
+  if (it.kind === '국내ETF') {
+    if (/레버리지|인버스|2X|곱버스/i.test(n)) return 'levInv';
+    if (/커버드콜|프리미엄|옵션|버퍼/.test(n)) return 'cc';
+    if (it.asset === '채권') return it.yieldTTM < 1 ? 'rate' : 'bond';
+    if (it.asset === '부동산') return 'reit';
+    if (it.asset === '혼합자산') return 'mixed';
+    if (it.asset === '원자재') return 'commod';
+    if (it.asset === '통화') return RATE_RE.test(n) ? 'rate' : 'currency';
+    if (it.asset === '기타') return RATE_RE.test(n) ? 'rate' : 'etc';
+    if (/배당/.test(n)) return 'krDivEtf';
+    if (/미국|나스닥|S&P|글로벌|선진|일본|중국|차이나|인도|베트남|유럽|신흥|MSCI|필라델피아|월드/i.test(n)) return 'overseasEtf';
+    return 'krEqEtf';
+  }
+  if (it.kind === '국내주식') return /스팩/.test(n) ? 'spac' : (/리츠|인프라/.test(n) ? 'reit' : 'krStock');
+  if (it.kind === '미국ETF') {
+    if (/\b(2x|3x|ultra|leveraged|inverse|bear|short)\b/i.test(n)) return 'levInv';
+    if (/covered call|option|premium income|buywrite|yieldmax|buffer/i.test(n)) return 'cc';
+    if (/t-bill|treasury bill|money market|ultra.?short|0-3 month|floating rate/i.test(n)) return 'rate';
+    if (/bond|treasury|muni|clo\b|fixed income|aggregate|corporate|high yield|mortgage|tips|income securities/i.test(n)) return 'bond';
+    if (/reit|real estate/i.test(n)) return 'reit';
+    if (/gold|silver|oil|commodit|bitcoin|ether|crypto|copper|uranium/i.test(n)) return 'commod';
+    if (/dividend/i.test(n)) return 'usDivEtf';
+    return 'usEtf';
+  }
+  return 'usStock';
+}
+
+// 과세 구조 판정: etf-selector 분류표(해외주식형 D·해외 커버드콜 E·해외 리츠) 우선, 없으면 이름 규칙
+function categoryOf(it) {
+  if (it.market === 'US') return 'us-etf';
+  if (it.kind === '국내주식') return 'kr-stock';
+  const m = MASTER.get(it.code);
+  if (m) {
+    if (m.group === 'D' || m.group === 'E') return 'kr-foreign';
+    if (m.group === 'K' && m.region && m.region !== '한국') return 'kr-foreign';
+    return 'kr-domestic';
+  }
+  return it.type === 'overseasEtf' ? 'kr-foreign' : 'kr-domestic';
+}
+function pensionBlockedOf(it, cat) {
+  if (cat === 'kr-stock' || cat === 'us-etf') return true;
+  const m = it && MASTER.get(it.code);
+  if (m && m.pensionTradable === false) return true;
+  return !!(it && it.type === 'levInv');
+}
+
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+function setSlider(id, v) {
+  const el = document.getElementById(id);
+  el.value = clamp(v, parseFloat(el.min), parseFloat(el.max));
+}
+
+function applySelection(key) {
+  currentKey = key;
+  const catSel = document.getElementById('categorySelect');
+  if (key === 'CUSTOM') {
+    catSel.disabled = false;
+    currentCategory = catSel.value;
+    currentPremium = parseInt(document.getElementById('premiumRatio').value) || 0;
+    currentNoPension = currentCategory === 'us-etf' || currentCategory === 'kr-stock';
+    currentSrc = { yield: 'manual', growth: 'manual', premium: 'manual' };
+  } else {
+    const it = UNIVERSE.get(key);
+    const pk = KEY_TO_PRESET[key];
+    const p = pk ? PRESETS[pk] : null;
+    const cat = it ? categoryOf(it) : (p ? p.category : (key.startsWith('US:') ? 'us-etf' : 'kr-domestic'));
+    // 배당률: 최근 12개월 실지급 ÷ 현재가 (없으면 프리셋)
+    let y, ySrc;
+    if (it) { y = Math.round((it.yieldTTM || 0) * 10) / 10; ySrc = it.hasDiv ? 'ttm' : 'none'; }
+    else { y = p ? p.yield : 0; ySrc = 'preset'; }
+    // 성장률: 추천 프리셋 값 → 없으면 유형 기본값 (가정치)
+    let g, gSrc;
+    if (p) { g = p.growth; gSrc = 'preset'; }
+    else { g = it ? TYPE_DEFAULTS[it.type].dg : 5; gSrc = 'type'; }
+    // 비과세 분배금 비중: 국내상장 ETF만 · 최근 12개월 과표 비율
+    let prem = 0, pSrc = 'none';
+    if (cat === 'kr-domestic' || cat === 'kr-foreign') {
+      if (it && it.taxRatio != null) { prem = Math.round((1 - it.taxRatio) * 100); pSrc = 'taxbase'; }
+      else if (p) { prem = p.premium; pSrc = 'preset'; }
+    }
+    currentCategory = cat;
+    currentPremium = prem;
+    currentNoPension = pensionBlockedOf(it, cat);
+    currentSrc = { yield: ySrc, growth: gSrc, premium: pSrc };
+    catSel.value = cat;
+    catSel.disabled = true;
+    setSlider('divYield', y);
+    setSlider('divGrowth', g);
+    document.getElementById('premiumRatio').value = prem;
+  }
+  updateSliderVals();
+  updateCategoryBadge();
+  updatePremiumVisibility();
+  updatePresetInfo();
+  const inp = document.getElementById('tickerSearch');
+  if (inp && document.activeElement !== inp) inp.value = displayName(key);
+}
+
+function displayName(key) {
+  if (key === 'CUSTOM') return '직접 입력';
+  const it = UNIVERSE.get(key);
+  const pk = KEY_TO_PRESET[key];
+  if (it) return it.market === 'US' ? `${it.code} · ${it.name}` : it.name;
+  return pk ? PRESETS[pk].name : key.split(':')[1];
+}
+
+function updatePresetInfo() {
   const infoEl = document.getElementById('presetInfo');
-  if (!preset) {
-    infoEl.innerHTML = `<span class="info-name" style="color: var(--ink-mute); font-style: italic;">직접 입력 모드 — 아래에서 값 조정</span>`;
+  const metaEl = document.getElementById('presetMeta');
+  const y = parseFloat(document.getElementById('divYield').value);
+  const g = parseFloat(document.getElementById('divGrowth').value);
+  if (currentKey === 'CUSTOM') {
+    infoEl.innerHTML = `<span class="info-name" style="color: var(--ink-mute);">직접 입력 — 아래에서 과세 구조와 값을 정하세요</span>`;
+    metaEl.innerHTML = '';
     return;
   }
-  const tagClass = preset.category === 'us-etf' ? 'us' : (preset.category === 'kr-foreign' ? 'kf' : 'kd');
-  const tagText = preset.category === 'us-etf' ? 'US' : 'KR';
+  const it = UNIVERSE.get(currentKey);
+  const tagClass = currentCategory === 'us-etf' ? 'us' : (currentCategory === 'kr-foreign' ? 'kf' : 'kd');
+  const tagText = currentCategory === 'us-etf' ? 'US' : 'KR';
   infoEl.innerHTML = `
-    <span class="info-name">${preset.name}</span>
+    <span class="info-name">${escapeHtml(displayName(currentKey))}</span>
     <span class="info-tag ${tagClass}">${tagText}</span>
-    <span class="info-data"><span class="info-label">배당</span><span class="info-value">${preset.yield}%</span></span>
-    <span class="info-data"><span class="info-label">성장</span><span class="info-value">${preset.growth}%</span></span>
-  `;
+    <span class="info-data"><span class="info-label">배당</span><span class="info-value">${y.toFixed(1)}%</span></span>
+    <span class="info-data"><span class="info-label">성장</span><span class="info-value">${g.toFixed(1)}%</span></span>`;
+  const lines = [];
+  const date = it && it.updated ? ` · ${it.updated.slice(0, 10)} 기준` : '';
+  if (currentSrc.yield === 'ttm') lines.push(`배당률 = 최근 12개월 실제 지급액 ÷ 현재가${date}`);
+  else if (currentSrc.yield === 'none') lines.push('최근 12개월 배당 기록이 없어 배당률 0%로 넣었습니다');
+  else if (currentSrc.yield === 'preset') lines.push(DATA_STATE.kr === 'loading' ? '실제 배당 데이터를 불러오는 중… (지금은 추천 프리셋 값)' : '배당률 = 추천 프리셋 값');
+  else lines.push('배당률 직접 조정값');
+  if (currentSrc.growth === 'preset') lines.push('성장률 = 추천 프리셋 값 (가정치)');
+  else if (currentSrc.growth === 'type' && it) lines.push(`성장률 = ‘${TYPE_DEFAULTS[it.type].label}’ 유형 기본값 (가정치 · 직접 조정 가능)`);
+  else lines.push('성장률 직접 조정값');
+  if (currentSrc.premium === 'taxbase' && currentPremium > 0) lines.push(`비과세 분배금 비중 = 100% − 최근 12개월 과세표준 비율(${100 - currentPremium}%)`);
+  if (it && it.type === 'levInv') lines.push('⚠️ 레버리지·인버스는 장기 보유 시 지수와 수익률이 크게 벌어져 이 시뮬레이션에 맞지 않습니다');
+  metaEl.innerHTML = lines.map(l => `<div>${l}</div>`).join('');
 }
-
-document.getElementById('presetSelect').addEventListener('change', (e) => {
-  applyPreset(e.target.value);
-});
 
 function updateCategoryBadge() {
   const info = {
-    'us-etf': { label: '미국상장 해외ETF', desc: '일반계좌만 투자 가능 (연금·ISA 불가)', color: 'orange' },
-    'kr-foreign': { label: '한국상장 해외ETF', desc: '외국세 15% 선차감 · 연금은 2026.7부터 외납세 크레딧', color: 'amber' },
-    'kr-domestic': { label: '한국상장 국내ETF', desc: '외납세 X · 연금 수령 시 3.3~5.5%만 과세', color: 'green' }
+    'us-etf':      { label: '미국 직투 (주식·ETF)', desc: '일반계좌만 투자 가능 · 미국 원천징수 15%로 종결', color: 'orange' },
+    'kr-foreign':  { label: '한국상장 해외ETF', desc: '외국세 15% 선차감 · 연금은 2026.7부터 외납세 크레딧', color: 'amber' },
+    'kr-domestic': { label: '한국상장 국내ETF', desc: '외납세 X · 연금 수령 시 3.3~5.5%만 과세', color: 'green' },
+    'kr-stock':    { label: '국내 개별주', desc: '배당 15.4% · ISA 가능 · 연금저축·IRP 매수 불가', color: 'amber' },
   };
   const el = document.getElementById('categoryBadge');
   const i = info[currentCategory];
+  const extra = (currentNoPension && (currentCategory === 'kr-domestic' || currentCategory === 'kr-foreign')) ? ' · 연금계좌 매수 불가 종목' : '';
   el.className = 'category-badge ' + i.color;
-  el.innerHTML = `<strong>${i.label}</strong><span>${i.desc}</span>`;
+  el.innerHTML = `<strong>${i.label}</strong><span>${i.desc}${extra}</span>`;
 }
 
-// 국내주식 커버드콜만 옵션프리미엄 슬라이더 표시
+// 비과세 분배금 비중 슬라이더: 국내상장 ETF만
 function updatePremiumVisibility() {
   const wrap = document.getElementById('premiumWrap');
-  if (currentCategory === 'kr-domestic') {
+  if (currentCategory === 'kr-domestic' || currentCategory === 'kr-foreign') {
     wrap.style.display = 'block';
   } else {
     wrap.style.display = 'none';
     currentPremium = 0;
   }
 }
+
+// ---------- 검색 ----------
+let searchMarket = 'ALL';
+function searchUniverse(q) {
+  const nq = normText(q);
+  if (!nq) return [];
+  const tokens = q.toLowerCase().split(/\s+/).map(normText).filter(Boolean);
+  if (!UNIVERSE_LIST.length) {
+    return Object.values(PRESETS).filter(p => (searchMarket === 'ALL' || p.key.startsWith(searchMarket + ':')) &&
+      (normText(p.name).includes(nq) || p.key.toLowerCase().includes(nq))).map(p => ({ key: p.key }));
+  }
+  const res = [];
+  for (const it of UNIVERSE_LIST) {
+    if (searchMarket !== 'ALL' && it.market !== searchMarket) continue;
+    let s;
+    if (it.codeNorm === nq) s = 1000;
+    else if (it.norm === nq) s = 900;
+    else if (it.codeNorm.startsWith(nq)) s = 500;
+    else if (it.norm.startsWith(nq)) s = 450;
+    else if (it.norm.includes(nq)) s = 300;
+    else if (tokens.length > 1 && tokens.every(t => it.norm.includes(t) || it.codeNorm.includes(t))) s = 200;
+    else continue;
+    if (it.preset) s += 80;
+    if (it.hasDiv) s += 30;
+    if (it.market === 'KR') s += 10;
+    s -= it.name.length * 0.3;
+    res.push([s, it]);
+  }
+  res.sort((a, b) => b[0] - a[0]);
+  return res.slice(0, 50).map(x => x[1]);
+}
+function kindOfKey(key) {
+  const it = UNIVERSE.get(key);
+  if (it) return it.kind;
+  return key.startsWith('US:') ? '미국' : '국내';
+}
+function optionHtml(key, idx) {
+  const it = UNIVERSE.get(key);
+  const pk = KEY_TO_PRESET[key];
+  const p = pk ? PRESETS[pk] : null;
+  const name = it ? it.name : (p ? p.name : key);
+  const code = it ? it.code : key.split(':')[1];
+  const kind = kindOfKey(key);
+  const y = it ? (it.hasDiv ? '배당률 ' + (Math.round(it.yieldTTM * 100) / 100).toFixed(2) + '%' : '배당 없음') : (p ? '배당률 ' + p.yield + '%' : '');
+  const fq = it && it.freq ? (FREQ_LABEL[it.freq] || it.freq) : '';
+  const cls = kind.startsWith('국내') ? 'kr' : 'us';
+  return `<div class="combo-opt" data-key="${escapeHtml(key)}" data-idx="${idx}">
+      <div class="opt-name">${escapeHtml(name)}${p ? '<span class="opt-star">추천</span>' : ''}</div>
+      <div class="opt-sub"><span class="kbadge ${cls}">${escapeHtml(kind)}</span><span>${escapeHtml(code)}</span>${y ? `<span>${y}</span>` : ''}${fq ? `<span>${escapeHtml(fq)}</span>` : ''}</div>
+    </div>`;
+}
+function renderComboList(listEl, query) {
+  const q = query.trim();
+  const tabs = [['ALL', '전체'], ['KR', '국내상장'], ['US', '미국상장']]
+    .map(([v, t]) => `<button type="button" class="mkt-tab ${searchMarket === v ? 'on' : ''}" data-mkt="${v}">${t}</button>`).join('');
+  let html = `<div class="combo-tabs">${tabs}</div>`;
+  let idx = 0;
+  if (!q) {
+    html += `<div class="combo-hint">종목명이나 코드를 입력하면 <b>국내·미국 전체 종목</b>에서 찾습니다</div>`;
+    PRESET_GROUPS.forEach(([g, keys]) => {
+      const ks = keys.map(k => PRESETS[k].key).filter(key => searchMarket === 'ALL' || key.startsWith(searchMarket + ':'));
+      if (!ks.length) return;
+      html += `<div class="combo-group">추천 · ${g}</div>`;
+      ks.forEach(key => { html += optionHtml(key, idx++); });
+    });
+    html += `<div class="combo-opt custom" data-key="CUSTOM" data-idx="${idx++}"><div class="opt-name">⚙️ 직접 입력</div><div class="opt-sub"><span>과세 구조·배당률·성장률을 직접 정합니다</span></div></div>`;
+  } else {
+    const loading = DATA_STATE.kr === 'loading' || DATA_STATE.us === 'loading';
+    const results = searchUniverse(q);
+    if (results.length) results.forEach(it => { html += optionHtml(it.key, idx++); });
+    else if (!loading) html += `<div class="combo-empty">‘${escapeHtml(q)}’ 검색 결과가 없습니다</div>`;
+    if (loading) html += `<div class="combo-empty">종목 데이터를 불러오는 중입니다…</div>`;
+    if (DATA_STATE.kr === 'error' || DATA_STATE.us === 'error') html += `<div class="combo-empty">일부 종목 데이터를 불러오지 못했습니다. 새로고침해 주세요</div>`;
+    html += `<div class="combo-opt custom" data-key="CUSTOM" data-idx="${idx++}"><div class="opt-name">⚙️ 직접 입력</div><div class="opt-sub"><span>과세 구조·배당률·성장률을 직접 정합니다</span></div></div>`;
+  }
+  listEl.innerHTML = html;
+  listEl.dataset.active = '-1';
+}
+(function initCombo() {
+  const input = document.getElementById('tickerSearch');
+  const list = document.getElementById('tickerList');
+  let timer = null;
+  const open = (q) => { renderComboList(list, q); list.hidden = false; };
+  const close = () => { list.hidden = true; };
+  input.addEventListener('focus', () => { input.select(); open(''); });
+  input.addEventListener('blur', () => { setTimeout(() => { close(); input.value = displayName(currentKey); }, 120); });
+  input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => open(input.value), 80); });
+  input.addEventListener('keydown', (e) => {
+    const opts = [...list.querySelectorAll('.combo-opt')];
+    let a = Number(list.dataset.active || -1);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (list.hidden) open(input.value);
+      a = e.key === 'ArrowDown' ? Math.min(opts.length - 1, a + 1) : Math.max(0, a - 1);
+      opts.forEach((o, i) => o.classList.toggle('active', i === a));
+      if (opts[a]) opts[a].scrollIntoView({ block: 'nearest' });
+      list.dataset.active = String(a);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const pick = a >= 0 ? opts[a] : (opts.find(x => x.dataset.key !== 'CUSTOM') || opts[0]);
+      if (pick) choose(pick);
+    } else if (e.key === 'Escape') {
+      input.blur();
+    }
+  });
+  list.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    const tab = e.target.closest('.mkt-tab');
+    if (tab) { searchMarket = tab.dataset.mkt; open(input.value === displayName(currentKey) ? '' : input.value); return; }
+    const opt = e.target.closest('.combo-opt');
+    if (opt) choose(opt);
+  });
+  function choose(opt) {
+    userTouched = true;
+    applySelection(opt.dataset.key);
+    close();
+    input.blur();
+    input.value = displayName(currentKey);
+  }
+})();
+
+// 데이터 로드 → 기본 종목을 실데이터로 다시 채우고, 사용자가 아직 손대지 않았으면 조용히 재계산
+(async function loadAll() {
+  const [kr, us] = await Promise.allSettled([loadKR(), loadUS(), loadMaster()]);
+  DATA_STATE.kr = kr.status === 'fulfilled' ? 'ok' : 'error';
+  DATA_STATE.us = us.status === 'fulfilled' ? 'ok' : 'error';
+  UNIVERSE_LIST = [...UNIVERSE.values()];
+  if (!userTouched) {
+    applySelection(currentKey);
+    if (document.getElementById('resultView').classList.contains('active')) {
+      window.__initialCalc = true;
+      document.getElementById('calcBtn').click();
+    }
+  } else {
+    updatePresetInfo();
+  }
+})();
 
 function updateSliderVals() {
   document.getElementById('yearsVal').textContent = document.getElementById('years').value + '년';
@@ -1341,9 +1726,15 @@ function updateSliderVals() {
   document.getElementById('premiumVal').textContent = document.getElementById('premiumRatio').value + '%';
 }
 ['years','divYield','divGrowth','inflation'].forEach(id => {
-  document.getElementById(id).addEventListener('input', updateSliderVals);
+  document.getElementById(id).addEventListener('input', () => {
+    updateSliderVals();
+    if (id === 'divYield' && currentKey !== 'CUSTOM') currentSrc.yield = 'manual';
+    if (id === 'divGrowth' && currentKey !== 'CUSTOM') currentSrc.growth = 'manual';
+    if (id === 'divYield' || id === 'divGrowth') updatePresetInfo();
+  });
 });
 updateSliderVals();
+applySelection(currentKey);   // 데이터 도착 전에는 추천 프리셋 값으로 먼저 채움
 
 let taxCreditRate = 0.165;
 document.querySelectorAll('[data-inc]').forEach(btn => {
@@ -1367,6 +1758,7 @@ document.querySelectorAll('[data-isa]').forEach(btn => {
 // 카테고리 선택 변경 (custom일 때만)
 document.getElementById('categorySelect').addEventListener('change', (e) => {
   currentCategory = e.target.value;
+  currentNoPension = currentCategory === 'us-etf' || currentCategory === 'kr-stock';
   updateCategoryBadge();
   updatePremiumVisibility();
 });
@@ -1379,7 +1771,7 @@ document.getElementById('premiumRatio').addEventListener('input', (e) => {
 
 // ============ 핵심 시뮬레이션 ============
 function simulate(p) {
-  const { initial, monthly, years, divYield, divGrowth, inflation, taxCreditRate, category, premium, isaExemptLimit } = p;
+  const { initial, monthly, years, divYield, divGrowth, inflation, taxCreditRate, category, premium, isaExemptLimit, noPension } = p;
   const results = { normal: [], pension: null, isa: null };
   const DIV_TAX = 0.154;
   const ISA_TAX = 0.099;
@@ -1390,8 +1782,8 @@ function simulate(p) {
   const PENSION_WITHDRAW_TAX = 0.055;
   const FOREIGN_TAX = 0.15;
 
-  // 옵션프리미엄 비과세 비중 (0~1), 국내 커버드콜만 0 초과
-  const premiumRatio = (category === 'kr-domestic') ? (premium / 100) : 0;
+  // 비과세 분배금 비중 (0~1) = 1 − 과세표준 비율. 국내상장 ETF만 (국내 커버드콜 옵션프리미엄 등)
+  const premiumRatio = (category === 'kr-domestic' || category === 'kr-foreign') ? (premium / 100) : 0;
   const taxableRatio = 1 - premiumRatio; // 과세되는 비중
 
   // ===== 일반계좌 =====
@@ -1421,10 +1813,11 @@ function simulate(p) {
     });
   }
 
-  // ===== 연금저축 & ISA — 미국상장 ETF는 투자 불가 =====
+  // ===== 연금저축 & ISA — 미국 직투는 둘 다 불가, 국내 개별주·레버리지 등은 연금만 불가 =====
   if (category === 'us-etf') {
     return results;
   }
+  if (!noPension) {
 
   // ===== 연금저축 =====
   // 국내ETF: 계좌 내 완전 비과세 (옵션프리미엄 여부 무관)
@@ -1450,7 +1843,8 @@ function simulate(p) {
     p_creditBank = taxCredit;
     const preTaxDivP = p_asset * divYield;
     // 한국상장 해외ETF는 외납세 15% 선차감 / 국내ETF는 완전 비과세
-    const foreignTaxPaid = (category === 'kr-foreign') ? preTaxDivP * FOREIGN_TAX : 0;
+    // 외국세는 과세 대상분에만 (비과세 분배금 몫은 제외 · 보수적 근사)
+    const foreignTaxPaid = (category === 'kr-foreign') ? preTaxDivP * taxableRatio * FOREIGN_TAX : 0;
     const afterForeignTax = preTaxDivP - foreignTaxPaid;
     p_asset += afterForeignTax;
     p_inf *= (1 - inflation);
@@ -1474,6 +1868,8 @@ function simulate(p) {
       overYears: p_overYears
     });
   }
+
+  } // end if (!noPension)
 
   // ===== ISA =====
   // 원칙: ISA는 일반계좌의 상위호환 (항상 같거나 유리해야 함)
@@ -1569,22 +1965,17 @@ function renderResults(results, inputs) {
   const pension = results.pension ? results.pension[N] : null;
   const isa = results.isa ? results.isa[N] : null;
   const isUSOnly = (inputs.category === 'us-etf');
+  const noPension = !pension;
+  const unavailReason = isUSOnly ? '미국 직투 종목은<br>이 계좌에 담을 수 없습니다'
+    : inputs.category === 'kr-stock' ? '국내 개별주는<br>연금저축·IRP에 담을 수 없습니다'
+    : '레버리지·인버스 등<br>연금계좌 매수 불가 종목입니다';
 
-  // Winner (일반계좌만 있는 경우 일반계좌가 winner)
-  let accounts;
-  if (isUSOnly) {
-    accounts = [
-      { name: '일반계좌', data: normal, key: 'normal', unavailable: false },
-      { name: '연금저축', data: null, key: 'pension', unavailable: true },
-      { name: 'ISA 계좌', data: null, key: 'isa', unavailable: true }
-    ];
-  } else {
-    accounts = [
-      { name: '일반계좌', data: normal, key: 'normal', unavailable: false },
-      { name: '연금저축', data: pension, key: 'pension', unavailable: false },
-      { name: 'ISA 계좌', data: isa, key: 'isa', unavailable: false }
-    ];
-  }
+  // Winner (투자 가능한 계좌 중에서)
+  const accounts = [
+    { name: '일반계좌', data: normal, key: 'normal', unavailable: false },
+    { name: '연금저축', data: pension, key: 'pension', unavailable: !pension },
+    { name: 'ISA 계좌', data: isa, key: 'isa', unavailable: !isa }
+  ];
 
   // 승자 찾기 (가능한 계좌들 중에서)
   const available = accounts.filter(a => !a.unavailable);
@@ -1597,7 +1988,7 @@ function renderResults(results, inputs) {
 
   if (isUSOnly) {
     document.getElementById('heroSub').innerHTML =
-      `⚠️ 미국상장 ETF는 <strong>일반계좌에서만 투자 가능</strong>하며, 연금저축·ISA에는 담을 수 없습니다. ` +
+      `⚠️ 미국 직투 종목은 <strong>일반계좌에서만 투자 가능</strong>하며, 연금저축·ISA에는 담을 수 없습니다. ` +
       `절세계좌를 활용하려면 <strong>한국상장 ETF</strong>를 선택하세요.`;
   } else if (sortedByDiv.length > 1) {
     document.getElementById('heroSub').innerHTML =
@@ -1617,7 +2008,7 @@ function renderResults(results, inputs) {
           <div class="unavailable-content">
             <div class="unavail-icon">🚫</div>
             <div class="unavail-title">투자 불가</div>
-            <div class="unavail-desc">미국상장 ETF는<br>이 계좌에 담을 수 없습니다</div>
+            <div class="unavail-desc">${unavailReason}</div>
           </div>
         </div>
       `;
@@ -1665,17 +2056,38 @@ function renderResults(results, inputs) {
       <div class="shock-cell warning">
         <div class="shock-label">🚫 절세계좌 불가</div>
         <div class="shock-number">일반계좌만</div>
-        <div class="shock-desc">미국상장 ETF는 연금저축·ISA에 담을 수 없습니다</div>
+        <div class="shock-desc">미국 직투 종목은 연금저축·ISA에 담을 수 없습니다</div>
+      </div>
+      <div class="shock-cell negative">
+        <div class="shock-label">💸 일반계좌 세금 손실</div>
+        <div class="shock-number">−${fmtMan(allNormalTax)}원</div>
+        <div class="shock-desc">${inputs.years}년간 미국 원천징수(15%)로 사라진 재투자 가능 금액</div>
+      </div>
+      <div class="shock-cell info">
+        <div class="shock-label">💡 절세 전환 검토</div>
+        <div class="shock-number">한국상장 ETF</div>
+        <div class="shock-desc">TIGER·KODEX·PLUS 등으로 절세계좌 활용 가능</div>
+      </div>
+    `;
+  } else if (noPension) {
+    // 국내 개별주·레버리지 등: 연금 불가 → ISA vs 일반
+    const isaDiff = isa.monthlyDiv - normal.monthlyDiv;
+    const isaTotalDiff = isa.asset - normal.asset;
+    shockHTML = `
+      <div class="shock-cell positive">
+        <div class="shock-label">🔥 ISA vs 일반 차이</div>
+        <div class="shock-number">+${fmtMan(isaTotalDiff)}원</div>
+        <div class="shock-desc">${inputs.years}년 뒤 총 자산 기준 · 월 +${fmtMan(isaDiff)}원/월</div>
       </div>
       <div class="shock-cell negative">
         <div class="shock-label">💸 일반계좌 세금 손실</div>
         <div class="shock-number">−${fmtMan(allNormalTax)}원</div>
         <div class="shock-desc">${inputs.years}년간 배당소득세(15.4%)로 사라진 재투자 가능 금액</div>
       </div>
-      <div class="shock-cell info">
-        <div class="shock-label">💡 절세 전환 검토</div>
-        <div class="shock-number">한국상장 ETF</div>
-        <div class="shock-desc">TIGER·KODEX·PLUS 등으로 절세계좌 활용 가능</div>
+      <div class="shock-cell warning">
+        <div class="shock-label">🚫 연금계좌 불가</div>
+        <div class="shock-number">ISA 활용</div>
+        <div class="shock-desc">${inputs.category === 'kr-stock' ? '국내 개별주' : '이 종목'}은 연금저축·IRP에 담을 수 없어 ISA가 절세 수단입니다</div>
       </div>
     `;
   } else {
@@ -1710,8 +2122,8 @@ function renderResults(results, inputs) {
     warnings.push({
       type: 'warn',
       icon: '🇺🇸',
-      title: '미국상장 ETF — 일반계좌에서만 투자 가능',
-      desc: `SCHD, JEPI, JEPQ 같은 미국 증권거래소 상장 ETF는 <strong>연금저축·IRP·ISA에 담을 수 없습니다</strong> (국내 금융회사의 해외직투 제한). 분배금은 미국 현지에서 <strong>15% 원천징수</strong>되며, 한미 조세조약상 미국 세율(15%)이 한국 배당소득세율(14%)보다 높아 <strong>국내 추가 징수는 없습니다</strong> (외국납부세액공제). 연 2,000만원까지는 분리과세로 종결되지만, 초과분은 종합과세 대상이며, 금융소득 1,000만원 초과 시 <strong>건강보험 피부양자 자격에 영향</strong>을 줄 수 있습니다. 절세계좌를 활용하려면 <strong>한국상장 국내ETF(PLUS·KODEX 위클리)</strong>가 유리합니다.`
+      title: '미국 직투 — 일반계좌에서만 투자 가능',
+      desc: `SCHD·JEPI 같은 미국 상장 ETF와 미국 개별주는 <strong>연금저축·IRP·ISA에 담을 수 없습니다</strong> (국내 절세계좌는 해외 직접투자 불가). 분배금은 미국 현지에서 <strong>15% 원천징수</strong>되며, 한미 조세조약상 미국 세율(15%)이 한국 배당소득세율(14%)보다 높아 <strong>국내 추가 징수는 없습니다</strong> (외국납부세액공제). 연 2,000만원까지는 분리과세로 종결되지만, 초과분은 종합과세 대상이며, 금융소득 1,000만원 초과 시 <strong>건강보험 피부양자 자격에 영향</strong>을 줄 수 있습니다. 절세계좌를 활용하려면 <strong>한국상장 국내ETF(PLUS·KODEX 위클리)</strong>가 유리합니다.`
     });
   } else if (inputs.category === 'kr-foreign') {
     warnings.push({
@@ -1720,15 +2132,22 @@ function renderResults(results, inputs) {
       title: '한국상장 해외ETF — 분배금에서 외국세 15%가 먼저 빠집니다',
       desc: `KODEX 미국배당다우존스 같은 해외자산 ETF는 <strong>2025년부터</strong> 분배금 지급 시점에 외국(미국) 원천세 15%가 펀드 단계에서 먼저 차감됩니다. 그래서 <strong>분배금만 놓고 보면</strong> ISA와 일반계좌의 차이가 작습니다(약 15% vs 15.4%).<br>연금저축은 <strong>2026년 7월 인출분부터</strong> 낸 외국세의 55.2%가 크레딧으로 쌓여 연금소득세(3.3~5.5%)에서 공제되므로 <strong>이중과세가 대부분 해소</strong>됩니다. 이 계산은 그 크레딧을 반영했습니다.<br>다만 이 계산기는 <strong>매매차익 과세를 다루지 않습니다.</strong> 해외ETF 매매차익은 일반계좌에서 15.4%가 붙지만 연금·ISA에서는 과세이연·비과세 혜택을 받으므로, 장기 보유할수록 절세계좌가 더 유리합니다. 커버드콜형은 옵션프리미엄에 미국 원천징수가 없어 실제 절세계좌 결과가 이 계산보다 좋을 수 있습니다(보수적 계산).`
     });
+  } else if (inputs.category === 'kr-stock') {
+    warnings.push({
+      type: 'info',
+      icon: '🏢',
+      title: '국내 개별주 — 일반계좌·ISA만 비교',
+      desc: `국내 개별주는 <strong>연금저축·IRP에서는 살 수 없어</strong> 일반계좌와 ISA(중개형)만 비교했습니다. 일반계좌 배당은 15.4%로 계산했습니다. 2026년부터 시행된 <strong>고배당기업 배당소득 분리과세</strong> 대상 기업이라면, 종합소득세 신고 때 분리과세를 신청해 금융소득 2,000만원 초과분의 세율을 낮출 수 있습니다(이 계산에는 미반영).`
+    });
   } else if (inputs.category === 'kr-domestic') {
     if (inputs.premium > 0) {
       warnings.push({
         type: 'info',
         icon: '💎',
-        title: `국내 커버드콜 비과세 분배금 ${inputs.premium}% 적용`,
-        desc: `국내주식 커버드콜 ETF의 옵션프리미엄 수익은 <strong>장내 파생상품 매매차익으로 분류되어 일반계좌에서도 비과세</strong>입니다 (소득세법 시행령 제26조의2제4항). 분배금 중 배당 재원만 15.4% 과세되고 옵션프리미엄은 비과세이므로, <strong>일반계좌에서도 절세계좌와 유사한 세후 수익</strong>을 얻을 수 있어 금융소득종합과세 대상자나 고액자산가들이 선호합니다. 과세분(${100 - inputs.premium}%)은 주로 국내주식 배당금(연 1~3월 집중)으로 구성됩니다.`
+        title: `비과세 분배금 ${inputs.premium}% 적용 (과세표준 기준)`,
+        desc: `국내상장 ETF는 분배금 중 <strong>과세표준에 들어가는 몫에만 15.4%</strong>가 붙습니다. 국내 커버드콜의 옵션프리미엄처럼 국내 장내파생상품에서 나온 수익은 과표에서 빠져 <strong>일반계좌에서도 비과세</strong>입니다 (소득세법 시행령 제26조의2). 그래서 이런 종목은 일반계좌와 절세계좌의 차이가 작고, 금융소득종합과세가 걱정되는 분들이 일반계좌에서도 많이 씁니다. 과세분(${100 - inputs.premium}%)은 주로 편입 주식의 배당에서 나옵니다.`
       });
-    } else {
+    } else if (pension) {
       warnings.push({
         type: 'info',
         icon: '🇰🇷',
@@ -1736,6 +2155,15 @@ function renderResults(results, inputs) {
         desc: `PLUS 고배당주 등 국내주식 편입 ETF는 <strong>외납세 선차감이 없어</strong> 연금저축·ISA의 절세 혜택을 온전히 누릴 수 있습니다. 일반계좌에서는 분배금에 15.4% 배당소득세가 부과됩니다.`
       });
     }
+  }
+
+  if (!pension && (inputs.category === 'kr-domestic' || inputs.category === 'kr-foreign')) {
+    warnings.push({
+      type: 'warn',
+      icon: '🚫',
+      title: '연금계좌 매수 불가 종목',
+      desc: `레버리지·인버스, 파생형 등은 <strong>연금저축·IRP에서 살 수 없어</strong> 연금 칸을 계산하지 않았습니다. ISA에서는 투자할 수 있습니다.`
+    });
   }
 
   // 수치 기반 경고 (일반계좌 기준)
@@ -1957,7 +2385,8 @@ document.getElementById('calcBtn').addEventListener('click', () => {
     taxCreditRate: taxCreditRate,
     category: currentCategory,
     premium: currentPremium,
-    isaExemptLimit: isaExemptLimit
+    isaExemptLimit: isaExemptLimit,
+    noPension: currentNoPension
   };
   if (inputs.monthly === 0 && inputs.initial === 0) {
     alert('초기 투자금이나 월 투자금 중 하나는 입력해주세요.');
