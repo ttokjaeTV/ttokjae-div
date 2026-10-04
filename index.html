@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>배당 눈덩이 시뮬레이터 | 똑재TV</title>
 <meta property="og:title" content="배당 눈덩이 시뮬레이터 - 일반계좌 vs 연금저축 vs ISA">
-<meta property="og:description" content="월 투자금 넣으면 20년 뒤 월 배당금이 보인다. 세금·건보료·인출세까지 모두 반영한 진짜 실수령액 계산기.">
+<meta property="og:description" content="월 투자금 넣으면 20년 뒤 월 배당금이 보인다. 세금·세액공제·인출세를 반영하고 건보료·종합과세 위험까지 짚어주는 실수령액 계산기.">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -844,6 +844,11 @@ footer .disclaimer {
   line-height: 1.6;
 }
 .highlight-note strong { color: var(--accent-deep); font-weight: 700; }
+
+/* iOS Safari: 글자 16px 미만 입력칸은 누를 때 화면이 자동 확대됨 → 모바일에서 16px 보장 */
+@media (max-width: 768px) {
+  input[type=text], input[type=number], input[type=search], input[type=tel], input:not([type]), select, textarea { font-size: 16px !important; }
+}
 </style>
 </head>
 <body>
@@ -862,14 +867,14 @@ footer .disclaimer {
 
   <!-- ========== HERO ========== -->
   <section class="hero">
-    <span class="hero-kicker">2026년 최신 세법 반영</span>
+    <span class="hero-kicker">2026년 10월 세법 기준</span>
     <h1>
       월 50만원으로,<br>
       20년 뒤 월 배당 <em>얼마?</em>
     </h1>
     <p class="hero-sub">
-      배당성장·세금·세액공제 재투자·인출세·건강보험료까지<br>
-      모두 반영한 진짜 실수령액 시뮬레이터.
+      배당성장·세금·세액공제 재투자·인출세를 반영하고<br>
+      건보료·종합과세 기준선까지 짚어주는 실수령액 시뮬레이터.
     </p>
     <div class="hero-meta">
       <span class="hero-meta-item"><span class="dot"></span>일반계좌 · 연금저축 · ISA 동시 비교</span>
@@ -895,7 +900,7 @@ footer .disclaimer {
       <div class="intro-card">
         <div class="num">03 / 숨겨진 함정</div>
         <h3>건보료·종합과세 경고</h3>
-        <p>배당이 일정 수준을 넘으면 피부양자에서 탈락해 월 건보료가 수십만원 붙습니다.</p>
+        <p>배당이 일정 수준을 넘으면 종합과세 대상이 되거나 건보 피부양자에서 탈락할 수 있어, 그 기준선을 넘는 해에 경고로 알려드립니다.</p>
       </div>
     </div>
   </section>
@@ -1061,7 +1066,7 @@ footer .disclaimer {
           <p class="result-hero-sub">
             같은 돈·같은 종목이어도 <strong>어느 계좌에 담느냐</strong>에 따라
             20년 뒤 실수령 월 배당금이 <strong style="color: var(--accent);">2배 가까이</strong> 차이 납니다.
-            세액공제·배당성장·인출세·건보료·종합과세까지 모두 반영한 시뮬레이션입니다.
+            세액공제·배당성장·인출세를 반영하고, 건보료·종합과세는 기준선을 넘으면 경고로 알려드리는 시뮬레이션입니다.
           </p>
         </div>
 
@@ -1308,7 +1313,7 @@ document.getElementById('presetSelect').addEventListener('change', (e) => {
 function updateCategoryBadge() {
   const info = {
     'us-etf': { label: '미국상장 해외ETF', desc: '일반계좌만 투자 가능 (연금·ISA 불가)', color: 'orange' },
-    'kr-foreign': { label: '한국상장 해외ETF', desc: '외납세 15% 선차감 · ISA 비과세 한도 미적용', color: 'amber' },
+    'kr-foreign': { label: '한국상장 해외ETF', desc: '외국세 15% 선차감 · 연금은 2026.7부터 외납세 크레딧', color: 'amber' },
     'kr-domestic': { label: '한국상장 국내ETF', desc: '외납세 X · 연금 수령 시 3.3~5.5%만 과세', color: 'green' }
   };
   const el = document.getElementById('categoryBadge');
@@ -1393,12 +1398,13 @@ function simulate(p) {
   // 미국상장 직투: 15% (미국 원천징수만, 외국납부세액공제로 국내 추가 없음)
   // 한국상장: 15.4% (국내 14% + 지방소득세 1.4%)
   const NORMAL_TAX = (category === 'us-etf') ? 0.15 : DIV_TAX;
-  let n_asset = initial, n_principal = initial, n_inf = 1;
+  // 원금·자산은 0에서 시작하고, 1년차 납입액(yearIn)에 초기투자금을 한 번만 더한다
+  let n_asset = 0, n_principal = 0, n_inf = 1;
   for (let y = 1; y <= years; y++) {
     if (y > 1) n_asset *= (1 + divGrowth);
     const yearIn = (y === 1) ? (monthly * 12 + initial) : (monthly * 12);
     n_asset += yearIn;
-    if (y > 1) n_principal += yearIn;
+    n_principal += yearIn;
     const preTaxDiv = n_asset * divYield;
     // 옵션프리미엄 부분은 비과세, 나머지만 과세
     const taxablePart = preTaxDiv * taxableRatio;
@@ -1409,6 +1415,7 @@ function simulate(p) {
     results.normal.push({
       year: y, principal: n_principal, asset: n_asset,
       preTaxDiv, afterTaxDiv,
+      taxableDiv: taxablePart,
       monthlyDiv: afterTaxDiv / 12,
       monthlyDivReal: (afterTaxDiv / 12) * n_inf
     });
@@ -1422,33 +1429,49 @@ function simulate(p) {
   // ===== 연금저축 =====
   // 국내ETF: 계좌 내 완전 비과세 (옵션프리미엄 여부 무관)
   // 한국상장 해외ETF: 외납세 15% 선차감
+  //   → 2026.7.1 인출분부터 낸 외국세의 55.2%(9/14−0.09)가 크레딧으로 쌓여 연금소득세에서 공제
+  // 연 납입한도 1,800만원(연금저축+IRP 합산) — 초과분은 일반계좌로 계산
+  const PENSION_ANNUAL_LIMIT = 18000000;
+  const PENSION_FTC_RATE = 0.552;
   results.pension = [];
-  let p_asset = initial, p_principal = initial, p_inf = 1, p_creditBank = 0;
+  let p_asset = 0, p_overflow = 0, p_principal = 0, p_inf = 1, p_creditBank = 0, p_overYears = 0;
   for (let y = 1; y <= years; y++) {
-    if (y > 1) p_asset *= (1 + divGrowth);
+    if (y > 1) { p_asset *= (1 + divGrowth); p_overflow *= (1 + divGrowth); }
     const yearIn = (y === 1) ? (monthly * 12 + initial) : (monthly * 12);
-    const realInput = yearIn + p_creditBank;
-    p_asset += realInput;
-    if (y > 1) p_principal += realInput;
-    const qualified = Math.min(yearIn, PENSION_CREDIT_LIMIT);
+    const yearInPension = Math.min(yearIn, PENSION_ANNUAL_LIMIT);
+    const overIn = yearIn - yearInPension;
+    if (overIn > 0) p_overYears++;
+    // 전년도 세액공제 환급금은 다시 연금계좌에 넣는다고 가정 (원금이 아니라 혜택이므로 원금에서는 제외)
+    p_asset += yearInPension + p_creditBank;
+    p_overflow += overIn;
+    p_principal += yearIn;
+    const qualified = Math.min(yearInPension, PENSION_CREDIT_LIMIT);
     const taxCredit = qualified * taxCreditRate;
     p_creditBank = taxCredit;
-    const preTaxDiv = p_asset * divYield;
+    const preTaxDivP = p_asset * divYield;
     // 한국상장 해외ETF는 외납세 15% 선차감 / 국내ETF는 완전 비과세
-    const afterForeignTax = (category === 'kr-foreign')
-      ? preTaxDiv * (1 - FOREIGN_TAX)
-      : preTaxDiv;
+    const foreignTaxPaid = (category === 'kr-foreign') ? preTaxDivP * FOREIGN_TAX : 0;
+    const afterForeignTax = preTaxDivP - foreignTaxPaid;
     p_asset += afterForeignTax;
     p_inf *= (1 - inflation);
-    // 연금 수령 시 5.5% (원천징수된 금액 기준)
-    const withdrawTax = afterForeignTax * PENSION_WITHDRAW_TAX;
-    const netDiv = afterForeignTax - withdrawTax;
+    // 연금 수령 시 5.5%(보수적) − 외납세 크레딧 (0 미만으로 내려가지 않음)
+    const withdrawTax = Math.max(0, afterForeignTax * PENSION_WITHDRAW_TAX - foreignTaxPaid * PENSION_FTC_RATE);
+    const netDivP = afterForeignTax - withdrawTax;
+
+    // 한도초과분 — 일반계좌 방식
+    const preDivOver = p_overflow * divYield;
+    const afterDivOver = preDivOver * taxableRatio * (1 - DIV_TAX) + preDivOver * premiumRatio;
+    p_overflow += afterDivOver;
+
+    const netDiv = netDivP + afterDivOver;
     results.pension.push({
-      year: y, principal: p_principal, asset: p_asset,
-      preTaxDiv, afterTaxDiv: netDiv,
+      year: y, principal: p_principal, asset: p_asset + p_overflow,
+      preTaxDiv: preTaxDivP + preDivOver, afterTaxDiv: netDiv,
+      pensionDiv: afterForeignTax,
       monthlyDiv: netDiv / 12,
       monthlyDivReal: (netDiv / 12) * p_inf,
-      taxCredit
+      taxCredit,
+      overYears: p_overYears
     });
   }
 
@@ -1459,8 +1482,8 @@ function simulate(p) {
   // - 연 200만원 비과세 한도 (단순화를 위해 매년 적용, 실제로는 만기정산이라 더 유리할 수 있음)
   // - 한국상장 해외ETF의 외납세 15%는 실질 차감 효과만 반영 (ISA 9.9%보다 크므로 사실상 외납세가 ISA 과세를 대체)
   results.isa = [];
-  let i_asset = initial, i_overflow = 0;
-  let i_principal = initial, i_inf = 1, i_cumIn = initial;
+  let i_asset = 0, i_overflow = 0;
+  let i_principal = 0, i_inf = 1, i_cumIn = 0;
   for (let y = 1; y <= years; y++) {
     if (y > 1) { i_asset *= (1 + divGrowth); i_overflow *= (1 + divGrowth); }
     const yearInRaw = (y === 1) ? (monthly * 12 + initial) : (monthly * 12);
@@ -1472,7 +1495,7 @@ function simulate(p) {
     i_cumIn += yearInISA;
     i_asset += yearInISA;
     i_overflow += overflow;
-    if (y > 1) i_principal += yearInRaw;
+    i_principal += yearInRaw;
 
     // ISA 내부 배당
     const preDivISA = i_asset * divYield;
@@ -1484,7 +1507,7 @@ function simulate(p) {
     if (category === 'kr-foreign') {
       // 한국상장 해외ETF (2025년 세법 개정):
       // - 외납세 15%가 배당 시점에 선차감됨
-      // - ISA 비과세 200만원 한도는 적용 불가 (선차감된 금액은 과세소득에 포함 X)
+      // - 선차감된 외국세는 ISA 비과세 한도로 돌려받을 수 없음
       // - 만기 시 외납세(15%) > ISA세율(9.9%) → 추가 과세 없음
       // → 사실상 외납세 15%만 적용됨 (일반계좌 15.4%와 거의 동일)
       afterDivISA = isaTaxablePart * (1 - FOREIGN_TAX) + isaExemptPremium;
@@ -1694,8 +1717,8 @@ function renderResults(results, inputs) {
     warnings.push({
       type: 'warn',
       icon: '🌍',
-      title: '한국상장 해외ETF — ISA 비과세 한도 적용 불가',
-      desc: `KODEX 미국배당다우존스, TIGER 커버드콜 등 해외자산 편입 ETF는 <strong>2025년 세법 개정 이후</strong> 분배금 지급 시점에 외국(미국)에서 15%가 먼저 차감됩니다. <strong>ISA의 200만/400만원 비과세 한도도 적용받을 수 없어</strong>, 사실상 일반계좌(15.4%)와 거의 동일한 세후 수익률입니다. 연금저축의 경우 여기에 추가로 3.3~5.5%가 부과되어 <strong>이중과세</strong>가 발생합니다. 진정한 절세를 원한다면 <strong>한국상장 국내ETF</strong>(PLUS 고배당주, KODEX 200위클리 등)가 훨씬 유리합니다.`
+      title: '한국상장 해외ETF — 분배금에서 외국세 15%가 먼저 빠집니다',
+      desc: `KODEX 미국배당다우존스 같은 해외자산 ETF는 <strong>2025년부터</strong> 분배금 지급 시점에 외국(미국) 원천세 15%가 펀드 단계에서 먼저 차감됩니다. 그래서 <strong>분배금만 놓고 보면</strong> ISA와 일반계좌의 차이가 작습니다(약 15% vs 15.4%).<br>연금저축은 <strong>2026년 7월 인출분부터</strong> 낸 외국세의 55.2%가 크레딧으로 쌓여 연금소득세(3.3~5.5%)에서 공제되므로 <strong>이중과세가 대부분 해소</strong>됩니다. 이 계산은 그 크레딧을 반영했습니다.<br>다만 이 계산기는 <strong>매매차익 과세를 다루지 않습니다.</strong> 해외ETF 매매차익은 일반계좌에서 15.4%가 붙지만 연금·ISA에서는 과세이연·비과세 혜택을 받으므로, 장기 보유할수록 절세계좌가 더 유리합니다. 커버드콜형은 옵션프리미엄에 미국 원천징수가 없어 실제 절세계좌 결과가 이 계산보다 좋을 수 있습니다(보수적 계산).`
     });
   } else if (inputs.category === 'kr-domestic') {
     if (inputs.premium > 0) {
@@ -1716,7 +1739,8 @@ function renderResults(results, inputs) {
   }
 
   // 수치 기반 경고 (일반계좌 기준)
-  const normalAnnualDiv = normal.preTaxDiv;
+  // 금융소득 판정은 과세 대상분만 (국내 커버드콜 옵션프리미엄 비과세분 제외)
+  const normalAnnualDiv = normal.taxableDiv;
 
   if (normalAnnualDiv > 20000000) {
     warnings.push({
@@ -1732,16 +1756,25 @@ function renderResults(results, inputs) {
       type: 'warn',
       icon: '🚨',
       title: '건강보험 피부양자 탈락 위험 (연 1,000만원 초과)',
-      desc: `연 금융소득(이자+배당)이 <strong>1,000만원을 초과하면 건강보험공단에 전액 소득으로 통보</strong>됩니다. 다른 소득과 합산 2,000만원 초과 시 피부양자 자격 박탈 → 지역가입자 전환으로 <strong>월 건강보험료 10~30만원</strong>이 추가 부과됩니다. <strong>분리과세 여부와 무관</strong>하게 건보료 산정에 반영되므로 미국 직투·국내ETF 모두 해당됩니다.`
+      desc: `연 금융소득(이자+배당)이 <strong>1,000만원을 초과하면 건강보험공단에 전액 소득으로 통보</strong>됩니다. 다른 소득과 합산해 연 2,000만원을 넘으면 피부양자 자격을 잃고 <strong>지역가입자로 전환되어 건강보험료가 새로 부과</strong>됩니다(금액은 소득·재산에 따라 다름). <strong>분리과세 여부와 무관</strong>하게 반영되므로 미국 직투·국내ETF 모두 해당됩니다. 국내 커버드콜의 비과세 옵션프리미엄은 금융소득에서 빠지며, 이 판정도 과세 대상분만으로 계산했습니다.`
     });
   }
 
-  if (pension && pension.preTaxDiv > 15000000) {
+  if (pension && pension.pensionDiv > 15000000) {
     warnings.push({
       type: 'warn',
       icon: '📢',
-      title: '연금 수령액 연 1,500만원 초과 — 세율 상승',
-      desc: `연금저축 수령액이 연 1,500만원을 넘으면 저율 연금소득세(3.3~5.5%)가 아닌 <strong>종합과세 또는 16.5% 분리과세</strong> 중 선택이 됩니다. 결과는 보수적으로 5.5% 적용 기준이며, 실제로는 수령 시점의 세법과 소득 상황에 따라 달라집니다.`
+      title: '마지막 해 연금 배당 연 1,500만원 초과 — 꺼내 쓰면 세율 상승',
+      desc: `${inputs.years}년차 연금계좌 배당이 연 <strong>${fmtMan(pension.pensionDiv)}원</strong>입니다. 이 배당을 매년 연금으로 꺼내 쓰면, 세액공제분과 운용수익에서 받는 연금이 연 1,500만원을 넘어 저율 연금소득세(3.3~5.5%) 대신 <strong>종합과세 또는 16.5% 분리과세</strong> 중 선택해야 합니다(모든 연금계좌 합산 기준). 결과는 보수적으로 5.5%를 적용했으며, 수령액을 1,500만원 안으로 나눠 받으면 세금을 줄일 수 있습니다.`
+    });
+  }
+
+  if (pension && pension.overYears > 0) {
+    warnings.push({
+      type: 'info',
+      icon: 'ℹ️',
+      title: '연금 연 납입한도(1,800만원) 초과분은 일반계좌로 계산',
+      desc: `연금저축·IRP는 합산 연 1,800만원까지만 납입할 수 있습니다. 이 한도를 넘은 금액(${pension.overYears}개 연도)은 연금 칸에서도 <strong>일반계좌 세율로 계산</strong>했습니다. 세액공제는 그중 연 600만원(IRP 합산 900만원)까지만 받습니다.`
     });
   }
 
@@ -1904,7 +1937,11 @@ function renderResults(results, inputs) {
     `;
   });
 
-  document.getElementById('resultView').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // 첫 화면 자동 계산 때는 스크롤하지 않음 (모바일에서 입력란을 건너뛰지 않도록)
+  if (!window.__initialCalc) {
+    document.getElementById('resultView').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  window.__initialCalc = false;
 }
 
 // ============ 버튼 이벤트 ============
@@ -1946,7 +1983,7 @@ document.getElementById('shareBtn').addEventListener('click', () => {
 });
 
 // 초기 자동 계산
-setTimeout(() => { document.getElementById('calcBtn').click(); }, 200);
+setTimeout(() => { window.__initialCalc = true; document.getElementById('calcBtn').click(); }, 200);
 </script>
 
 </body>
