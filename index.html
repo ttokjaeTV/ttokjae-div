@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>배당 눈덩이 시뮬레이터 · 똑재TV</title>
-<meta name="description" content="여러 종목을 섞은 포트폴리오를 일반계좌·연금저축·ISA에 담았을 때 세후 월배당을 비교하는 계산기. 세금·세액공제·연금소득세를 반영하고 건보료·종합과세 기준선까지 짚어줍니다.">
-<meta property="og:title" content="배당 눈덩이 시뮬레이터 - 일반계좌 vs 연금저축 vs ISA">
-<meta property="og:description" content="여러 종목을 섞어도 계좌별 세후 월배당이 보인다. 세금·세액공제·인출세를 반영하고 건보료·종합과세 위험까지 짚어주는 실수령액 계산기.">
+<meta name="description" content="여러 배당 종목을 섞어 매달 적립하고 배당을 재투자하면 월배당이 언제 얼마나 커지는지 보여주는 배당 눈덩이 시뮬레이터. 국내·미국 전체 종목 검색, 실제 배당률 자동 입력.">
+<meta property="og:title" content="배당 눈덩이 시뮬레이터 - 월배당은 언제 적립금을 넘을까?">
+<meta property="og:description" content="여러 종목을 섞어 배당을 재투자하면 월배당 눈덩이가 언제, 얼마나 커지는지 연도별로 보여드립니다.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
@@ -1009,83 +1009,8 @@
 }
 
   /* ============================================
-     배당 눈덩이 전용 (계좌 비교)
+     배당 눈덩이 전용
      ============================================ */
-  :root {
-    --acc-normal: #8B6F47;   --acc-normal-bg: #F1E8DA;
-    --acc-pension: #2F6B47;  --acc-pension-bg: #E3EEE5;
-    --acc-isa: #2A5C8A;      --acc-isa-bg: #E0E9F2;
-  }
-
-  /* 계좌·세금 조건 */
-  .cond-block + .cond-block { margin-top: 22px; padding-top: 22px; border-top: 1px dashed var(--border); }
-  .cond-title { font-size: 15px; font-weight: 800; color: var(--ink); margin-bottom: 4px; letter-spacing: -0.2px; }
-  .cond-desc { font-size: 13px; color: var(--ink-mute); font-weight: 500; line-height: 1.55; margin-bottom: 12px; }
-  .cond-desc strong { color: var(--accent); font-weight: 800; }
-  .seg-group { display: grid; grid-template-columns: repeat(var(--n, 2), 1fr); gap: 8px; }
-  .seg-group button {
-    border: 1.5px solid var(--border); background: var(--white); border-radius: 12px;
-    padding: 11px 10px; font: 700 14px 'Pretendard', sans-serif; color: var(--ink-soft);
-    cursor: pointer; transition: all 0.15s ease; text-align: center; line-height: 1.3;
-  }
-  .seg-group button small { display: block; font-size: 12px; font-weight: 600; color: var(--ink-mute); margin-top: 3px; }
-  .seg-group button:hover { border-color: var(--accent); }
-  .seg-group button.on { background: var(--dark-warm); border-color: var(--dark-warm); color: var(--white); }
-  .seg-group button.on small { color: var(--accent-soft); }
-
-  /* 종목 정보줄: 과세 구조 · 계좌 가능 여부 */
-  .tax-chip { display: inline-flex; align-items: center; font-size: 11px; font-weight: 800; border-radius: 6px; padding: 2px 8px; }
-  .tax-chip.kd { background: var(--acc-pension-bg); color: var(--acc-pension); }
-  .tax-chip.kf { background: #F5EAD0; color: #8A6418; }
-  .tax-chip.ks { background: #EEE6F3; color: #6B4A86; }
-  .tax-chip.us { background: #F4E4DA; color: #9A3B1C; }
-  .elig { font-size: 12px; font-weight: 700; }
-  .elig .ok { color: var(--acc-pension); }
-  .elig .no { color: #B03A1A; }
-  .meta-inline { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--ink-soft); }
-  .meta-inline select, .meta-inline input {
-    width: auto; padding: 4px 8px; font-size: 13px; border-radius: 8px; font-weight: 700;
-  }
-  .meta-inline input { width: 64px; text-align: right; }
-
-  /* 결과: 계좌 카드 */
-  .acct-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-  .acct-card {
-    background: var(--white); border: 1px solid var(--border); border-radius: 16px;
-    padding: 24px; position: relative; display: flex; flex-direction: column;
-  }
-  .acct-card.best { background: var(--dark-warm); border-color: var(--dark-warm); color: var(--white); }
-  .acct-tag {
-    align-self: flex-start; font-size: 12px; font-weight: 800; letter-spacing: 0.3px;
-    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
-  }
-  .acct-tag.normal { background: var(--acc-normal-bg); color: var(--acc-normal); }
-  .acct-tag.pension { background: var(--acc-pension-bg); color: var(--acc-pension); }
-  .acct-tag.isa { background: var(--acc-isa-bg); color: var(--acc-isa); }
-  .best-badge {
-    position: absolute; top: 20px; right: 20px; font-size: 11px; font-weight: 800;
-    background: var(--accent); color: var(--white); border-radius: 999px; padding: 4px 10px;
-  }
-  .acct-value { font-size: 32px; font-weight: 900; letter-spacing: -1px; line-height: 1.1; }
-  .acct-card.best .acct-value { color: #FFB38F; }
-  .acct-sub { font-size: 13px; color: var(--ink-mute); font-weight: 600; margin-top: 4px; }
-  .acct-card.best .acct-sub { color: var(--accent-soft); }
-  .acct-rows { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border); display: flex; flex-direction: column; gap: 7px; }
-  .acct-card.best .acct-rows { border-top-color: rgba(255,255,255,0.18); }
-  .acct-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; }
-  .acct-row span:first-child { color: var(--ink-mute); font-weight: 600; }
-  .acct-card.best .acct-row span:first-child { color: #CFC4B4; }
-  .acct-row span:last-child { font-weight: 800; color: var(--ink); white-space: nowrap; }
-  .acct-card.best .acct-row span:last-child { color: var(--white); }
-  .acct-row.real span:last-child { color: #4A5A4A; }
-  .acct-card.best .acct-row.real span:last-child { color: #B8D0B8; }
-  .acct-note { margin-top: 12px; font-size: 12px; line-height: 1.5; color: #B03A1A; font-weight: 600; }
-  .acct-card.best .acct-note { color: #FFC9B0; }
-  .acct-card.na { background: var(--bg-alt); border-style: dashed; }
-  .acct-na-body { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 6px; padding: 18px 0; }
-  .acct-na-body b { font-size: 18px; font-weight: 900; color: var(--ink-soft); }
-  .acct-na-body span { font-size: 13px; color: var(--ink-mute); font-weight: 600; line-height: 1.5; }
-
   /* 결과 헤드라인 */
   .result-head { margin-bottom: 20px; }
   .result-head-label { font-size: 14px; font-weight: 700; color: var(--ink-soft); }
@@ -1094,36 +1019,21 @@
   .result-head-sub { font-size: 15px; color: var(--ink-soft); font-weight: 500; line-height: 1.6; }
   .result-head-sub strong { color: var(--ink); font-weight: 800; }
 
-  /* 경고·안내 목록 */
-  .notice-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
-  .notice {
-    display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start;
+  /* 세전 안내 */
+  .tax-note {
+    display: flex; gap: 10px; align-items: flex-start;
     background: var(--white); border: 1px solid var(--border); border-left: 4px solid var(--beige-gold);
-    border-radius: 14px; padding: 16px 18px;
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 32px;
+    font-size: 13.5px; line-height: 1.65; color: var(--ink-soft); font-weight: 500;
   }
-  .notice.danger { border-left-color: #B03A1A; background: #FDF1EC; }
-  .notice.warn { border-left-color: var(--accent); }
-  .notice.info { border-left-color: var(--acc-isa); }
-  .notice-icon { font-size: 20px; line-height: 1.3; }
-  .notice-title { font-size: 15px; font-weight: 800; color: var(--ink); margin-bottom: 4px; letter-spacing: -0.2px; }
-  .notice-desc { font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); font-weight: 500; }
-  .notice-desc strong { color: var(--ink); font-weight: 800; }
+  .tax-note b { color: var(--ink); font-weight: 800; }
+  .tax-note-icon { color: var(--brown); font-weight: 900; font-size: 15px; line-height: 1.5; }
 
-  /* 차트 머리: 제목 + 토글 */
-  .chart-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
-  .chart-head .wi-metric { margin-bottom: 8px; }
-
-  /* 연차별 표: 계좌 그룹 */
-  .data-table th.g-normal { background: var(--acc-normal-bg); color: var(--acc-normal); text-align: center; font-size: 12px; font-weight: 800; }
-  .data-table th.g-pension { background: var(--acc-pension-bg); color: var(--acc-pension); text-align: center; font-size: 12px; font-weight: 800; }
-  .data-table th.g-isa { background: var(--acc-isa-bg); color: var(--acc-isa); text-align: center; font-size: 12px; font-weight: 800; }
-  .data-table td.c-normal { color: var(--acc-normal); }
-  .data-table td.c-pension { color: var(--acc-pension); }
-  .data-table td.c-isa { color: var(--acc-isa); }
-  .data-table td.emph { font-weight: 800; }
+  /* 연차별 표 */
   .data-table td .real { font-size: 10px; color: #4A5A4A; font-weight: 700; margin-top: 2px; }
-  .data-table td.na { color: var(--ink-mute); font-weight: 600; }
-  .data-table.mid { min-width: 860px; }
+  .data-table.mid { min-width: 820px; }
+  .data-table tr.cross-row td { background: #E9EFE6; }
+  .data-table tr.cross-row td:first-child { color: #2F6B47; }
 
   /* 종목별 상세 표 */
   .hold-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px; }
@@ -1133,52 +1043,18 @@
   .hold-table td:first-child { white-space: normal; }
   .hold-table .nm { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--ink); }
   .hold-table .nm .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
-  .hold-table .place { font-size: 12px; font-weight: 700; color: var(--ink-mute); }
-  .hold-table .place-m { display: none; }
   .m-br { display: none; }
   .hold-table tfoot td { background: var(--bg-alt); font-weight: 900; color: var(--ink); border-bottom: none; }
 
 
-  /* 퇴직연금 */
-  .retire-box { margin-top: 16px; padding: 18px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 14px; }
-  .retire-calc { margin-top: 14px; font-size: 13px; color: var(--ink-soft); font-weight: 600; line-height: 1.7; }
-  .retire-calc b { color: var(--ink); font-weight: 800; }
-  .retire-calc .em { color: var(--accent); font-weight: 800; }
-  .rc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
-  .acct-tag.retire { background: #EEE6F3; color: #6B4A86; }
-  .acct-tag.lump { background: var(--acc-normal-bg); color: var(--acc-normal); }
-  .rc-table td:first-child { font-weight: 800; }
-  .rc-table tr.cur td { background: #FDF6F1; }
-
-  @media (max-width: 1100px) {
-    .acct-grid { grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-    .acct-value { font-size: 26px; }
-  }
   @media (max-width: 768px) {
-    .acct-grid { grid-template-columns: 1fr !important; gap: 12px; }
-    .acct-card { padding: 18px 16px; border-radius: 14px; }
-    .acct-value { font-size: 28px; }
-    .best-badge { top: 16px; right: 16px; }
     .result-head-value { font-size: 30px; letter-spacing: -1px; }
     .result-head-sub { font-size: 13.5px; }
-    .seg-group { grid-template-columns: 1fr 1fr !important; }
-    .seg-group.seg-3 { grid-template-columns: repeat(3, 1fr) !important; }
     .m-br { display: inline; }
-    .seg-group button { font-size: 13px; padding: 10px 6px; }
-    .seg-group button small { font-size: 11px; }
-    .notice { padding: 14px; gap: 10px; grid-template-columns: 22px 1fr; }
-    .notice-title { font-size: 14px; }
-    .notice-desc { font-size: 12.5px; }
-    .data-table.mid { min-width: 640px; }
-    .rc-grid { grid-template-columns: 1fr; gap: 12px; }
-    .retire-box { padding: 14px 12px; }
-    .rc-table th:nth-child(2), .rc-table td:nth-child(2) { display: table-cell !important; }
-    .rc-table th:nth-child(4), .rc-table td:nth-child(4) { display: table-cell !important; }
-    .rc-table th, .rc-table td { white-space: normal; word-break: keep-all; }
+    .tax-note { font-size: 12.5px; padding: 12px 14px; margin-bottom: 24px; }
+    .data-table.mid { min-width: 620px; }
     .hold-table { font-size: 12.5px; min-width: 0; }
     .hold-table th, .hold-table td { padding: 9px 6px; }
-    .hold-table th:nth-child(2), .hold-table td:nth-child(2), .hold-table th:nth-child(4), .hold-table td:nth-child(4) { display: none; }
-    .hold-table .place-m { display: block; font-size: 11px; font-weight: 600; color: var(--ink-mute); margin: 2px 0 0 18px; }
     .hold-table .nm { align-items: flex-start; }
     .hold-table .nm .dot { margin-top: 4px; }
   }
@@ -1205,19 +1081,19 @@
       배당 눈덩이 시뮬레이터 · 2026년 10월 세법 기준
     </span>
     <h1 class="hero-title">
-      같은 돈, 같은 종목인데<br>
-      <span class="underline-mark">계좌만 바꾸면</span><br class="m-br"> 얼마나 달라질까?
+      배당을 다시 굴리면<br>
+      <span class="underline-mark">월배당 눈덩이</span>는<br class="m-br"> 얼마나 커질까?
     </h1>
     <p class="hero-desc">
-      여러 종목을 섞은 포트폴리오를 일반계좌·연금저축·ISA에 담았을 때<br>
-      세금·세액공제·인출세를 뺀 실수령 월배당과 건보료 기준선까지 보여드립니다.
+      여러 종목을 섞어 매달 적립하고 받은 배당을 다시 투자했을 때<br>
+      월배당과 자산이 해마다 어떻게 불어나는지 한눈에 보여드립니다.
     </p>
   </div>
 
   <!-- 상단 CTA -->
   <div class="top-cta">
     <div class="top-cta-text">
-      💡 <strong>계좌별 절세 전략</strong>이 더 궁금하신가요? 똑재TV에서 매주 만나보세요.
+      💡 <strong>배당 투자와 절세계좌 활용법</strong>이 더 궁금하신가요? 똑재TV에서 매주 만나보세요.
     </div>
     <div class="top-cta-links">
       <a href="https://www.youtube.com/@ttok_jae" target="_blank" rel="noopener" class="top-cta-link primary">
@@ -1261,7 +1137,7 @@
         <div class="inflation-text-area">
           <div class="inflation-title">💰 물가상승률 반영하기</div>
           <div class="inflation-desc">
-            ON으로 켜면 미래 월배당을 <strong>오늘 돈 가치(실질가치)</strong>로 함께 보여줍니다.
+            ON으로 켜면 미래 월배당과 자산을 <strong>오늘 돈 가치(실질가치)</strong>로 함께 보여줍니다.
             "20년 뒤 월 100만원"이 지금 돈으로 얼마인지 확인해 보세요.
           </div>
         </div>
@@ -1299,9 +1175,8 @@
     </div>
     <div id="holdings-container"></div>
     <details class="growth-guide">
-      <summary>배당률·성장률·과세 구조는 어떻게 채워지나요?</summary>
+      <summary>배당률·성장률은 어떻게 채워지나요?</summary>
       <p><b>배당률</b>은 실제 데이터입니다. 최근 12개월 동안 실제로 지급된 배당·분배금 합계를 현재가로 나눈 값이며, 매일 갱신됩니다. 상장 1년이 안 됐거나 분배금이 최근 크게 바뀐 종목은 ‘최근 분배 연환산’ 값으로 바꿔 볼 수 있습니다.</p>
-      <p><b>과세 구조</b>는 종목을 고르면 자동으로 판정합니다(국내상장 국내ETF · 국내상장 해외ETF · 국내 개별주 · 미국 직투). 국내상장 ETF의 <b>비과세 분배금 비중</b>은 최근 12개월 분배금 중 과세표준에 들어가지 않은 몫(국내 커버드콜 옵션프리미엄 등)으로 계산합니다.</p>
       <p><b>배당성장률·주가성장률</b>은 미래 예측이라 실데이터가 아닌 <b>가정치</b>입니다. 추천 종목은 프리셋 값을, 나머지는 아래 유형별 기본값을 넣습니다. 본인 판단에 맞게 직접 고쳐서 돌려보세요.</p>
       <table>
         <thead><tr><th>유형</th><th style="text-align:right">배당성장</th><th style="text-align:right">주가성장</th></tr></thead>
@@ -1310,79 +1185,6 @@
     </details>
   </div>
 
-  <!-- STEP 03: 계좌·세금 조건 -->
-  <div class="card">
-    <div class="step-label">
-      <div class="step-line"></div>
-      <span class="step-text">STEP 03 / 계좌·세금 조건</span>
-    </div>
-    <div class="cond-block">
-      <div class="cond-title">연봉 (연금저축 세액공제율)</div>
-      <div class="cond-desc">연금저축 납입액 중 <strong>연 600만원까지</strong> 세액공제를 받고, 돌려받은 환급금은 다음 해 연금저축에 다시 넣는다고 계산합니다.</div>
-      <div class="seg-group" id="seg-income">
-        <button type="button" data-v="0.165" class="on">총급여 5,500만원 이하<small>공제율 16.5%</small></button>
-        <button type="button" data-v="0.132">총급여 5,500만원 초과<small>공제율 13.2%</small></button>
-      </div>
-    </div>
-    <div class="cond-block">
-      <div class="cond-title">ISA 계좌 유형</div>
-      <div class="cond-desc">비과세 한도를 넘는 배당은 <strong>9.9% 분리과세</strong>입니다. 비과세 한도는 3년 만기 때 한 번 적용되므로, 3년마다 재가입한다고 보고 매년 한도의 1/3씩 반영했습니다. 서민형 가입조건: 총급여 5,000만원 이하 또는 종합소득 3,800만원 이하.</div>
-      <div class="seg-group" id="seg-isa">
-        <button type="button" data-v="2000000" class="on">일반형<small>비과세 200만원</small></button>
-        <button type="button" data-v="4000000">서민형·농어민<small>비과세 400만원</small></button>
-      </div>
-    </div>
-    <div class="cond-block">
-      <div class="cond-title">연금 받을 나이 (연금소득세율)</div>
-      <div class="cond-desc">연금저축에서 꺼내 쓰는 배당에 붙는 세율입니다. 사적연금 수령액이 <strong>연 1,500만원 이하</strong>일 때 적용되며, 넘으면 종합과세 또는 16.5% 분리과세 중 골라야 합니다.</div>
-      <div class="seg-group seg-3" id="seg-age" style="--n: 3;">
-        <button type="button" data-v="0.055" class="on">55~69세<small>5.5%</small></button>
-        <button type="button" data-v="0.044">70~79세<small>4.4%</small></button>
-        <button type="button" data-v="0.033">80세 이상<small>3.3%</small></button>
-      </div>
-    </div>
-    <div class="cond-block">
-      <div class="inflation-toggle-wrap">
-        <div class="inflation-text-area">
-          <div class="cond-title">🏢 퇴직연금(IRP·DC)도 함께 보기</div>
-          <div class="cond-desc" style="margin-bottom: 0;">퇴직금을 <strong>연금으로 받으면 퇴직소득세를 30~50% 덜 냅니다</strong>. 같은 포트폴리오로 굴렸을 때 연금으로 받기와 일시금으로 받기를 비교합니다.</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="retire-toggle">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div id="retire-box" class="retire-box" style="display: none;">
-        <div class="seg-group" id="seg-retire">
-          <button type="button" data-v="irp" class="on">퇴직금을 IRP로 받는 경우<small>이미 퇴직 · 퇴직금 이체</small></button>
-          <button type="button" data-v="dc">DC형 재직 중<small>투자 기간이 끝날 때 퇴직</small></button>
-        </div>
-        <div class="grid-3" style="margin-top: 16px;">
-          <div>
-            <label class="label" id="rt-bal-label">퇴직금 (IRP 입금액)</label>
-            <input type="number" id="rt-balance" value="100000000" step="10000000" min="0" inputmode="numeric">
-            <div class="input-hint" id="rt-balance-hint">1.00억원</div>
-          </div>
-          <div id="rt-annual-wrap" style="display: none;">
-            <label class="label">연 회사 부담금</label>
-            <input type="number" id="rt-annual" value="5000000" step="500000" min="0" inputmode="numeric">
-            <div class="input-hint" id="rt-annual-hint">보통 연봉의 1/12</div>
-          </div>
-          <div>
-            <label class="label" id="rt-tenure-label">근속연수 (년)</label>
-            <input type="number" id="rt-tenure" value="20" min="1" max="50" inputmode="numeric">
-            <div class="input-hint" id="rt-tenure-hint">입사일~퇴사일 (1년 미만은 1년)</div>
-          </div>
-          <div id="rt-tax-wrap">
-            <label class="label">퇴직소득세 (국세)</label>
-            <input type="number" id="rt-tax" value="" step="10000" min="0" inputmode="numeric" placeholder="비우면 자동 계산">
-            <div class="input-hint" id="rt-tax-hint">원천징수영수증의 ‘이연퇴직소득세’</div>
-          </div>
-        </div>
-        <div class="retire-calc" id="retire-calc"></div>
-      </div>
-    </div>
-  </div>
 
   <!-- 결과 없음 안내 -->
   <div class="card" id="results-empty" style="display:none; font-size: 15px; line-height: 1.6; color: #7A2E14; background: #FDF1EC; border: 1px solid #F0C4B0;"></div>
@@ -1392,64 +1194,35 @@
 
     <div class="step-label" style="margin-bottom: 20px;">
       <div class="step-line"></div>
-      <span class="step-text">STEP 04 / 시뮬레이션 결과</span>
+      <span class="step-text">STEP 03 / 시뮬레이션 결과</span>
     </div>
 
     <div class="result-head">
-      <div class="result-head-label" id="rh-label">20년 후 세후 월배당 (가장 유리한 계좌)</div>
+      <div class="result-head-label" id="rh-label">20년 후 월배당 (세전)</div>
       <div class="result-head-value" id="rh-value">-</div>
       <div class="result-head-sub" id="rh-sub"></div>
     </div>
 
-    <div class="card-group-label">
-      <span class="card-group-tag" style="background: var(--accent); color: var(--white);">계좌별 세후 월배당</span>
-      <span class="card-group-desc" id="acct-group-desc">마지막 해 배당 ÷ 12 · 세금·인출세 반영</span>
-    </div>
-    <div class="acct-grid" id="acct-grid"></div>
+    <div class="grid-4" id="stat-grid" style="margin-bottom: 16px;"></div>
 
-    <div class="card-group-label">
-      <span class="card-group-tag" style="background: var(--dark-warm); color: var(--white);">한눈에 보는 차이</span>
-      <span class="card-group-desc" id="shock-desc">투자 기간 전체 누적 기준</span>
-    </div>
-    <div class="grid-3" id="shock-grid" style="margin-bottom: 24px;"></div>
-
-    <div class="notice-list" id="notice-list"></div>
-
-    <!-- 퇴직연금 (IRP·DC) -->
-    <div class="card" id="retire-card" style="display: none;">
-      <div class="chart-title" id="rc-title">퇴직연금 · 연금으로 받기 vs 일시금으로 받기</div>
-      <div class="chart-subtitle" id="rc-sub">-</div>
-      <div class="rc-grid" id="rc-grid"></div>
-      <div class="table-wrap">
-        <table class="hold-table rc-table">
-          <thead><tr><th>연금 받는 해</th><th>세금 기준</th><th>배당에 붙는 세율</th><th>세후 월배당</th></tr></thead>
-          <tbody id="rc-body"></tbody>
-        </table>
-      </div>
-      <div class="notice-list" id="rc-notes" style="margin: 16px 0 0;"></div>
+    <div class="tax-note">
+      <span class="tax-note-icon">ⓘ</span>
+      <span><b>세금은 넣지 않은 세전 금액입니다.</b> 배당에 붙는 세금은 어떤 계좌(일반계좌·연금저축·IRP·ISA)에 담느냐, 어떤 종목(국내·해외 상장, 커버드콜 등)이냐에 따라 달라질 수 있어 실제로 받는 돈은 이보다 적을 수 있습니다.</span>
     </div>
 
-    <!-- 차트 1: 월배당 성장 -->
+    <!-- 차트 1: 월배당 -->
     <div class="card">
-      <div class="chart-head">
-        <div>
-          <div class="chart-title">연도별 세후 월배당 · 계좌별 비교</div>
-          <div class="chart-subtitle" id="chart-div-sub">같은 포트폴리오를 어느 계좌에 담느냐에 따라 매년 받는 배당이 벌어집니다</div>
-        </div>
-        <div class="wi-metric" id="div-mode">
-          <button type="button" data-m="nom" class="on">명목</button>
-          <button type="button" data-m="real">실질 (오늘 가치)</button>
-        </div>
-      </div>
+      <div class="chart-title">연도별 월배당 · 눈덩이가 커지는 속도</div>
+      <div class="chart-subtitle" id="chart-div-sub">-</div>
       <div class="chart-container lg">
         <canvas id="chart-div"></canvas>
       </div>
     </div>
 
-    <!-- 차트 2: 누적 자산 -->
+    <!-- 차트 2: 자산 -->
     <div class="card">
-      <div class="chart-title">누적 자산 비교 · 계좌별</div>
-      <div class="chart-subtitle">세금으로 덜 빠진 배당이 다시 재투자되면서 총 자산 격차가 커집니다 (단위: 원 · 만=만원, 억=억원)</div>
+      <div class="chart-title">자산 누적 추이 · 넣은 돈 vs 불어난 돈</div>
+      <div class="chart-subtitle" id="chart-asset-sub">-</div>
       <div class="chart-container lg">
         <canvas id="chart-asset"></canvas>
       </div>
@@ -1457,19 +1230,14 @@
 
     <!-- 차트 3: 종목별 기여 -->
     <div class="card">
-      <div class="chart-head">
-        <div>
-          <div class="chart-title">월배당은 어느 종목에서 나올까? · 종목별 기여</div>
-          <div class="chart-subtitle" id="chart-stack-sub">연도별 세후 월배당을 종목별로 쌓아 보여줍니다</div>
-        </div>
-        <div class="wi-metric" id="stack-acct"></div>
-      </div>
+      <div class="chart-title">월배당은 어느 종목에서 나올까? · 종목별 기여</div>
+      <div class="chart-subtitle">연도별 월배당을 종목별로 쌓았습니다. 배당률이 높은 종목은 초반 기여가 크고, 배당성장률이 높은 종목은 뒤로 갈수록 몫이 커집니다.</div>
       <div class="chart-container lg">
         <canvas id="chart-stack"></canvas>
       </div>
       <div class="table-wrap">
         <table class="hold-table">
-          <thead><tr><th id="ht-name">종목</th><th>담긴 계좌</th><th>자산</th><th>비중</th><th>월배당 (세후)</th></tr></thead>
+          <thead><tr><th id="ht-name">종목</th><th>자산</th><th>비중</th><th>월배당</th></tr></thead>
           <tbody id="hold-body"></tbody>
           <tfoot id="hold-foot"></tfoot>
         </table>
@@ -1478,25 +1246,19 @@
 
     <!-- 연차별 표 -->
     <div class="card">
-      <div class="chart-title">연차별 Raw Data · 세후 월배당과 총 자산</div>
-      <div class="chart-subtitle" id="table-sub">숫자로 보면 계좌 차이가 언제부터 벌어지는지 정확히 보입니다 (가로 스크롤)</div>
+      <div class="chart-title">연차별 Raw Data · 원금, 자산, 배당</div>
+      <div class="chart-subtitle" id="table-sub">숫자로 보면 눈덩이가 언제부터 커지는지 정확히 보입니다 (가로 스크롤)</div>
       <div class="table-wrap">
         <table class="data-table mid">
           <thead>
             <tr>
-              <th rowspan="2" style="vertical-align: middle;">연차</th>
-              <th rowspan="2" style="vertical-align: middle;">누적 원금</th>
-              <th colspan="2" class="g-normal">일반계좌</th>
-              <th colspan="2" class="g-pension">연금저축</th>
-              <th colspan="2" class="g-isa">ISA</th>
-            </tr>
-            <tr>
-              <th class="g-normal">총 자산</th>
-              <th class="g-normal">월배당</th>
-              <th class="g-pension">총 자산</th>
-              <th class="g-pension">월배당</th>
-              <th class="g-isa">총 자산</th>
-              <th class="g-isa">월배당</th>
+              <th>연차</th>
+              <th>누적 원금</th>
+              <th>총 자산</th>
+              <th>연 배당</th>
+              <th>월 배당</th>
+              <th>누적 배당</th>
+              <th>원금 대비 배당률</th>
             </tr>
           </thead>
           <tbody id="data-table-body"></tbody>
@@ -1506,7 +1268,7 @@
 
     <!-- 비중 바꿔 보기 (what-if) -->
     <div class="card" id="whatif-card">
-      <div class="chart-title">비중 바꿔 보기 · 비중을 바꾸면 계좌별 월배당이 어떻게 달라질까?</div>
+      <div class="chart-title">비중 바꿔 보기 · 비중을 바꾸면 월배당이 어떻게 달라질까?</div>
       <div class="chart-subtitle">
         종목마다 슬라이더를 움직이거나 숫자를 직접 넣어 보세요. <strong style="color: var(--accent);">직접 바꾼 종목은 🔒 고정</strong>되고, 나머지 종목이 원래 비율대로 알아서 줄거나 늘어 합계 100%를 맞춥니다.<br>
         위쪽 포트폴리오는 그대로 두고 비교만 합니다. 마음에 드는 비중이면 [이 비중으로 적용]을 누르세요.
@@ -1550,7 +1312,7 @@
 
       <div class="insight-cta">
         <div class="insight-cta-text">
-          📊 내 상황에 맞는 계좌 배치와 포트폴리오, 더 알고 싶다면?
+          📊 내 상황에 맞는 배당 포트폴리오와 절세 전략, 더 알고 싶다면?
         </div>
         <a href="https://www.youtube.com/@ttok_jae" target="_blank" rel="noopener" class="cta-link primary">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
@@ -1566,11 +1328,9 @@
   </div>
 
   <footer>
-    ※ 본 시뮬레이터는 2026년 10월 세법과 배당 데이터를 바탕으로 한 참고용 계산 도구입니다. 배당률은 최근 12개월 실지급액 기준 실데이터(매일 갱신), 배당·주가 성장률은 가정치이며 과거 배당이 미래 배당을 보장하지 않습니다.<br>
-    ※ 계좌별 비교는 "담을 수 있는 종목은 그 계좌에, 담을 수 없는 종목(미국 직투·국내 개별주의 연금계좌 등)과 납입한도를 넘는 돈은 일반계좌에" 두는 방식입니다. 한도를 넘은 돈은 이후 남는 한도만큼 옮긴다고 가정했습니다. 연금 월배당은 연금소득세(선택한 나이 기준)를 뺀 금액입니다.<br>
-    ※ 퇴직연금은 연금 인출 세금 시뮬레이터와 같은 2026년 규칙(퇴직소득세 간이 계산, 연금 수령 1~10년차 70%·11~20년차 60%·21년차~ 50% 납부, 인출 순서·수령한도)을 쓰며, 연금 수령은 투자 기간이 끝난 해를 1년차로 봅니다.<br>
-    ※ 매매차익 과세·수수료·환율 변동·IRP 추가 공제는 넣지 않았고, 건보료·금융소득종합과세는 기준선 초과 여부만 안내합니다. 개인 상황에 따라 결과가 달라질 수 있으니 투자 결정은 본인 판단으로 하시고, 최신 세법은 국세청 홈택스에서 확인하세요.<br>
-    ※ 계산 방식: 그 해 배당은 연초 보유액 × 배당률(1년차는 현재 배당률)이며 연말에 받아 재투자합니다. 초기 투자금은 1년차를 온전히 보유하고, 월 적립금은 연중 고르게 들어오므로 그 해에는 반년치만 배당·주가상승을 반영했습니다.
+    ※ 본 시뮬레이터는 세금·수수료·환율 변동을 넣지 않은 세전 기준 참고용 계산 도구입니다. 배당에 붙는 세금은 계좌(일반계좌·연금저축·IRP·ISA)와 종목에 따라 달라질 수 있어 실제 수령액과 차이가 있습니다.<br>
+    ※ 배당률은 최근 12개월 실지급액 기준 실데이터(매일 갱신), 배당·주가 성장률은 가정치입니다. 과거 배당이 미래 배당을 보장하지 않으며, 투자 결정은 본인 판단으로 하시기 바랍니다.<br>
+    ※ 계산 방식: 그 해 배당은 연초 보유액 × 배당률(1년차는 현재 배당률)이며 연말에 받아 같은 종목에 재투자합니다. 초기 투자금은 1년차를 온전히 보유하고, 월 적립금은 연중 고르게 들어오므로 그 해에는 반년치만 배당·주가상승을 반영했습니다.
   </footer>
 
 </div>
@@ -1581,103 +1341,87 @@ if (window.Chart) { Chart.defaults.font.family = "'Pretendard', -apple-system, s
 // 데이터 정의
 // ============================================================
 // 추천 프리셋 (key = 'KR:코드' | 'US:티커')
-//  cat: 과세 구조 — kr-domestic 국내상장 국내ETF / kr-foreign 국내상장 해외ETF / kr-stock 국내 개별주 / us-etf 미국 직투
-//  y: 배당률(실데이터 도착 전 임시값) · dg: 배당성장률 · pg: 주가성장률(가정치) · prem: 비과세 분배금 비중(과표 데이터 도착 전 임시값)
+//  y: 배당률(실데이터 도착 전 임시값) · dg: 배당성장률 · pg: 주가성장률(가정치)
 //  성장률은 배당 재투자 계산기(rediv)와 같은 값을 쓴다
 const PRESET_GROUPS = [
-  ['국내상장 국내ETF', 'kr-domestic', [
-    ['KR:161510', 'PLUS 고배당주', 5.8, 10.5, 7.0, 0],
-    ['KR:489030', 'PLUS 고배당주위클리커버드콜', 13.7, 1.0, 1.0, 78],
-    ['KR:498400', 'KODEX 200타겟위클리커버드콜', 12.0, 0.5, 3.0, 96],
-    ['KR:498410', 'KODEX 금융고배당TOP10타겟위클리커버드콜', 16.5, 0.0, 0.0, 80],
-    ['KR:472150', 'TIGER 배당커버드콜액티브', 12.0, 1.0, 1.0, 97],
-    ['KR:466940', 'TIGER 은행고배당플러스TOP10', 6.5, 5.0, 6.0, 0],
-    ['KR:441800', 'TIME Korea플러스배당액티브', 4.5, 8.0, 9.0, 0],
-    ['KR:0052D0', 'TIGER 코리아배당다우존스', 4.2, 7.0, 7.0, 0],
-    ['KR:091170', 'KODEX 은행', 5.5, 4.0, 5.5, 0],
-    ['KR:484880', 'SOL 금융지주플러스고배당', 7.0, 5.0, 6.0, 0],
-    ['KR:0153K0', 'KODEX 주주환원고배당주', 5.0, 7.0, 7.0, 0],
-    ['KR:0089D0', 'KODEX 금융고배당TOP10', 6.2, 5.5, 6.0, 0],
+  ['국내상장 국내ETF', [
+    ['KR:161510', 'PLUS 고배당주', 5.8, 10.5, 7.0],
+    ['KR:489030', 'PLUS 고배당주위클리커버드콜', 13.7, 1.0, 1.0],
+    ['KR:498400', 'KODEX 200타겟위클리커버드콜', 12.0, 0.5, 3.0],
+    ['KR:498410', 'KODEX 금융고배당TOP10타겟위클리커버드콜', 16.5, 0.0, 0.0],
+    ['KR:472150', 'TIGER 배당커버드콜액티브', 12.0, 1.0, 1.0],
+    ['KR:466940', 'TIGER 은행고배당플러스TOP10', 6.5, 5.0, 6.0],
+    ['KR:441800', 'TIME Korea플러스배당액티브', 4.5, 8.0, 9.0],
+    ['KR:0052D0', 'TIGER 코리아배당다우존스', 4.2, 7.0, 7.0],
+    ['KR:091170', 'KODEX 은행', 5.5, 4.0, 5.5],
+    ['KR:484880', 'SOL 금융지주플러스고배당', 7.0, 5.0, 6.0],
+    ['KR:0153K0', 'KODEX 주주환원고배당주', 5.0, 7.0, 7.0],
+    ['KR:0089D0', 'KODEX 금융고배당TOP10', 6.2, 5.5, 6.0],
   ]],
-  ['국내상장 해외ETF', 'kr-foreign', [
-    ['KR:489250', 'KODEX 미국배당다우존스', 3.7, 8.0, 8.0, 0],
-    ['KR:458730', 'TIGER 미국배당다우존스', 3.2, 9.0, 8.0, 0],
-    ['KR:0046Y0', 'ACE 미국배당퀄리티', 3.0, 9.0, 8.0, 0],
-    ['KR:441640', 'KODEX 미국배당커버드콜액티브', 9.4, 1.5, 4.5, 0],
-    ['KR:458760', 'TIGER 미국배당다우존스타겟커버드콜2호', 11.6, 1.0, 4.0, 0],
-    ['KR:494300', 'KODEX 미국나스닥100데일리커버드콜OTM', 19.7, 0.0, 1.5, 0],
-    ['KR:491620', 'RISE 미국테크100데일리고정커버드콜', 20.7, 0.0, 0.5, 0],
-    ['KR:490600', 'RISE 미국배당100데일리고정커버드콜', 16.4, 2.0, 2.0, 0],
-    ['KR:441680', 'TIGER 미국나스닥100커버드콜(합성)', 11.3, 0.5, 3.0, 0],
-    ['KR:473330', 'SOL 미국30년국채커버드콜(합성)', 10.1, 0.5, 2.0, 0],
-    ['KR:0040Y0', 'SOL 팔란티어커버드콜OTM채권혼합', 26.2, 0.0, 0.0, 0],
+  ['국내상장 해외ETF', [
+    ['KR:489250', 'KODEX 미국배당다우존스', 3.7, 8.0, 8.0],
+    ['KR:458730', 'TIGER 미국배당다우존스', 3.2, 9.0, 8.0],
+    ['KR:0046Y0', 'ACE 미국배당퀄리티', 3.0, 9.0, 8.0],
+    ['KR:441640', 'KODEX 미국배당커버드콜액티브', 9.4, 1.5, 4.5],
+    ['KR:458760', 'TIGER 미국배당다우존스타겟커버드콜2호', 11.6, 1.0, 4.0],
+    ['KR:494300', 'KODEX 미국나스닥100데일리커버드콜OTM', 19.7, 0.0, 1.5],
+    ['KR:491620', 'RISE 미국테크100데일리고정커버드콜', 20.7, 0.0, 0.5],
+    ['KR:490600', 'RISE 미국배당100데일리고정커버드콜', 16.4, 2.0, 2.0],
+    ['KR:441680', 'TIGER 미국나스닥100커버드콜(합성)', 11.3, 0.5, 3.0],
+    ['KR:473330', 'SOL 미국30년국채커버드콜(합성)', 10.1, 0.5, 2.0],
+    ['KR:0040Y0', 'SOL 팔란티어커버드콜OTM채권혼합', 26.2, 0.0, 0.0],
   ]],
-  ['국내 개별주', 'kr-stock', [
-    ['KR:005930', '삼성전자', 2.5, 4.0, 6.0, 0],
-    ['KR:000660', 'SK하이닉스', 1.0, 5.0, 12.0, 0],
-    ['KR:033780', 'KT&G', 5.5, 4.0, 4.0, 0],
-    ['KR:105560', 'KB금융', 4.5, 8.0, 7.0, 0],
-    ['KR:055550', '신한지주', 4.8, 7.0, 6.5, 0],
-    ['KR:086790', '하나금융지주', 6.0, 6.0, 6.0, 0],
-    ['KR:316140', '우리금융지주', 6.5, 5.0, 5.0, 0],
-    ['KR:024110', '기업은행', 7.0, 4.0, 4.5, 0],
-    ['KR:005380', '현대차', 4.0, 5.0, 7.0, 0],
-    ['KR:000270', '기아', 4.5, 5.0, 7.0, 0],
-    ['KR:017670', 'SK텔레콤', 5.5, 3.0, 4.0, 0],
-    ['KR:030200', 'KT', 5.0, 4.0, 4.5, 0],
-    ['KR:005490', 'POSCO홀딩스', 3.5, 4.0, 5.0, 0],
+  ['국내 개별주', [
+    ['KR:005930', '삼성전자', 2.5, 4.0, 6.0],
+    ['KR:000660', 'SK하이닉스', 1.0, 5.0, 12.0],
+    ['KR:033780', 'KT&G', 5.5, 4.0, 4.0],
+    ['KR:105560', 'KB금융', 4.5, 8.0, 7.0],
+    ['KR:055550', '신한지주', 4.8, 7.0, 6.5],
+    ['KR:086790', '하나금융지주', 6.0, 6.0, 6.0],
+    ['KR:316140', '우리금융지주', 6.5, 5.0, 5.0],
+    ['KR:024110', '기업은행', 7.0, 4.0, 4.5],
+    ['KR:005380', '현대차', 4.0, 5.0, 7.0],
+    ['KR:000270', '기아', 4.5, 5.0, 7.0],
+    ['KR:017670', 'SK텔레콤', 5.5, 3.0, 4.0],
+    ['KR:030200', 'KT', 5.0, 4.0, 4.5],
+    ['KR:005490', 'POSCO홀딩스', 3.5, 4.0, 5.0],
   ]],
-  ['미국 직투', 'us-etf', [
-    ['US:SCHD', 'SCHD (배당성장 ETF)', 3.5, 11.0, 8.0, 0],
-    ['US:JEPI', 'JEPI (월배당 고배당 ETF)', 7.5, 2.0, 4.0, 0],
-    ['US:JEPQ', 'JEPQ (월배당 나스닥 ETF)', 9.5, 3.0, 6.0, 0],
-    ['US:VYM', 'VYM (안정 고배당 ETF)', 3.0, 7.0, 7.0, 0],
-    ['US:VOO', 'VOO (S&P500 ETF)', 1.3, 6.0, 10.0, 0],
-    ['US:QQQ', 'QQQ (나스닥100 ETF)', 0.6, 8.0, 12.0, 0],
-    ['US:O', 'O (리얼티인컴 · 월배당 리츠)', 5.5, 4.0, 3.0, 0],
-    ['US:KO', 'KO (코카콜라)', 3.1, 5.0, 6.0, 0],
-    ['US:PEP', 'PEP (펩시코)', 3.5, 6.0, 6.0, 0],
-    ['US:JNJ', 'JNJ (존슨앤존슨)', 3.0, 6.0, 6.0, 0],
-    ['US:PG', 'PG (P&G)', 2.5, 5.0, 7.0, 0],
-    ['US:MCD', 'MCD (맥도날드)', 2.4, 8.0, 8.0, 0],
-    ['US:MO', 'MO (알트리아)', 8.0, 4.0, 2.0, 0],
-    ['US:XOM', 'XOM (엑슨모빌)', 3.5, 4.0, 5.0, 0],
-    ['US:CVX', 'CVX (셰브론)', 4.2, 5.0, 5.0, 0],
-    ['US:T', 'T (AT&T)', 6.5, 1.0, 3.0, 0],
-    ['US:VZ', 'VZ (버라이즌)', 6.8, 2.0, 3.0, 0],
-    ['US:AAPL', 'AAPL (애플)', 0.5, 5.0, 12.0, 0],
-    ['US:MSFT', 'MSFT (마이크로소프트)', 0.7, 10.0, 13.0, 0],
+  ['미국 주식·ETF', [
+    ['US:SCHD', 'SCHD (배당성장 ETF)', 3.5, 11.0, 8.0],
+    ['US:JEPI', 'JEPI (월배당 고배당 ETF)', 7.5, 2.0, 4.0],
+    ['US:JEPQ', 'JEPQ (월배당 나스닥 ETF)', 9.5, 3.0, 6.0],
+    ['US:VYM', 'VYM (안정 고배당 ETF)', 3.0, 7.0, 7.0],
+    ['US:VOO', 'VOO (S&P500 ETF)', 1.3, 6.0, 10.0],
+    ['US:QQQ', 'QQQ (나스닥100 ETF)', 0.6, 8.0, 12.0],
+    ['US:O', 'O (리얼티인컴 · 월배당 리츠)', 5.5, 4.0, 3.0],
+    ['US:KO', 'KO (코카콜라)', 3.1, 5.0, 6.0],
+    ['US:PEP', 'PEP (펩시코)', 3.5, 6.0, 6.0],
+    ['US:JNJ', 'JNJ (존슨앤존슨)', 3.0, 6.0, 6.0],
+    ['US:PG', 'PG (P&G)', 2.5, 5.0, 7.0],
+    ['US:MCD', 'MCD (맥도날드)', 2.4, 8.0, 8.0],
+    ['US:MO', 'MO (알트리아)', 8.0, 4.0, 2.0],
+    ['US:XOM', 'XOM (엑슨모빌)', 3.5, 4.0, 5.0],
+    ['US:CVX', 'CVX (셰브론)', 4.2, 5.0, 5.0],
+    ['US:T', 'T (AT&T)', 6.5, 1.0, 3.0],
+    ['US:VZ', 'VZ (버라이즌)', 6.8, 2.0, 3.0],
+    ['US:AAPL', 'AAPL (애플)', 0.5, 5.0, 12.0],
+    ['US:MSFT', 'MSFT (마이크로소프트)', 0.7, 10.0, 13.0],
   ]],
 ];
 const PRESETS = {};
-PRESET_GROUPS.forEach(([group, cat, rows]) => rows.forEach(([key, name, y, dg, pg, prem]) => {
-  PRESETS[key] = { key, name, group, cat, y, dg, pg, prem };
+PRESET_GROUPS.forEach(([group, rows]) => rows.forEach(([key, name, y, dg, pg]) => {
+  PRESETS[key] = { key, name, group, y, dg, pg };
 }));
 
 const MAX_HOLDINGS = 10;
 const CHART_COLORS = ['#D9542B', '#E89A6F', '#8B6F47', '#C4A57B', '#5A6B5A', '#3A6F8F', '#9C3D54', '#7A9A3A', '#7E6BA0', '#4F8A8B'];
-const ACCT = {
-  normal:  { name: '일반계좌', short: '일반', color: '#8B6F47', fill: 'rgba(139,111,71,0.10)' },
-  pension: { name: '연금저축', short: '연금', color: '#2F6B47', fill: 'rgba(47,107,71,0.10)' },
-  isa:     { name: 'ISA', short: 'ISA', color: '#2A5C8A', fill: 'rgba(42,92,138,0.10)' },
-};
-const ACCT_KEYS = ['normal', 'pension', 'isa'];
-const CAT_INFO = {
-  'kr-domestic': { label: '국내상장 국내ETF', chip: 'kd' },
-  'kr-foreign':  { label: '국내상장 해외ETF', chip: 'kf' },
-  'kr-stock':    { label: '국내 개별주', chip: 'ks' },
-  'us-etf':      { label: '미국 직투', chip: 'us' },
-};
-const isKrEtfCat = c => c === 'kr-domestic' || c === 'kr-foreign';
 
 // ============================================================
 // 전체 종목 데이터 (portfolio-sheet-data · etf-selector, 매일 자동 갱신)
 // ============================================================
 const DATA_BASE = 'https://ttokjaetv.github.io/portfolio-sheet-data/data/';
-const MASTER_URL = 'https://ttokjaetv.github.io/etf-selector/data/krx_etf_master.json';
 const UNIVERSE = new Map();     // 'KR:161510' | 'US:SCHD' → 종목 정보
 let UNIVERSE_LIST = [];
-const MASTER = new Map();       // 국내 ETF 분류표 (과세 구조·연금계좌 매수 가능 여부)
 const DATA_STATE = { kr: 'loading', us: 'loading', krUpdated: '', usUpdated: '' };
 
 function parseCSV(text) {
@@ -1717,31 +1461,8 @@ function addItem(it) {
   UNIVERSE.set(it.key, it);
 }
 
-// 국내상장 ETF 과세 비율 = 최근 12개월 과세표준액 합 ÷ 분배금 합
-// (국내 커버드콜 옵션프리미엄·국내주식 매매차익 등 비과세 재원은 과표에서 빠짐)
-async function loadTaxBaseRatio() {
-  const out = new Map();
-  const files = ['etf_tax_base.json', 'funetf_tax_base.json'];
-  const results = await Promise.allSettled(files.map(f => fetch(DATA_BASE + f, { cache: 'no-cache' }).then(r => r.ok ? r.json() : null)));
-  results.forEach(res => {
-    const data = res.status === 'fulfilled' && res.value && res.value.data;
-    if (!data) return;
-    Object.entries(data).forEach(([code, rows]) => {
-      if (!Array.isArray(rows) || !rows.length) return;
-      const latest = rows.reduce((m, r) => (r[0] > m ? r[0] : m), '');
-      const from = new Date(new Date(latest.replace(/\//g, '-')).getTime() - 365 * 864e5);
-      let dist = 0, base = 0;
-      rows.forEach(([d, amt, tb]) => {
-        if (new Date(String(d).replace(/\//g, '-')) > from && amt > 0 && tb != null) { dist += amt; base += Math.max(0, tb); }
-      });
-      if (dist > 0) out.set(code, Math.min(1, base / dist));
-    });
-  });
-  return out;
-}
-
 async function loadKR() {
-  const [etfs, stocks, divs, taxRatio] = await Promise.all([fetchCSV('etf_prices.csv'), fetchCSV('kr_stocks.csv'), fetchCSV('dividends.csv'), loadTaxBaseRatio()]);
+  const [etfs, stocks, divs] = await Promise.all([fetchCSV('etf_prices.csv'), fetchCSV('kr_stocks.csv'), fetchCSV('dividends.csv')]);
   const dmap = new Map(divs.map(d => [d['종목코드'], d]));
   const mk = (code, name, kind, price, extra) => {
     const d = dmap.get(code);
@@ -1760,7 +1481,6 @@ async function loadKR() {
   };
   etfs.forEach(r => mk(r['종목코드'], r['종목명'], '국내ETF', num(r['현재가']), {
     asset: r['자산군'], fee: num(r['총보수']),
-    taxRatio: taxRatio.has(r['종목코드']) ? taxRatio.get(r['종목코드']) : null,
   }));
   stocks.forEach(r => mk(r['종목코드'], r['종목명'], '국내주식', num(r['현재가']), {}));
   DATA_STATE.krUpdated = (etfs[0] && etfs[0]['갱신시각']) || '';
@@ -1780,15 +1500,6 @@ async function loadUS() {
     });
   });
   DATA_STATE.usUpdated = (prices[0] && prices[0]['갱신시각']) || '';
-}
-
-async function loadMaster() {
-  try {
-    const res = await fetch(MASTER_URL, { cache: 'no-cache' });
-    if (!res.ok) return;
-    const d = await res.json();
-    (d.etfs || []).forEach(e => MASTER.set(e.ticker, e));
-  } catch (e) { /* 분류표 없이도 이름 규칙으로 판정 */ }
 }
 
 // ============================================================
@@ -1848,20 +1559,6 @@ function classify(it) {
   return 'usStock';
 }
 
-// 과세 구조 판정: etf-selector 분류표(해외주식형 D·해외 커버드콜 E·해외 리츠) 우선, 없으면 이름 규칙
-function categoryOf(it) {
-  if (it.market === 'US') return 'us-etf';
-  if (it.kind === '국내주식') return 'kr-stock';
-  const m = MASTER.get(it.code);
-  if (m) {
-    if (m.group === 'D' || m.group === 'E') return 'kr-foreign';
-    if (m.group === 'K' && m.region && m.region !== '한국') return 'kr-foreign';
-    return 'kr-domestic';
-  }
-  const p = PRESETS[it.key];
-  if (p) return p.cat;
-  return it.type === 'overseasEtf' ? 'kr-foreign' : 'kr-domestic';
-}
 
 // ============================================================
 // 상태
@@ -1869,7 +1566,6 @@ function categoryOf(it) {
 // key: 'KR:코드' | 'US:티커' | 'CUSTOM'
 // yieldSrc: 'ttm'(최근12개월 실지급) | 'fwd'(최근 분배 연환산) | 'preset' | 'manual' | 'none'
 // growthSrc: 'preset' | 'type' | 'manual'
-// cat: 과세 구조 · prem: 비과세 분배금 비중(%) · premSrc: 'taxbase' | 'preset' | 'manual' | 'none'
 let holdings = [
   { id: 1, key: 'KR:161510', customName: '', weight: 40 },
   { id: 2, key: 'KR:489250', customName: '', weight: 30 },
@@ -1877,41 +1573,9 @@ let holdings = [
 ];
 let searchMarket = 'ALL'; // ALL | KR | US
 let pendingFocusId = null;
-let creditRate = 0.165;       // 연금저축 세액공제율
-let isaExemptLimit = 2000000; // ISA 비과세 한도 (일반형 200만 / 서민형 400만)
-let withdrawRate = 0.055;     // 연금소득세율 (55~69세 5.5% / 70~79세 4.4% / 80세 이상 3.3%)
-let retireType = 'irp';       // 퇴직연금: irp(퇴직금 이체) / dc(재직 중)
 
-// 연금계좌 매수 가능 여부: 국내상장 ETF만, 레버리지·인버스와 분류표상 매수 불가 종목 제외
-function setEligibility(h) {
-  const it = h.key === 'CUSTOM' ? null : UNIVERSE.get(h.key);
-  const m = it ? MASTER.get(it.code) : null;
-  h.pensionReason = '';
-  if (!isKrEtfCat(h.cat)) h.pensionReason = h.cat === 'us-etf' ? '미국 직투' : '국내 개별주';
-  else if (it && it.type === 'levInv') h.pensionReason = '레버리지·인버스';
-  else if (m && m.pensionTradable === false) h.pensionReason = '연금계좌 매수 불가 종목';
-  h.pensionOK = !h.pensionReason;
-  h.isaOK = h.cat !== 'us-etf';
-  h.safeAsset = !!(m && m.isPensionSafeAsset);   // IRP·DC 안전자산 (위험자산 70% 한도 계산용)
-}
 
-// 과세 구조·비과세 비중 채우기 (직접 고친 비과세 비중은 유지)
-function applyTaxInfo(h) {
-  if (h.key === 'CUSTOM') { setEligibility(h); return; }
-  const it = UNIVERSE.get(h.key);
-  const p = PRESETS[h.key];
-  h.cat = it ? categoryOf(it) : (p ? p.cat : (h.key.startsWith('US:') ? 'us-etf' : 'kr-domestic'));
-  if (h.premSrc !== 'manual') {
-    if (!isKrEtfCat(h.cat)) { h.prem = 0; h.premSrc = 'none'; }
-    else if (it && it.taxRatio != null) { h.prem = Math.round((1 - it.taxRatio) * 100); h.premSrc = 'taxbase'; }
-    else if (p) { h.prem = p.prem; h.premSrc = p.prem > 0 ? 'preset' : 'none'; }
-    else { h.prem = 0; h.premSrc = 'none'; }
-  }
-  if (!isKrEtfCat(h.cat)) h.prem = 0;
-  setEligibility(h);
-}
-
-// 종목 선택 시 배당률·성장률·과세 구조 채우기
+// 종목 선택 시 배당률·성장률 채우기
 function applySelection(h, key, opts = {}) {
   h.key = key;
   const it = UNIVERSE.get(key);
@@ -1920,14 +1584,11 @@ function applySelection(h, key, opts = {}) {
     if (!opts.keepValues) {
       const d = TYPE_DEFAULTS.custom;
       h.dividendYield = 4.0; h.dividendGrowth = d.dg; h.priceGrowth = d.pg;
-      h.cat = 'kr-domestic'; h.prem = 0;
     }
-    h.yieldSrc = 'manual'; h.growthSrc = 'manual'; h.premSrc = 'manual';
-    setEligibility(h);
+    h.yieldSrc = 'manual'; h.growthSrc = 'manual';
     return;
   }
   h.customName = '';
-  h.premSrc = '';
   if (it) {
     h.dividendYield = Math.round((it.yieldTTM || 0) * 100) / 100;
     h.yieldSrc = it.hasDiv ? 'ttm' : 'none';
@@ -1936,7 +1597,6 @@ function applySelection(h, key, opts = {}) {
   }
   if (p) { h.dividendGrowth = p.dg; h.priceGrowth = p.pg; h.growthSrc = 'preset'; }
   else if (it) { const d = TYPE_DEFAULTS[it.type]; h.dividendGrowth = d.dg; h.priceGrowth = d.pg; h.growthSrc = 'type'; }
-  applyTaxInfo(h);
 }
 holdings.forEach(h => applySelection(h, h.key));
 
@@ -2041,7 +1701,7 @@ function renderComboList(listEl, query) {
   let html = `<div class="combo-tabs">${tabs}</div>`;
   let idx = 0;
   if (!q) {
-    html += `<div class="combo-opt custom" data-key="CUSTOM" data-idx="${idx++}"><div class="opt-name">⚙️ 직접 입력</div><div class="opt-sub"><span>과세 구조·배당률·성장률을 직접 넣는 종목</span></div></div>`;
+    html += `<div class="combo-opt custom" data-key="CUSTOM" data-idx="${idx++}"><div class="opt-name">⚙️ 직접 입력</div><div class="opt-sub"><span>배당률·성장률을 직접 넣는 종목</span></div></div>`;
     html += `<div class="combo-hint">종목명이나 코드를 입력하면 <b>국내·미국 전체 종목</b>에서 찾습니다</div>`;
     PRESET_GROUPS.forEach(([g, , rows]) => {
       const keys = rows.map(r => r[0]).filter(k => searchMarket === 'ALL' || k.startsWith(searchMarket + ':'));
@@ -2052,7 +1712,7 @@ function renderComboList(listEl, query) {
   } else {
     const loading = DATA_STATE.kr === 'loading' || DATA_STATE.us === 'loading';
     const results = searchUniverse(q);
-    html += `<div class="combo-opt custom" data-key="CUSTOM" data-name="${escapeHtml(q)}" data-idx="${idx++}"><div class="opt-name">⚙️ ‘${escapeHtml(q)}’ 직접 입력으로 추가</div><div class="opt-sub"><span>과세 구조·배당률·성장률을 직접 넣습니다</span></div></div>`;
+    html += `<div class="combo-opt custom" data-key="CUSTOM" data-name="${escapeHtml(q)}" data-idx="${idx++}"><div class="opt-name">⚙️ ‘${escapeHtml(q)}’ 직접 입력으로 추가</div><div class="opt-sub"><span>배당률·성장률을 직접 넣습니다</span></div></div>`;
     if (results.length) results.forEach(it => { html += optionHtml(it.key, idx++); });
     else if (!loading) html += `<div class="combo-empty">‘${escapeHtml(q)}’ 검색 결과가 없습니다</div>`;
     if (loading) html += `<div class="combo-empty">종목 데이터를 불러오는 중입니다…</div>`;
@@ -2063,44 +1723,17 @@ function renderComboList(listEl, query) {
 }
 
 // ============================================================
-// 종목 하단 정보줄 (데이터 출처 · 과세 구조 · 계좌 가능 여부)
+// 종목 하단 정보줄 (데이터 출처·기준 표시)
 // ============================================================
-function generalTaxLabel(h) {
-  if (h.cat === 'us-etf') return '미국 원천징수 15%로 종결';
-  if (isKrEtfCat(h.cat) && h.prem > 0) return `과세분(${100 - h.prem}%)에만 15.4%`;
-  return '배당소득세 15.4%';
-}
-function taxLineHtml(h) {
-  const ci = CAT_INFO[h.cat];
-  const ok = '<b class="ok">가능</b>', no = (why) => `<b class="no">불가</b>${why ? ` (${why})` : ''}`;
-  let html = `<div class="meta-line">`;
-  if (h.key === 'CUSTOM') {
-    html += `<span class="meta-inline">과세 구조
-      <select data-id="${h.id}" data-field="cat">
-        ${Object.entries(CAT_INFO).map(([v, c]) => `<option value="${v}" ${h.cat === v ? 'selected' : ''}>${c.label}</option>`).join('')}
-      </select></span>`;
-  } else {
-    html += `<span class="tax-chip ${ci.chip}">${ci.label}</span>`;
-  }
-  html += `<span class="elig">연금저축 ${h.pensionOK ? ok : no(h.pensionReason)} · ISA ${h.isaOK ? ok : no('미국 직투')}</span>`;
-  html += `</div><div class="meta-line"><span>일반계좌 세율 = <b>${generalTaxLabel(h)}</b></span>`;
-  if (isKrEtfCat(h.cat)) {
-    html += `<span class="meta-inline">· 비과세 분배금 비중 <input type="number" data-id="${h.id}" data-field="prem" value="${h.prem}" min="0" max="100" step="1" inputmode="numeric" aria-label="비과세 분배금 비중">%</span>`;
-    if (h.premSrc === 'taxbase') html += `<span style="color: var(--ink-mute);">(최근 12개월 과세표준 기준)</span>`;
-    else if (h.premSrc === 'preset') html += `<span style="color: var(--ink-mute);">(추천 프리셋 값)</span>`;
-  }
-  html += `</div>`;
-  return html;
-}
 function metaHtml(h) {
   if (h.key === 'CUSTOM') {
-    return `<div class="meta-line">직접 입력 종목 · 배당률·성장률과 과세 구조를 직접 정해 주세요</div>` + taxLineHtml(h);
+    return `<div class="meta-line">직접 입력 종목 · 배당률·성장률을 직접 넣어 주세요</div>`;
   }
   const it = UNIVERSE.get(h.key);
   const p = PRESETS[h.key];
   if (!it) {
     const st = h.key.startsWith('US:') ? DATA_STATE.us : DATA_STATE.kr;
-    return `<div class="meta-line">${st === 'loading' ? '실제 배당 데이터를 불러오는 중… (지금은 추천 프리셋 값)' : '실데이터를 찾지 못해 추천 프리셋 값을 사용 중입니다'}</div>` + taxLineHtml(h);
+    return `<div class="meta-line">${st === 'loading' ? '실제 배당 데이터를 불러오는 중… (지금은 추천 프리셋 값)' : '실데이터를 찾지 못해 추천 프리셋 값을 사용 중입니다'}</div>`;
   }
   const parts = [kindBadge(it.kind), `<span>${escapeHtml(it.code)}</span>`];
   if (it.freq) parts.push(`<span>${FREQ_LABEL[it.freq] || escapeHtml(it.freq)}</span>`);
@@ -2125,7 +1758,6 @@ function metaHtml(h) {
     yl = `배당률 = 추천 프리셋 값`;
   }
   html += `<div class="meta-line">${yl}</div>`;
-  html += taxLineHtml(h);
 
   const td = TYPE_DEFAULTS[it.type];
   let gl = '';
@@ -2247,10 +1879,7 @@ function updateWeightTotal() {
   container.addEventListener('input', (e) => {
     const input = e.target.closest('.combo-input');
     if (input) { clearTimeout(timer); timer = setTimeout(() => open(input, input.value), 80); return; }
-    if (e.target.dataset.field && e.target.dataset.field !== 'cat') handleHoldingChange(e);
-  });
-  container.addEventListener('change', (e) => {
-    if (e.target.dataset.field === 'cat') handleHoldingChange(e);
+    if (e.target.dataset.field) handleHoldingChange(e);
   });
   container.addEventListener('keydown', (e) => {
     const input = e.target.closest('.combo-input'); if (!input) return;
@@ -2327,15 +1956,6 @@ function handleHoldingChange(e) {
   if (!h) return;
   if (field === 'customName') {
     h.customName = value;   // 재렌더 안 함 (포커스 유지)
-  } else if (field === 'cat') {
-    h.cat = value;
-    if (!isKrEtfCat(h.cat)) h.prem = 0;
-    setEligibility(h);
-    renderHoldings();
-  } else if (field === 'prem') {
-    const v = Number(value);
-    h.prem = isFinite(v) ? clamp(Math.round(v), 0, 100) : 0;
-    h.premSrc = 'manual';
   } else {
     h[field] = Number(value);
     if (field === 'weight') {
@@ -2348,13 +1968,6 @@ function handleHoldingChange(e) {
   }
   update();
 }
-// 비과세 비중 칸에서 벗어나면 정보줄 문구(세율)를 갱신
-document.getElementById('holdings-container').addEventListener('focusout', (e) => {
-  if (e.target.dataset && e.target.dataset.field === 'prem') {
-    const h = holdings.find(x => x.id === Number(e.target.dataset.id));
-    if (h) setTimeout(() => refreshMeta(h), 0);
-  }
-});
 
 // 종목 추가 → 바로 검색창에 포커스
 document.getElementById('add-holding-btn').addEventListener('click', () => {
@@ -2369,7 +1982,7 @@ document.getElementById('add-holding-btn').addEventListener('click', () => {
 });
 
 // ============================================================
-// 데이터 로드 (페이지는 즉시 동작, 데이터가 오면 실제 배당률·과세 정보로 교체)
+// 데이터 로드 (페이지는 즉시 동작, 데이터가 오면 실제 배당률로 교체)
 // ============================================================
 function renderDataStatus() {
   const el = document.getElementById('data-status');
@@ -2384,15 +1997,10 @@ function renderDataStatus() {
 function onDataLoaded() {
   UNIVERSE_LIST = [...UNIVERSE.values()];
   holdings.forEach(h => {
-    if (h.key === 'CUSTOM') return;
     if (h.yieldSrc === 'preset' && UNIVERSE.has(h.key)) {
       const keepGrowth = h.growthSrc === 'manual' ? { dg: h.dividendGrowth, pg: h.priceGrowth } : null;
-      const keepPrem = h.premSrc === 'manual' ? h.prem : null;
       applySelection(h, h.key);
       if (keepGrowth) { h.dividendGrowth = keepGrowth.dg; h.priceGrowth = keepGrowth.pg; h.growthSrc = 'manual'; }
-      if (keepPrem != null) { h.prem = keepPrem; h.premSrc = 'manual'; }
-    } else {
-      applyTaxInfo(h);   // 분류표·과표가 늦게 와도 과세 구조를 다시 판정
     }
   });
   renderDataStatus();
@@ -2409,36 +2017,18 @@ function onDataLoaded() {
 
 function loadAllData() {
   renderDataStatus();
-  const master = loadMaster();
-  loadKR().then(() => master).then(() => { DATA_STATE.kr = 'ok'; }).catch(err => { console.warn(err); DATA_STATE.kr = 'error'; }).then(onDataLoaded);
+  loadKR().then(() => { DATA_STATE.kr = 'ok'; }).catch(err => { console.warn(err); DATA_STATE.kr = 'error'; }).then(onDataLoaded);
   loadUS().then(() => { DATA_STATE.us = 'ok'; }).catch(err => { console.warn(err); DATA_STATE.us = 'error'; }).then(onDataLoaded);
 }
 
 // ============================================================
-// 시뮬레이션 — 같은 포트폴리오를 계좌 전략 3가지로 굴린다
+// 시뮬레이션 — 세전 · 배당 재투자 (배당 재투자 계산기와 같은 방식)
 // ============================================================
-//  · 일반계좌: 모든 종목을 일반계좌에 (종목별 배당세 차감 후 재투자)
-//  · 연금저축: 연금계좌에 담을 수 있는 종목(국내상장 ETF)은 연금저축에, 못 담는 종목은 일반계좌에
-//  · ISA     : 미국 직투를 뺀 종목은 ISA에, 미국 직투는 일반계좌에
-//  · 납입한도를 넘는 돈은 일반계좌 바구니에 두고, 이후 남는 한도만큼 연초에 옮긴다
-//
-// 공통 가정 (배당 재투자 계산기와 같은 방식)
 //  · 그 해 배당 = 연초 보유액 × 그 해 배당률 + 올해 적립분 × 배당률 × 0.5 (월 적립 → 반년치 근사)
 //  · 주가     = 연초 보유액 × (1+p) + 올해 적립분 × (1+p)^0.5
 //  · 배당률(연초 주가 기준) = y × (1+g)^(t-1) ÷ (1+p)^(t-1)  (주당배당은 g, 주가는 p로 성장)
-//  · 초기 투자금·전년도 세액공제 환급금·한도 이전분은 연초에 들어가 그 해 배당을 1년치 받는다
-const TAX = {
-  KR: 0.154,               // 배당소득세 (지방세 포함)
-  US: 0.15,                // 미국 원천징수 (국내 추가 징수 없음)
-  ISA: 0.099,              // ISA 비과세 한도 초과분 분리과세
-  FOREIGN: 0.15,           // 국내상장 해외ETF 외국납부세액 (펀드 단계 선차감)
-  PENSION_FTC: 0.552,      // 연금 인출 시 외납세 크레딧 (2026.7 인출분부터 · 낸 외국세의 55.2%)
-  PENSION_ANNUAL: 18000000,// 연금저축+IRP 연 납입한도
-  PENSION_CREDIT: 6000000, // 연금저축 세액공제 대상 한도
-  ISA_ANNUAL: 20000000,    // ISA 연 납입한도 (못 채운 한도 이월)
-  ISA_TOTAL: 100000000,    // ISA 총 납입한도
-};
-
+//  · 초기 투자금은 0시점에 들어가 1년차 배당·주가상승을 온전히 받는다
+//  · 받은 배당은 연말에 같은 종목에 그대로 재투자 (세금·수수료 없음)
 function readYears(writeBack) {
   const el = document.getElementById('years');
   const raw = String(el.value ?? '');
@@ -2472,311 +2062,44 @@ function simulate(hs = holdings) {
     y: (Number(h.dividendYield) || 0) / 100,
     g: (Number(h.dividendGrowth) || 0) / 100,
     p: (Number(h.priceGrowth) || 0) / 100,
-    cat: h.cat,
-    prem: isKrEtfCat(h.cat) ? clamp(Number(h.prem) || 0, 0, 100) / 100 : 0,
-    genRate: h.cat === 'us-etf' ? TAX.US : TAX.KR,
-    pensionOK: !!h.pensionOK,
-    isaOK: !!h.isaOK,
-    safe: !!h.safeAsset,
   }));
-  const deflator = (yr) => Math.pow(1 + inflationRate, yr);
-
-  function run(acct) {
-    const n = H.length;
-    const elig = H.map(x => acct === 'pension' ? x.pensionOK : acct === 'isa' ? x.isaOK : false);
-    const WE = H.reduce((s, x, i) => s + (elig[i] ? x.w : 0), 0);
-    const A = new Array(n).fill(0);   // 절세계좌 안
-    const O = new Array(n).fill(0);   // 일반계좌 (못 담는 종목 + 한도 초과분)
-    let bank = 0, cumIn = 0, principal = 0, overYears = 0, cumTax = 0, cumCredit = 0, cumPre = 0, cumNet = 0, realCumNet = 0;
-    const rows = [];
-    for (let yr = 1; yr <= years; yr++) {
-      const lump = yr === 1 ? initial : 0;
-      const mid = monthly * 12;
-      const lumpI = H.map(x => lump * x.w), midI = H.map(x => mid * x.w);
-      let LE = 0, ME = 0, OE = 0;
-      for (let i = 0; i < n; i++) if (elig[i]) { LE += lumpI[i]; ME += midI[i]; OE += O[i]; }
-      let room = 0;
-      if (WE > 0) {
-        if (acct === 'pension') room = TAX.PENSION_ANNUAL;
-        if (acct === 'isa') room = Math.max(0, Math.min(TAX.ISA_TOTAL, TAX.ISA_ANNUAL * yr) - cumIn);
-      }
-      // 채우는 순서: 초기투자금 → 전년도 환급금 → 월 적립금 → (남는 한도만큼) 일반계좌에서 이전
-      const inLump = Math.min(LE, room); room -= inLump;
-      const inBank = Math.min(bank, room); room -= inBank;
-      const inMid = Math.min(ME, room); room -= inMid;
-      const transfer = Math.min(OE, room); room -= transfer;
-      const rL = LE > 0 ? inLump / LE : 0, rM = ME > 0 ? inMid / ME : 0, rT = OE > 0 ? transfer / OE : 0;
-      const bankOut = bank - inBank;
-      const midIn = new Array(n).fill(0), midOut = new Array(n).fill(0);
-      for (let i = 0; i < n; i++) {
-        if (elig[i]) {
-          const moved = O[i] * rT;
-          const share = WE > 0 ? H[i].w / WE : 0;
-          A[i] += lumpI[i] * rL + inBank * share + moved;
-          O[i] += -moved + lumpI[i] * (1 - rL) + bankOut * share;
-          midIn[i] = midI[i] * rM;
-          midOut[i] = midI[i] - midIn[i];
-        } else {
-          O[i] += lumpI[i];
-          midOut[i] = midI[i];
-        }
-      }
-      if (acct !== 'normal' && WE > 0 && (LE - inLump) + bankOut + (ME - inMid) > 0.5) overYears++;
-      if (acct === 'isa') cumIn += inLump + inMid + transfer;
-      const deposited = inLump + inBank + inMid + transfer;
-      principal += lump + mid;   // 환급금·이전분은 새 돈이 아니므로 원금에서 제외
-
-      // 배당·주가
-      const dA = new Array(n).fill(0), netO = new Array(n).fill(0), advNet = new Array(n).fill(0);
-      let pre = 0, genTaxable = 0, genTax = 0;
-      for (let i = 0; i < n; i++) {
-        const x = H[i];
-        const pf = Math.max(1 + x.p, 0);
-        const pp = Math.pow(pf, yr - 1);
-        const e = pp > 0 ? x.y * Math.pow(1 + x.g, yr - 1) / pp : 0;
-        dA[i] = A[i] * e + midIn[i] * e * 0.5;
-        A[i] = A[i] * pf + midIn[i] * Math.sqrt(pf);
-        const dO = O[i] * e + midOut[i] * e * 0.5;
-        O[i] = O[i] * pf + midOut[i] * Math.sqrt(pf);
-        // 일반계좌: 과세분(비과세 분배금 제외)에만 세금
-        const taxable = dO * (1 - x.prem);
-        const t = taxable * x.genRate;
-        netO[i] = dO - t;
-        O[i] += netO[i];
-        genTaxable += taxable; genTax += t;
-        pre += dA[i] + dO;
-      }
-
-      let advTax = 0, credit = 0, pensionDiv = 0, withdrawTax = 0;
-      if (acct === 'pension') {
-        // 국내ETF: 계좌 안 비과세 / 국내상장 해외ETF: 외국세 15% 선차감 (과세분만 · 보수적 근사)
-        let foreign = 0;
-        const afterF = new Array(n).fill(0);
-        for (let i = 0; i < n; i++) {
-          if (!elig[i]) continue;
-          const f = H[i].cat === 'kr-foreign' ? dA[i] * (1 - H[i].prem) * TAX.FOREIGN : 0;
-          afterF[i] = dA[i] - f;
-          A[i] += afterF[i];
-          foreign += f; pensionDiv += afterF[i];
-        }
-        // 꺼내 쓸 때 연금소득세 − 외납세 크레딧 (0 미만으로 내려가지 않음)
-        withdrawTax = Math.max(0, pensionDiv * withdrawRate - foreign * TAX.PENSION_FTC);
-        for (let i = 0; i < n; i++) if (elig[i]) advNet[i] = afterF[i] - (pensionDiv > 0 ? withdrawTax * afterF[i] / pensionDiv : 0);
-        advTax = foreign + withdrawTax;
-        credit = Math.min(deposited, TAX.PENSION_CREDIT) * creditRate;
-        bank = credit;   // 다음 해 초 다시 연금저축에 넣음
-      } else if (acct === 'isa') {
-        // 비과세 분배금은 ISA에서도 비과세 · 과세분은 연 한도/3 비과세 후 9.9%
-        // 국내상장 해외ETF는 외국세 15%가 먼저 빠지고 ISA 세율(9.9%)보다 커서 추가 과세 없음
-        let D = 0;
-        const tp = new Array(n).fill(0), tax = new Array(n).fill(0);
-        for (let i = 0; i < n; i++) {
-          if (!elig[i]) continue;
-          tp[i] = dA[i] * (1 - H[i].prem);
-          if (H[i].cat === 'kr-foreign') tax[i] = tp[i] * TAX.FOREIGN; else D += tp[i];
-        }
-        const domTax = Math.max(0, D - isaExemptLimit / 3) * TAX.ISA;
-        for (let i = 0; i < n; i++) {
-          if (!elig[i]) continue;
-          if (H[i].cat !== 'kr-foreign') tax[i] = D > 0 ? domTax * tp[i] / D : 0;
-          advNet[i] = dA[i] - tax[i];
-          A[i] += advNet[i];
-          advTax += tax[i];
-        }
-      }
-
-      const net = netO.reduce((a, b) => a + b, 0) + advNet.reduce((a, b) => a + b, 0);
-      const asset = A.reduce((a, b) => a + b, 0) + O.reduce((a, b) => a + b, 0);
-      const advAsset = A.reduce((a, b) => a + b, 0);
-      cumTax += genTax + advTax; cumCredit += credit; cumPre += pre; cumNet += net;
-      const df = deflator(yr);
-      realCumNet += net / df;
-      rows.push({
-        year: yr, principal, asset, advAsset, pre, net,
-        monthly: net / 12, monthlyReal: net / 12 / df, assetReal: asset / df,
-        genTaxable, genTax, advTax, withdrawTax, pensionDiv, credit,
-        cumTax, cumCredit, cumPre, cumNet, realCumNet, overYears,
-        limitReached: acct === 'isa' && cumIn >= TAX.ISA_TOTAL - 1,
-        perH: H.map((x, i) => ({ asset: A[i] + O[i], adv: A[i], net: netO[i] + advNet[i] })),
-      });
-    }
-    return { key: acct, rows, last: rows[rows.length - 1], elig, WE,
-      excluded: acct === 'normal' ? [] : H.filter((x, i) => !elig[i] && x.w > 0).map(x => x.name) };
-  }
-
-  const retire = document.getElementById('retire-toggle').checked ? simulateRetire(H, years, inflationRate) : null;
-  const anyPension = H.some(x => x.pensionOK && x.w > 0);
-  const anyIsa = H.some(x => x.isaOK && x.w > 0);
-  return {
-    years, initial, monthly, inflationOn, inflationRate: Math.round(inflationRate * 1000) / 10, H,
-    normal: run('normal'),
-    pension: anyPension ? run('pension') : null,
-    isa: anyIsa ? run('isa') : null,
-    retire,
-  };
-}
-
-// ============================================================
-// 퇴직연금 (IRP·DC) — 연금 인출 세금 시뮬레이터와 같은 규칙 (2026년)
-// ============================================================
-//  · 퇴직소득세(국세) 간이 계산: 근속연수공제 → 환산급여(×12/근속) → 환산급여공제 → 기본세율 × 근속/12
-//  · 연금으로 받으면 실제 수령연차 1~10년 70%, 11~20년 60%, 21년~ 50%만 납부 (지방세 10% 가산)
-//  · 같은 계좌 안 인출 순서: 과세제외 → 이연퇴직소득 → 세액공제분·운용수익
-//    → 배당만 꺼내 써도 퇴직금 원금(이연퇴직소득)에서 먼저 빠진 것으로 보고 퇴직소득세 감면 세율 적용
-//  · 연금수령한도 = 연초 평가액 ÷ (11 − 연차) × 120% — 넘는 부분은 퇴직소득세 100%
-//  · 퇴직소득 재원 연금은 연 1,500만원 판정에서 빠짐 (금액과 상관없이 분리과세로 끝)
-//  · DC형은 퇴직 전 운용수익도 퇴직소득에 포함 (서면-2022-원천-0071)
-function progressiveTax(base) {
-  if (base <= 0) return 0;
-  const B = [
-    [14e6, 0.06, 0], [50e6, 0.15, 1.26e6], [88e6, 0.24, 5.76e6],
-    [150e6, 0.35, 15.44e6], [300e6, 0.38, 19.94e6], [500e6, 0.40, 25.94e6],
-    [1e9, 0.42, 35.94e6], [Infinity, 0.45, 65.94e6],
-  ];
-  for (const [lim, r, d] of B) if (base <= lim) return base * r - d;
-  return 0;
-}
-function retirementTax(severance, years) {
-  years = Math.max(1, Math.ceil(years));
-  let sd;
-  if (years <= 5) sd = 1e6 * years;
-  else if (years <= 10) sd = 5e6 + 2e6 * (years - 5);
-  else if (years <= 20) sd = 15e6 + 2.5e6 * (years - 10);
-  else sd = 40e6 + 3e6 * (years - 20);
-  const conv = Math.max(0, severance - sd) * 12 / years;
-  let cd;
-  if (conv <= 8e6) cd = conv;
-  else if (conv <= 70e6) cd = 8e6 + (conv - 8e6) * 0.6;
-  else if (conv <= 100e6) cd = 45.2e6 + (conv - 70e6) * 0.55;
-  else if (conv <= 300e6) cd = 61.7e6 + (conv - 100e6) * 0.45;
-  else cd = 151.7e6 + (conv - 300e6) * 0.35;
-  const base = Math.max(0, conv - cd);
-  return Math.max(0, progressiveTax(base) * years / 12);
-}
-function retireFactor(n) { return n <= 10 ? 0.7 : (n <= 20 ? 0.6 : 0.5); }
-
-function readRetireInputs() {
-  const num0 = (id) => { const v = Number(document.getElementById(id).value); return isFinite(v) && v > 0 ? v : 0; };
-  const taxRaw = document.getElementById('rt-tax').value;
-  return {
-    type: retireType,
-    balance: num0('rt-balance'),
-    annual: retireType === 'dc' ? num0('rt-annual') : 0,
-    tenure: Math.max(1, Math.round(num0('rt-tenure') || 1)),
-    taxManual: retireType === 'irp' && taxRaw !== '' && isFinite(Number(taxRaw)) && Number(taxRaw) >= 0 ? Number(taxRaw) : null,
-  };
-}
-
-function simulateRetire(H, years, inflationRate) {
-  const R = readRetireInputs();
-  const idx = H.map((x, i) => i).filter(i => H[i].pensionOK && H[i].w > 0);
-  const WE = idx.reduce((s, i) => s + H[i].w, 0);
-  if (!(WE > 0)) return { ...R, unavailable: true };
-  if (!(R.balance > 0 || R.annual > 0)) return { ...R, empty: true };
-  const W = idx.map(i => H[i].w / WE);
-  const riskyShare = idx.reduce((s, i, k) => s + (H[i].safe ? 0 : W[k]), 0);
-  const effYield = (x, yr) => {
-    const pf = Math.max(1 + x.p, 0), pp = Math.pow(pf, yr - 1);
-    return pp > 0 ? x.y * Math.pow(1 + x.g, yr - 1) / pp : 0;
-  };
-
-  // IRP: 지금 퇴직금 확정 → 세금 지금 계산 / DC: 투자 기간 끝 적립금 전체가 퇴직소득
-  const taxNow = R.type === 'irp' ? (R.taxManual != null ? R.taxManual : retirementTax(R.balance, R.tenure)) : 0;
-
-  // ① 연금 트랙: 퇴직연금 계좌 안에서 비과세 재투자 (국내상장 해외ETF는 외국세 15% 선차감)
-  const A = W.map(w => R.balance * w);
-  let contrib = R.balance, foreignCum = 0;
-  const pensionRows = [], lastPre = W.map(() => 0);
+  const V = H.map(x => initial * x.w);
+  const annual = monthly * 12;
+  let principal = initial, cumDiv = 0, realCumDiv = 0;
+  const rows = [];
   for (let yr = 1; yr <= years; yr++) {
-    const c = R.annual;   // DC 회사 부담금: 연중 고르게 → 반년치 근사
-    contrib += c;
-    let div = 0;
-    idx.forEach((i, k) => {
-      const x = H[i];
-      const pf = Math.max(1 + x.p, 0), e = effYield(x, yr), ci = c * W[k];
-      const d = A[k] * e + ci * e * 0.5;
-      A[k] = A[k] * pf + ci * Math.sqrt(pf);
-      const f = x.cat === 'kr-foreign' ? d * (1 - x.prem) * TAX.FOREIGN : 0;
-      A[k] += d - f; div += d - f; foreignCum += f;
-      if (yr === years) lastPre[k] = d;
+    principal += annual;
+    const perH = H.map((x, i) => {
+      const pf = Math.max(1 + x.p, 0);
+      const pp = Math.pow(pf, yr - 1);
+      const e = pp > 0 ? x.y * Math.pow(1 + x.g, yr - 1) / pp : 0;
+      const c = annual * x.w;
+      const div = V[i] * e + c * e * 0.5;
+      V[i] = V[i] * pf + c * Math.sqrt(pf) + div;   // 배당 재투자
+      return { asset: V[i], div };
     });
-    pensionRows.push({ year: yr, asset: A.reduce((a, b) => a + b, 0), div });
-  }
-  const lastP = pensionRows[years - 1];
-  const B2 = R.type === 'irp' ? R.balance : lastP.asset;               // 이연퇴직소득 (②)
-  const T = R.type === 'irp' ? taxNow : retirementTax(B2, R.tenure);    // 퇴직소득세 (국세)
-  const rate = B2 > 0 ? T / B2 : 0;                                     // 퇴직소득세 실효세율 (국세)
-  const limit1 = lastP.asset / 10 * 1.2;                                // 연금 1년차 수령한도
-
-  // N년차 배당을 연금으로 꺼내 쓸 때 세금 (수령연차 n, 그때 남은 퇴직금 원금 left2)
-  //  · 퇴직금 원금(②)에서 나간 몫: 퇴직소득세 × 감면 비율 / 다 꺼낸 뒤 운용수익(③): 연금소득세, 연 1,500만원 넘으면 16.5%
-  const withdrawTaxOf = (D, n, limit, left2) => {
-    const inLimit = Math.min(D, limit);
-    const from2 = Math.min(inLimit, Math.max(0, left2));
-    const from3 = inLimit - from2;
-    const over = D - inLimit;
-    const t3 = from3 <= 15000000 ? from3 * withdrawRate : from3 * 0.165;
-    return { tax: from2 * rate * retireFactor(n) * 1.1 + t3 + over * rate * 1.1, from2, from3 };
-  };
-  const D = lastP.div;
-  const w1 = withdrawTaxOf(D, 1, limit1, B2);
-  const tax1 = w1.tax;
-  // 매년 이만큼 배당만 꺼낸다고 보고 n년차에 남은 퇴직금 원금으로 계산 (수령한도는 11년차부터 없음)
-  const ladder = [1, 11, 21].map(n => {
-    const left2 = B2 - D * (n - 1);
-    const w = withdrawTaxOf(D, n, n === 1 ? limit1 : Infinity, left2);
-    return { n, factor: retireFactor(n), rate: rate * retireFactor(n) * 1.1, monthly: (D - w.tax) / 12,
-      effRate: D > 0 ? w.tax / D : 0, from2: w.from2, from3: w.from3, gone: left2 <= 0 };
-  });
-
-  // ② 일시금 트랙: 퇴직소득세 100%(지방세 포함)를 내고 남은 돈을 일반계좌에서 같은 종목으로
-  let lump;
-  const genAfter = (x, d) => d - d * (1 - x.prem) * x.genRate;
-  if (R.type === 'irp') {
-    const net0 = Math.max(0, R.balance - T * 1.1);
-    const L = W.map(w => net0 * w);
-    let taxCum = T * 1.1, divNet = 0, genTaxable = 0;
-    for (let yr = 1; yr <= years; yr++) {
-      divNet = 0; genTaxable = 0;
-      idx.forEach((i, k) => {
-        const x = H[i], pf = Math.max(1 + x.p, 0), d = L[k] * effYield(x, yr);
-        L[k] *= pf;
-        const net = genAfter(x, d);
-        L[k] += net; divNet += net; taxCum += d - net; genTaxable += d * (1 - x.prem);
-      });
-    }
-    lump = { asset: L.reduce((a, b) => a + b, 0), monthly: divNet / 12, taxCum, genTaxable, upfront: T * 1.1 };
-  } else {
-    // DC: 퇴직하는 해에 일시금으로 받아 세금을 내고, 남은 돈의 배당을 일반계좌 세율로
-    const net = Math.max(0, B2 - T * 1.1), ratio = B2 > 0 ? net / B2 : 0;
-    let divNet = 0, genTaxable = 0;
-    idx.forEach((i, k) => {
-      const d = lastPre[k] * ratio;   // 같은 해(N년차) 배당 기준, 세금 낸 만큼 원금이 줄어든 비율로
-      divNet += genAfter(H[i], d); genTaxable += d * (1 - H[i].prem);
+    const div = perH.reduce((s, x) => s + x.div, 0);
+    const asset = V.reduce((s, v) => s + v, 0);
+    const df = Math.pow(1 + inflationRate, yr);
+    cumDiv += div; realCumDiv += div / df;
+    rows.push({
+      year: yr, principal, asset, div, monthly: div / 12, cumDiv,
+      yoc: principal > 0 ? div / principal : 0,          // 원금 대비 배당률
+      assetReal: asset / df, monthlyReal: div / 12 / df, realCumDiv,
+      perH,
     });
-    lump = { asset: net, monthly: divNet / 12, taxCum: T * 1.1, genTaxable, upfront: T * 1.1 };
   }
-  const df = Math.pow(1 + inflationRate, years);
-  return {
-    ...R, B2, T, rate, contrib, riskyShare, foreignCum,
-    names: idx.map(i => H[i].name), excluded: H.filter((x, i) => x.w > 0 && !x.pensionOK).map(x => x.name),
-    pension: { asset: lastP.asset, div: D, monthly: (D - tax1) / 12, tax1, limit1, overLimit: D > limit1, taxCum: foreignCum, from2Left: B2 },
-    lump, ladder, df,
-  };
+  const last = rows[rows.length - 1];
+  // 눈덩이 시점: 월배당이 월 적립금을 처음 넘는 해
+  const cross = monthly > 0 ? rows.find(r => r.monthly >= monthly) || null : null;
+  return { years, initial, monthly, inflationOn, inflationRate: Math.round(inflationRate * 1000) / 10, H, rows, last, cross };
 }
 
 // ============================================================
 // 결과 렌더링
 // ============================================================
 let chartDiv = null, chartAsset = null, chartStack = null;
-let divMode = 'nom';        // 월배당 그래프: nom 명목 / real 실질
-let stackAcct = null;       // 종목별 기여 그래프 계좌
 let lastData = null;
-
-const availAccts = (d) => ACCT_KEYS.filter(k => d[k]);
-function bestAcct(d) {
-  return availAccts(d).reduce((b, k) => (!b || d[k].last.monthly > d[b].last.monthly + 0.5) ? k : b, null);
-}
 
 // 끝점 라벨 플러그인 (라인 차트 우측 끝에 계열 이름 + 값)
 function makeEndLabelPlugin(shorten) {
@@ -2828,115 +2151,86 @@ const tooltipBase = {
 };
 const axisX = { grid: { display: false }, ticks: { font: { family: 'Pretendard', size: 12, weight: 600 }, color: '#8B8276', maxRotation: 0, autoSkip: true } };
 const axisY = { grid: { color: '#E5DCC8' }, ticks: { font: { family: 'Pretendard', size: 12, weight: 600 }, color: '#8B8276', callback: (v) => formatKRW(v) } };
+const lineDs = (label, data, color, opt = {}) => Object.assign({
+  label, data, borderColor: color, backgroundColor: color, borderWidth: 2.5,
+  tension: 0.3, pointRadius: 0, pointHoverRadius: 5, fill: false,
+}, opt);
 
 function renderDivChart(d) {
   if (chartDiv) chartDiv.destroy();
-  const real = divMode === 'real' && d.inflationOn;
-  const datasets = availAccts(d).map(k => ({
-    label: ACCT[k].name,
-    data: d[k].rows.map(r => Math.round(real ? r.monthlyReal : r.monthly)),
-    borderColor: ACCT[k].color, backgroundColor: ACCT[k].color,
-    borderWidth: k === 'pension' ? 3 : 2.5, borderDash: k === 'normal' ? [6, 5] : (k === 'isa' ? [3, 4] : []),
-    tension: 0.3, pointRadius: 0, pointHoverRadius: 6, fill: false,
-  }));
+  const labels = d.rows.map(r => r.year + '년');
+  const datasets = [lineDs('월배당', d.rows.map(r => Math.round(r.monthly)), '#D9542B', { borderWidth: 3, pointHoverRadius: 6 })];
+  if (d.inflationOn) datasets.push(lineDs('월배당 · 실질', d.rows.map(r => Math.round(r.monthlyReal)), '#4A5A4A', { borderDash: [10, 5] }));
+  if (d.monthly > 0) datasets.push(lineDs('월 적립금', d.rows.map(() => d.monthly), '#9B9387', { borderWidth: 1.5, borderDash: [4, 4], pointHoverRadius: 0 }));
   const mobile = window.innerWidth < 768;
   chartDiv = new Chart(document.getElementById('chart-div').getContext('2d'), {
     type: 'line',
-    data: { labels: d.normal.rows.map(r => r.year + '년'), datasets },
+    data: { labels, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      layout: { padding: { right: mobile ? 92 : 130, top: 10, bottom: 4, left: 4 } },
+      layout: { padding: { right: mobile ? 96 : 150, top: 10, bottom: 4, left: 4 } },
       scales: { x: axisX, y: { ...axisY, beginAtZero: true } },
       plugins: {
         legend: { display: false },
         tooltip: { ...tooltipBase, itemSort: (a, b) => b.parsed.y - a.parsed.y,
-          callbacks: { title: (it) => it[0]?.label + ' 차 · 세후 월배당' + (real ? ' (오늘 가치)' : ''), label: (c) => '  ' + c.dataset.label + ': ' + formatKRWFull(c.parsed.y) } },
+          callbacks: { title: (it) => it[0]?.label + ' 차', label: (c) => '  ' + c.dataset.label + ': ' + formatKRWFull(c.parsed.y) } },
       },
     },
-    plugins: [makeEndLabelPlugin(t => t.replace('일반계좌', '일반').replace('연금저축', '연금'))],
+    plugins: [makeEndLabelPlugin(t => t.replace('월배당 · 실질', '실질').replace('월 적립금', '적립금'))],
   });
-  document.querySelectorAll('#div-mode button').forEach(b => {
-    b.classList.toggle('on', b.dataset.m === (real ? 'real' : 'nom'));
-    if (b.dataset.m === 'real') b.disabled = !d.inflationOn;
-  });
-  const best = bestAcct(d);
-  const lastN = d.normal.last;
-  const lastB = d[best].last;
-  document.getElementById('chart-div-sub').innerHTML = (best !== 'normal')
-    ? `${d.years}년차 기준 ${ACCT[best].name}는 일반계좌보다 월 <strong style="color: var(--accent);">${formatKRW((real ? lastB.monthlyReal - lastN.monthlyReal : lastB.monthly - lastN.monthly))}원</strong> 더 받습니다${real ? ' (오늘 돈 가치)' : ''}`
-    : `같은 포트폴리오를 어느 계좌에 담느냐에 따라 매년 받는 배당이 벌어집니다${real ? ' (오늘 돈 가치)' : ''}`;
-}
-
-function milestoneIdx(years) {
-  if (years <= 10) return [...Array(years).keys()];
-  const step = Math.max(2, Math.ceil(years / 8));
-  const idx = [];
-  for (let i = step - 1; i < years; i += step) idx.push(i);
-  if (idx[0] !== 0) idx.unshift(0);
-  const last = years - 1;
-  if (idx[idx.length - 1] !== last) {
-    if (last - idx[idx.length - 1] < 2) idx[idx.length - 1] = last; else idx.push(last);
-  }
-  return idx;
+  const L = d.last;
+  let sub = d.cross
+    ? `<strong style="color: var(--accent);">${d.cross.year}년차</strong>부터 월배당(${formatKRW(d.cross.monthly)}원)이 월 적립금(${formatKRW(d.monthly)}원)을 넘습니다. 이때부터는 내가 넣는 돈보다 배당이 더 많이 굴러 들어옵니다.`
+    : d.monthly > 0
+      ? `${d.years}년 동안은 월배당(${formatKRW(L.monthly)}원)이 월 적립금(${formatKRW(d.monthly)}원)을 아직 넘지 못합니다. 기간을 늘리거나 비중을 바꿔 보세요.`
+      : `첫해 월 ${formatKRW(d.rows[0].monthly)}원이던 배당이 ${d.years}년차에는 월 ${formatKRW(L.monthly)}원이 됩니다.`;
+  if (d.inflationOn) sub += ` 점선은 물가 ${d.inflationRate}%를 반영한 오늘 돈 가치입니다.`;
+  document.getElementById('chart-div-sub').innerHTML = sub;
 }
 
 function renderAssetChart(d) {
   if (chartAsset) chartAsset.destroy();
-  const idx = milestoneIdx(d.years);
+  const labels = d.rows.map(r => r.year + '년');
+  const datasets = [
+    lineDs('누적 원금', d.rows.map(r => Math.round(r.principal)), '#9B9387', { borderWidth: 1.5, borderDash: [4, 4] }),
+    lineDs('총 자산', d.rows.map(r => Math.round(r.asset)), '#D9542B', { borderWidth: 3, pointHoverRadius: 6 }),
+  ];
+  if (d.inflationOn) datasets.push(lineDs('총 자산 · 실질', d.rows.map(r => Math.round(r.assetReal)), '#4A5A4A', { borderDash: [10, 5] }));
   const mobile = window.innerWidth < 768;
-  const lastI = idx.length - 1;
-  const datasets = availAccts(d).map(k => ({
-    label: ACCT[k].name,
-    data: idx.map(i => Math.round(d[k].rows[i].asset)),
-    backgroundColor: ACCT[k].color, borderRadius: 4,
-    datalabels: {
-      display: (c) => !mobile && (c.dataIndex === lastI || idx.length <= 5),
-      anchor: 'end', align: 'top', color: ACCT[k].color, clamp: true,
-      font: { family: 'Pretendard', size: mobile ? 9 : 10, weight: 800 },
-      formatter: (v) => formatKRW(v),
-    },
-  }));
   chartAsset = new Chart(document.getElementById('chart-asset').getContext('2d'), {
-    type: 'bar',
-    data: { labels: idx.map(i => (i + 1) + '년'), datasets },
+    type: 'line',
+    data: { labels, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      layout: { padding: { top: 26 } },
-      scales: { x: { ...axisX, ticks: { ...axisX.ticks, autoSkip: false } }, y: { ...axisY, beginAtZero: true, grace: '8%' } },
+      layout: { padding: { right: mobile ? 100 : 160, top: 10, bottom: 4, left: 4 } },
+      scales: { x: axisX, y: { ...axisY, beginAtZero: true } },
       plugins: {
-        legend: { labels: { font: { family: 'Pretendard', size: 13, weight: 600 }, color: '#1A1A1A', usePointStyle: true, padding: 16 } },
-        tooltip: { ...tooltipBase, callbacks: { title: (it) => it[0]?.label + ' 차 · 총 자산', label: (c) => '  ' + c.dataset.label + ': ' + formatKRWFull(c.parsed.y) } },
+        legend: { display: false },
+        tooltip: { ...tooltipBase, itemSort: (a, b) => b.parsed.y - a.parsed.y,
+          callbacks: { title: (it) => it[0]?.label + ' 차', label: (c) => '  ' + c.dataset.label + ': ' + formatKRWFull(c.parsed.y) } },
       },
     },
-    plugins: [ChartDataLabels],
+    plugins: [makeEndLabelPlugin(t => t.replace('누적 원금', '원금').replace('총 자산 · 실질', '실질').replace('총 자산', '자산'))],
   });
-}
-
-function placementText(d, k, i, ph) {
-  if (k === 'normal' || !d[k].elig[i]) return '일반계좌';
-  if (ph.asset <= 0) return ACCT[k].name;
-  const r = ph.adv / ph.asset;
-  if (r > 0.995) return ACCT[k].name + ' 100%';
-  return `${ACCT[k].short} ${Math.round(r * 100)}% · 일반 ${100 - Math.round(r * 100)}%`;
+  const L = d.last;
+  const gain = L.asset - L.principal;
+  let sub = `넣은 돈 ${formatKRW(L.principal)}원이 ${d.years}년 뒤 <strong style="color: var(--accent);">${formatKRW(L.asset)}원</strong>이 됩니다. 불어난 ${formatKRW(gain)}원 중 배당을 다시 넣은 몫이 ${formatKRW(L.cumDiv)}원입니다.`;
+  if (d.inflationOn) sub += `<br><span style="color: #4A5A4A; font-weight: 700;">물가 ${d.inflationRate}% 반영 시 오늘 돈 가치로는 ${formatKRW(L.assetReal)}원입니다.</span>`;
+  document.getElementById('chart-asset-sub').innerHTML = sub;
 }
 
 function renderStack(d) {
-  const keys = availAccts(d);
-  if (!stackAcct || !d[stackAcct]) stackAcct = bestAcct(d);
-  document.getElementById('stack-acct').innerHTML = keys.map(k =>
-    `<button type="button" data-a="${k}" class="${k === stackAcct ? 'on' : ''}">${ACCT[k].name}</button>`).join('');
-  const A = d[stackAcct];
   if (chartStack) chartStack.destroy();
   const datasets = d.H.map((x, i) => ({
     label: x.name,
-    data: A.rows.map(r => Math.round(r.perH[i].net / 12)),
+    data: d.rows.map(r => Math.round(r.perH[i].div / 12)),
     backgroundColor: CHART_COLORS[i % CHART_COLORS.length], borderRadius: 2, stack: 's',
   })).filter((ds, i) => d.H[i].w > 0);
   chartStack = new Chart(document.getElementById('chart-stack').getContext('2d'), {
     type: 'bar',
-    data: { labels: A.rows.map(r => r.year + '년'), datasets },
+    data: { labels: d.rows.map(r => r.year + '년'), datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
@@ -2945,320 +2239,91 @@ function renderStack(d) {
         legend: { labels: { font: { family: 'Pretendard', size: 12, weight: 600 }, color: '#1A1A1A', usePointStyle: true, padding: 14, boxWidth: 8 } },
         tooltip: { ...tooltipBase, itemSort: (a, b) => b.parsed.y - a.parsed.y,
           callbacks: {
-            title: (it) => it[0]?.label + ' 차 · ' + ACCT[stackAcct].name + ' 세후 월배당',
+            title: (it) => it[0]?.label + ' 차 · 월배당',
             label: (c) => '  ' + c.dataset.label + ': ' + formatKRWFull(c.parsed.y),
             footer: (it) => '  합계: ' + formatKRWFull(it.reduce((s, x) => s + x.parsed.y, 0)),
           } },
       },
     },
   });
-  document.getElementById('chart-stack-sub').innerHTML =
-    `<b>${ACCT[stackAcct].name}</b> 기준 연도별 세후 월배당을 종목별로 쌓았습니다. 배당률이 높은 종목은 초반 기여가 크고, 배당성장률이 높은 종목은 뒤로 갈수록 몫이 커집니다.`;
-
-  // 마지막 해 종목별 상세
-  const last = A.last;
-  const tot = last.asset;
-  document.getElementById('ht-name').textContent = `종목 (${d.years}년차 · ${ACCT[stackAcct].name})`;
+  const L = d.last;
+  document.getElementById('ht-name').textContent = `종목 (${d.years}년차)`;
   document.getElementById('hold-body').innerHTML = d.H.map((x, i) => {
     if (!(x.w > 0)) return '';
-    const ph = last.perH[i];
+    const ph = L.perH[i];
     return `<tr>
-      <td><span class="nm"><span class="dot" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></span>${escapeHtml(x.name)}</span><span class="place-m">${placementText(d, stackAcct, i, ph)} · 비중 ${tot > 0 ? (ph.asset / tot * 100).toFixed(1) : '0.0'}%</span></td>
-      <td><span class="place">${placementText(d, stackAcct, i, ph)}</span></td>
+      <td><span class="nm"><span class="dot" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></span>${escapeHtml(x.name)}</span></td>
       <td>${formatKRW(ph.asset)}원</td>
-      <td>${tot > 0 ? (ph.asset / tot * 100).toFixed(1) : '0.0'}%</td>
-      <td style="color: var(--accent);">${formatKRW(ph.net / 12)}원</td>
+      <td>${L.asset > 0 ? (ph.asset / L.asset * 100).toFixed(1) : '0.0'}%</td>
+      <td style="color: var(--accent);">${formatKRW(ph.div / 12)}원</td>
     </tr>`;
   }).join('');
-  document.getElementById('hold-foot').innerHTML = `<tr><td>합계</td><td></td><td>${formatKRW(tot)}원</td><td>100%</td><td style="color: var(--accent);">${formatKRW(last.monthly)}원</td></tr>`;
+  document.getElementById('hold-foot').innerHTML = `<tr><td>합계</td><td>${formatKRW(L.asset)}원</td><td>100%</td><td style="color: var(--accent);">${formatKRW(L.monthly)}원</td></tr>`;
 }
 
 function renderTable(d) {
-  const tbody = document.getElementById('data-table-body');
   const on = d.inflationOn;
-  const cell = (acct, i, f, real, cls) => {
-    if (!d[acct]) return `<td class="na">불가</td>`;
-    const r = d[acct].rows[i];
-    return `<td class="c-${acct} ${cls || ''}">${formatKRW(r[f])}${on ? `<div class="real">실질 ${formatKRW(r[real])}</div>` : ''}</td>`;
-  };
-  tbody.innerHTML = d.normal.rows.map((r, i) => `
-    <tr class="${r.year === d.years ? 'highlight-row' : ''}">
+  const cell = (v, real, cls) => `<td class="${cls || ''}">${formatKRW(v)}${on && real != null ? `<div class="real">실질 ${formatKRW(real)}</div>` : ''}</td>`;
+  document.getElementById('data-table-body').innerHTML = d.rows.map(r => `
+    <tr class="${r.year === d.years ? 'highlight-row' : ''}${d.cross && r.year === d.cross.year ? ' cross-row' : ''}">
       <td>${r.year}년</td>
       <td style="color: var(--ink-soft);">${formatKRW(r.principal)}</td>
-      ${cell('normal', i, 'asset', 'assetReal', 'emph')}${cell('normal', i, 'monthly', 'monthlyReal')}
-      ${cell('pension', i, 'asset', 'assetReal', 'emph')}${cell('pension', i, 'monthly', 'monthlyReal')}
-      ${cell('isa', i, 'asset', 'assetReal', 'emph')}${cell('isa', i, 'monthly', 'monthlyReal')}
+      ${cell(r.asset, r.assetReal, 'col-reinvest-emph')}
+      ${cell(r.div, null, 'col-reinvest')}
+      ${cell(r.monthly, r.monthlyReal, 'col-reinvest')}
+      ${cell(r.cumDiv, r.realCumDiv, 'col-reinvest')}
+      <td class="col-gap">${(r.yoc * 100).toFixed(1)}%</td>
     </tr>`).join('');
-  document.getElementById('table-sub').innerHTML = `월배당은 그 해 세후 배당 ÷ 12입니다${on ? ` · 작은 글씨는 물가 ${d.inflationRate}%를 반영한 오늘 돈 가치` : ''} (가로 스크롤)`;
+  let sub = '원금 대비 배당률은 그 해 배당 ÷ 그때까지 넣은 원금입니다';
+  if (d.cross) sub += ` · <span style="color: var(--accent); font-weight: 700;">색칠된 ${d.cross.year}년차</span>는 월배당이 월 적립금을 처음 넘는 해`;
+  if (on) sub += ` · 작은 글씨는 물가 ${d.inflationRate}%를 반영한 오늘 돈 가치`;
+  document.getElementById('table-sub').innerHTML = sub + ' (가로 스크롤)';
 }
 
 function renderResults(d) {
-  const Y = d.years;
-  const keys = availAccts(d);
-  const best = bestAcct(d);
-  const N = d.normal.last, P = d.pension && d.pension.last, I = d.isa && d.isa.last;
-  const sorted = keys.slice().sort((a, b) => d[b].last.monthly - d[a].last.monthly);
-  const worst = sorted[sorted.length - 1];
-  const gap = d[best].last.monthly - d[worst].last.monthly;
-  const tie = keys.length > 1 && Math.round(gap) === 0;
-  const usOnly = !d.pension && !d.isa;
+  const Y = d.years, L = d.last;
+  document.getElementById('rh-label').textContent = `${Y}년 후 월배당 (세전)`;
+  document.getElementById('rh-value').innerHTML = `매달 <em>${formatKRW(L.monthly)}원</em>`;
+  let sub = `총 자산 <strong>${formatKRW(L.asset)}원</strong> · 넣은 돈의 <strong>${(L.principal > 0 ? L.asset / L.principal : 0).toFixed(2)}배</strong>`;
+  if (d.inflationOn) sub += ` · 오늘 돈 가치로는 <strong>월 ${formatKRW(L.monthlyReal)}원</strong>`;
+  document.getElementById('rh-sub').innerHTML = sub + '입니다.';
 
-  // 헤드라인
-  document.getElementById('rh-label').textContent = keys.length > 1 && !tie
-    ? `${Y}년 후 세후 월배당 · 가장 유리한 계좌는 ${ACCT[best].name}` : `${Y}년 후 세후 월배당`;
-  document.getElementById('rh-value').innerHTML = `매달 <em>${formatKRW(d[best].last.monthly)}원</em>`;
-  let sub = '';
-  if (usOnly) sub = `⚠️ 고른 종목이 모두 <strong>미국 직투</strong>라 연금저축·ISA에 담을 수 없어 <strong>일반계좌만</strong> 계산했습니다.`;
-  else if (tie) sub = `선택한 조건에서는 <strong>계좌별 월배당 차이가 거의 없습니다</strong>.`;
-  else if (keys.length > 1) sub = `${ACCT[best].name} 기준 · ${ACCT[worst].name}보다 <strong style="color: var(--accent);">월 ${formatKRW(gap)}원</strong>(연 ${formatKRW(gap * 12)}원) 더 받습니다.`;
-  if (d.inflationOn) sub += ` 오늘 돈 가치로는 <strong>월 ${formatKRW(d[best].last.monthlyReal)}원</strong>입니다.`;
-  document.getElementById('rh-sub').innerHTML = sub;
-
-  // 계좌 카드
-  document.getElementById('acct-group-desc').textContent = `${Y}년차 배당 ÷ 12 · 세금·연금소득세 반영`;
-  document.getElementById('acct-grid').innerHTML = ACCT_KEYS.map(k => {
-    const A = d[k];
-    if (!A) {
-      return `<div class="acct-card na"><span class="acct-tag ${k}">${ACCT[k].name}</span>
-        <div class="acct-na-body"><b>🚫 투자 불가</b><span>${k === 'isa' ? '미국 직투 종목은 ISA에<br>담을 수 없습니다' : '고른 종목 중 연금저축·IRP에<br>담을 수 있는 종목이 없습니다'}</span></div></div>`;
-    }
-    const L = A.last;
-    const isBest = k === best && keys.length > 1 && !tie;
-    const rows = [
-      ['총 자산', formatKRW(L.asset) + '원'],
-      ['누적 원금', formatKRW(L.principal) + '원'],
-      ['순수익', formatKRWSigned(L.asset - L.principal) + '원'],
-    ];
-    if (k === 'pension') rows.push(['세액공제 환급 누적', formatKRW(L.cumCredit) + '원']);
-    let note = '';
-    if (A.excluded.length) note = `${A.excluded.map(escapeHtml).join(', ')}은(는) ${ACCT[k].name}에 담을 수 없어 일반계좌로 계산`;
-    return `<div class="acct-card ${isBest ? 'best' : ''}">
-      ${isBest ? '<span class="best-badge">🏆 최고</span>' : ''}
-      <span class="acct-tag ${k}">${ACCT[k].name}</span>
-      <div class="acct-value">${formatKRW(L.monthly)}원</div>
-      <div class="acct-sub">${k === 'pension' ? `세후 월배당 (연금소득세 ${(withdrawRate * 100).toFixed(1)}% 반영)` : '세후 월배당'}</div>
-      <div class="acct-rows">
-        ${rows.map(([a, b]) => `<div class="acct-row"><span>${a}</span><span>${b}</span></div>`).join('')}
-        ${d.inflationOn ? `<div class="acct-row real"><span>오늘 가치 월배당</span><span>${formatKRW(L.monthlyReal)}원</span></div>` : ''}
-      </div>
-      ${note ? `<div class="acct-note">ⓘ ${note}</div>` : ''}
-    </div>`;
-  }).join('');
-
-  // 한눈에 보는 차이
-  const cell = (label, value, sub, color, accent) => `
-    <div class="stat-card ${accent || ''}">
+  const card = (label, value, sub, cls, color) => `
+    <div class="stat-card ${cls || ''}">
       <div class="stat-label">${label}</div>
       <div class="stat-value" style="${color ? 'color:' + color : ''}">${value}</div>
       <div class="stat-sub">${sub}</div>
     </div>`;
-  const monthlyGapText = (x) => Math.round(x) > 0 ? `월배당 ${formatKRW(x)}원 더 많음` : Math.round(x) < 0 ? `월배당은 ${formatKRW(-x)}원 적음` : '월배당은 같음';
-  const normalTax = N.cumTax;
-  let shock = '';
-  const adv = P ? 'pension' : (I ? 'isa' : null);
-  if (adv) {
-    const A = d[adv].last;
-    shock += cell(`${ACCT[adv].name} vs 일반 · 총 자산 차이`, formatKRWSigned(A.asset - N.asset), `${Y}년 뒤 기준 · ${monthlyGapText(A.monthly - N.monthly)}`, 'var(--accent)', '');
+  let html = card(`${Y}년 후 총 자산`, formatKRW(L.asset), d.inflationOn ? `실질 ${formatKRW(L.assetReal)}원` : `원금의 ${(L.principal > 0 ? L.asset / L.principal : 0).toFixed(2)}배`, 'accent');
+  html += card('누적 투자원금', formatKRW(L.principal), d.initial > 0 && d.monthly > 0 ? '초기 + 매월 적립' : d.initial > 0 ? '초기 투자금' : '매월 적립');
+  html += card('누적 배당 (재투자)', formatKRW(L.cumDiv), `${Y}년간 받아 다시 넣은 배당`, '', 'var(--accent)');
+  if (d.monthly > 0) {
+    html += d.cross
+      ? card('눈덩이 시점', d.cross.year + '년차', `월배당이 월 적립금 ${formatKRW(d.monthly)}원을 넘는 해`, 'accent-green')
+      : card('눈덩이 시점', `${Y}년 이후`, `아직 월배당이 적립금 ${formatKRW(d.monthly)}원보다 적음`, '', 'var(--brown)');
   } else {
-    shock += cell('절세계좌 활용', '불가', '미국 직투는 연금저축·ISA에 담을 수 없습니다', '#B03A1A');
+    html += card('원금 대비 배당률', (L.yoc * 100).toFixed(1) + '%', `${Y}년차 배당 ÷ 넣은 원금`, 'accent-green');
   }
-  shock += cell('일반계좌 · 세금으로 빠진 배당', '-' + formatKRW(normalTax), `${Y}년간 배당소득세·원천징수 합계 (재투자 못 한 돈)`, 'var(--brown)');
-  if (P) shock += cell('연금저축 · 세액공제 환급 누적', formatKRWSigned(P.cumCredit), `${Y}년간 돌려받아 다시 넣은 돈 (공제율 ${(creditRate * 100).toFixed(1)}%)`, '', 'accent-green');
-  else if (I) shock += cell('ISA로 줄인 세금', formatKRWSigned(normalTax - I.cumTax), `${Y}년간 일반계좌 대비 덜 낸 배당세`, '', 'accent-green');
-  else shock += cell('절세계좌를 쓰려면', '국내상장 ETF', '같은 지수를 추종하는 국내상장 ETF는 연금저축·ISA에 담을 수 있습니다', 'var(--accent)');
-  document.getElementById('shock-grid').innerHTML = shock;
-
-  renderNotices(d);
-  renderInsight(d, best, worst, gap, tie, usOnly);
+  document.getElementById('stat-grid').innerHTML = html;
+  renderInsight(d);
 }
 
-function renderNotices(d) {
-  const Y = d.years;
-  const N = d.normal.last, P = d.pension && d.pension.last, I = d.isa && d.isa.last;
-  const names = (cond) => d.H.filter(x => x.w > 0 && cond(x)).map(x => escapeHtml(x.name));
-  const list = [];
-  const us = names(x => x.cat === 'us-etf');
-  const kf = names(x => x.cat === 'kr-foreign');
-  const ks = names(x => x.cat === 'kr-stock');
-  const prem = d.H.filter(x => x.w > 0 && isKrEtfCat(x.cat) && x.prem > 0).map(x => `${escapeHtml(x.name)} ${Math.round(x.prem * 100)}%`);
-  const blocked = holdings.filter(h => (Number(h.weight) || 0) > 0 && isKrEtfCat(h.cat) && !h.pensionOK).map(h => escapeHtml(getHoldingDisplayName(h)));
-
-  if (us.length) list.push({ type: 'warn', icon: '🇺🇸', title: `미국 직투 종목은 일반계좌에서만 — ${us.join(', ')}`,
-    desc: `미국 상장 ETF와 미국 개별주는 <strong>연금저축·IRP·ISA에 담을 수 없어</strong> 모든 계좌 비교에서 일반계좌로 계산했습니다. 분배금은 미국에서 <strong>15% 원천징수</strong>되고, 한미 조세조약상 미국 세율(15%)이 한국 배당소득세율(14%)보다 높아 <strong>국내 추가 징수는 없습니다</strong>. 절세계좌를 쓰고 싶다면 같은 지수를 추종하는 <strong>국내상장 ETF</strong>를 검토해 보세요.` });
-  if (kf.length) list.push({ type: 'warn', icon: '🌍', title: `국내상장 해외ETF는 분배금에서 외국세 15%가 먼저 빠집니다 — ${kf.join(', ')}`,
-    desc: `해외자산 ETF는 <strong>2025년부터</strong> 분배금 지급 시점에 외국(미국) 원천세 15%가 펀드 단계에서 먼저 차감됩니다. 그래서 <strong>분배금만 놓고 보면</strong> ISA와 일반계좌의 차이가 작습니다(약 15% vs 15.4%).<br>연금저축은 <strong>2026년 7월 인출분부터</strong> 낸 외국세의 55.2%가 크레딧으로 쌓여 연금소득세에서 공제되므로 <strong>이중과세가 대부분 해소</strong>되며, 이 계산에 반영했습니다.<br>이 계산기는 <strong>매매차익 과세를 다루지 않습니다.</strong> 해외ETF 매매차익은 일반계좌에서 15.4%가 붙지만 연금·ISA에서는 과세이연·비과세 혜택을 받으므로, 장기 보유할수록 절세계좌가 더 유리합니다.` });
-  if (ks.length) list.push({ type: 'info', icon: '🏢', title: `국내 개별주는 연금저축에 못 담습니다 — ${ks.join(', ')}`,
-    desc: `국내 개별주는 <strong>연금저축·IRP에서 살 수 없어</strong> 연금저축 비교에서는 일반계좌로, ISA(중개형) 비교에서는 ISA로 계산했습니다. 2026년부터 시행된 <strong>고배당기업 배당소득 분리과세</strong> 대상 기업이라면 금융소득 2,000만원 초과분의 세율을 낮출 수 있습니다(이 계산에는 미반영).` });
-  if (blocked.length) list.push({ type: 'warn', icon: '🚫', title: `연금계좌 매수 불가 종목 — ${blocked.join(', ')}`,
-    desc: `레버리지·인버스, 파생형 등은 <strong>연금저축·IRP에서 살 수 없어</strong> 연금저축 비교에서 일반계좌로 계산했습니다. ISA에서는 투자할 수 있습니다.` });
-  if (prem.length) list.push({ type: 'info', icon: '💎', title: `비과세 분배금 반영 — ${prem.join(', ')}`,
-    desc: `국내상장 ETF는 분배금 중 <strong>과세표준에 들어가는 몫에만 15.4%</strong>가 붙습니다. 국내 커버드콜의 옵션프리미엄처럼 국내 장내파생상품에서 나온 수익은 과표에서 빠져 <strong>일반계좌에서도 비과세</strong>입니다. 그래서 이런 종목 비중이 높을수록 일반계좌와 절세계좌의 차이가 작아집니다. 비중은 종목별 정보줄에서 직접 고칠 수 있습니다.` });
-
-  // 금융소득 기준선 (일반계좌에 모두 담았을 때 · 과세 대상분만)
-  const firstOver = (lim) => d.normal.rows.find(r => r.genTaxable > lim);
-  const o20 = firstOver(20000000), o10 = firstOver(10000000);
-  const advKey = P ? 'pension' : (I ? 'isa' : null);
-  const advOver = (lim) => advKey && d[advKey].rows.find(r => r.genTaxable > lim);
-  if (o20) {
-    const a = advOver(20000000);
-    list.push({ type: 'danger', icon: '⚠️', title: `일반계좌라면 ${o20.year}년차부터 금융소득종합과세 대상 (연 2,000만원 초과)`,
-      desc: `모두 일반계좌에 담으면 과세 대상 배당이 ${o20.year}년차에 연 <strong>${formatKRW(o20.genTaxable)}원</strong>으로 2,000만원을 넘고, ${Y}년차에는 <strong>${formatKRW(N.genTaxable)}원</strong>입니다. 넘는 부분은 <strong>근로·사업소득 등 다른 소득과 합산</strong>되어 종합소득세율(6.6~49.5%)이 적용되므로 실제 세금은 이 계산보다 많아질 수 있습니다. ` +
-        (advKey ? (a ? `${ACCT[advKey].name}를 써도 일반계좌에 남는 배당만으로 ${a.year}년차에 기준을 넘습니다.` : `${ACCT[advKey].name}를 쓰면 일반계좌에 남는 배당이 이 기준 아래로 유지됩니다.`) : '') });
-  }
-  if (o10) {
-    const a = advOver(10000000);
-    list.push({ type: 'warn', icon: '🚨', title: `일반계좌라면 ${o10.year}년차부터 건강보험 피부양자 탈락 위험 (연 1,000만원 초과)`,
-      desc: `연 금융소득(이자+배당)이 <strong>1,000만원을 넘으면 건강보험공단에 전액 소득으로 통보</strong>됩니다. 다른 소득과 합산해 기준을 넘으면 피부양자 자격을 잃고 <strong>지역가입자로 전환되어 건강보험료가 새로 부과</strong>될 수 있습니다(금액은 소득·재산에 따라 다르고 기준은 바뀔 수 있습니다). 국내 커버드콜의 비과세 옵션프리미엄은 금융소득에서 빠지며, 이 판정도 과세 대상분만으로 계산했습니다. ` +
-        (advKey ? (a ? `${ACCT[advKey].name}를 써도 일반계좌에 남는 배당만으로 ${a.year}년차에 1,000만원을 넘습니다.` : `연금저축·ISA 안의 배당은 금융소득에 잡히지 않아, ${ACCT[advKey].name}를 쓰면 이 기준을 피할 수 있습니다.`) : '') });
-  }
-  if (P && P.pensionDiv > 15000000) list.push({ type: 'warn', icon: '📢', title: `${Y}년차 연금계좌 배당 연 ${formatKRW(P.pensionDiv)}원 — 꺼내 쓰면 세율이 올라갑니다`,
-    desc: `이 배당을 매년 연금으로 꺼내 쓰면, 사적연금 수령액이 연 <strong>1,500만원</strong>을 넘어 저율 연금소득세 대신 <strong>종합과세 또는 16.5% 분리과세</strong> 중 골라야 합니다(모든 연금계좌 합산 기준). 수령액을 1,500만원 안으로 나눠 받으면 세금을 줄일 수 있습니다.` });
-  if (P && P.overYears > 0) list.push({ type: 'info', icon: 'ℹ️', title: '연금 연 납입한도(1,800만원)를 넘는 돈은 일반계좌로 계산',
-    desc: `연금저축·IRP는 합산 연 1,800만원까지만 넣을 수 있고, <strong>돌려받은 세액공제 환급금을 다시 넣는 것도 이 한도에 포함</strong>됩니다. 한도를 넘은 돈(${P.overYears}개 연도 발생)은 일반계좌 세율로 계산했고, 이후 해에 한도가 남으면 그만큼 연금으로 옮긴다고 가정했습니다. 세액공제는 연 600만원(IRP 합산 900만원)까지만 받습니다.` });
-  if (I && I.limitReached) list.push({ type: 'info', icon: 'ℹ️', title: 'ISA 총 납입한도(1억원) 도달',
-    desc: `ISA는 연 2,000만원(못 채운 한도는 이월), 총 1억원까지만 넣을 수 있어 넘는 돈은 일반계좌로 계산했습니다. 더 큰 금액은 연금저축(연 1,800만원)을 함께 쓰는 방법을 검토해 보세요.` });
-  else if (I && I.overYears > 0) list.push({ type: 'info', icon: 'ℹ️', title: 'ISA 연 납입한도(2,000만원)를 넘는 돈은 일반계좌로 계산',
-    desc: `ISA는 연 2,000만원(못 채운 한도는 이월)까지 넣을 수 있습니다. 넘은 돈은 일반계좌 세율로 계산했고, 다음 해부터 남는 한도만큼 ISA로 옮긴다고 가정했습니다.` });
-
-  document.getElementById('notice-list').innerHTML = list.map(w => `
-    <div class="notice ${w.type}">
-      <div class="notice-icon">${w.icon}</div>
-      <div><div class="notice-title">${w.title}</div><div class="notice-desc">${w.desc}</div></div>
-    </div>`).join('');
-}
-
-function renderInsight(d, best, worst, gap, tie, usOnly) {
-  const Y = d.years;
-  const N = d.normal.last;
-  const B = d[best].last;
-  let title, desc;
+function renderInsight(d) {
+  const Y = d.years, L = d.last, F = d.rows[0];
   const money = d.initial > 0 && d.monthly > 0 ? `초기 ${formatKRW(d.initial)}원 + 월 ${formatKRW(d.monthly)}원을`
     : d.initial > 0 ? `${formatKRW(d.initial)}원을 한 번에` : `월 ${formatKRW(d.monthly)}원씩`;
   const nH = d.H.filter(x => x.w > 0).length;
-  const start = `${money} ${nH > 1 ? nH + '개 종목에 나눠 ' : ''}${Y}년 동안 넣었을 때, `;
-  if (usOnly) {
-    title = `미국 직투만으로는 <span style="color: var(--accent);">절세계좌를 쓸 수 없습니다</span>`;
-    desc = start + `일반계좌 세후 월배당은 <strong>${formatKRW(N.monthly)}원</strong>입니다. ${Y}년간 원천징수로 <strong>${formatKRW(N.cumTax)}원</strong>이 재투자되지 못했습니다. 같은 지수를 따르는 국내상장 ETF로 바꾸면 연금저축·ISA로 이 돈을 다시 굴릴 수 있습니다.`;
-  } else if (tie) {
-    title = `이 조합은 <span style="color: var(--accent);">어느 계좌에 담아도 월배당이 비슷합니다</span>`;
-    desc = start + `계좌별 세후 월배당이 모두 <strong>${formatKRW(B.monthly)}원</strong> 안팎입니다. 비과세 분배금 비중이 높은 종목은 일반계좌에서도 세금이 적어 계좌 차이가 작아집니다.`;
-  } else {
-    title = `${Y}년 후, 계좌 선택 하나로 월배당이 <span style="color: var(--accent);">${formatKRW(gap)}원</span> 차이`;
-    desc = start + `${ACCT[best].name}에 담으면 세후 월배당 <strong style="color: var(--accent);">${formatKRW(B.monthly)}원</strong>, ` +
-      `${ACCT[worst].name}는 <strong style="color: #C4A57B;">${formatKRW(d[worst].last.monthly)}원</strong>입니다. ` +
-      `일 년이면 <strong>${formatKRW(gap * 12)}원</strong>, 같은 종목·같은 돈인데 세금으로 새는 배당을 다시 굴렸느냐가 만든 차이입니다.`;
-    if (d.pension) desc += ` 연금저축은 ${Y}년간 세액공제 환급금 <strong>${formatKRW(d.pension.last.cumCredit)}원</strong>까지 다시 넣어 굴렸습니다.`;
-  }
-  if (d.retire && !d.retire.unavailable && !d.retire.empty) {
-    const R = d.retire, g = R.pension.monthly - R.lump.monthly;
-    desc += `<br><br>🏢 <strong style="color: #E8D5F0;">퇴직금도 같은 조합으로 굴리면</strong> 연금으로 받을 때 월 <strong>${formatKRW(R.pension.monthly)}원</strong>, 일시금으로 받을 때 월 <strong>${formatKRW(R.lump.monthly)}원</strong>으로 ${Math.round(g) >= 0 ? '연금이 월 ' + formatKRW(g) + '원 더 많습니다' : '일시금이 월 ' + formatKRW(-g) + '원 더 많습니다'}. 퇴직소득세를 미뤄 둔 돈까지 함께 굴러가고, 꺼낼 때도 30~50% 깎인 세율만 내기 때문입니다.`;
-  }
-  if (d.inflationOn) {
-    desc += `<br><br>📉 <strong style="color: #B8C4B8;">물가 ${d.inflationRate}%를 반영하면</strong> ${ACCT[best].name} 월배당 ${formatKRW(B.monthly)}원의 오늘 가치는 <strong>${formatKRW(B.monthlyReal)}원</strong>입니다. 배당성장률이 물가상승률을 이겨야 하는 이유가 여기에 있습니다.`;
-  }
+  const growth = F.monthly > 0 ? L.monthly / F.monthly : 0;
+  const title = d.cross
+    ? `${d.cross.year}년차부터 <span style="color: var(--accent);">배당이 내가 넣는 돈보다 많아집니다</span>`
+    : `${Y}년 후 월배당 <span style="color: var(--accent);">${formatKRW(L.monthly)}원</span>`;
+  let desc = `${money} ${nH > 1 ? nH + '개 종목에 나눠 ' : ''}${Y}년 동안 넣고 배당을 모두 다시 투자하면, 첫해 월 <strong>${formatKRW(F.monthly)}원</strong>이던 배당이 ${Y}년차에는 월 <strong style="color: var(--accent);">${formatKRW(L.monthly)}원</strong>${growth > 1.05 ? `으로 <strong>${growth.toFixed(1)}배</strong>` : ''} 커집니다. ` +
+    `넣은 돈은 ${formatKRW(L.principal)}원인데 자산은 <strong>${formatKRW(L.asset)}원</strong>, 그중 다시 넣은 배당만 ${formatKRW(L.cumDiv)}원입니다.`;
+  if (d.cross) desc += ` 월배당이 적립금을 넘는 순간부터는 배당이 다시 배당을 낳는 속도가 내 저축 속도를 앞지릅니다. 이게 배당 눈덩이입니다.`;
+  if (d.inflationOn) desc += `<br><br>📉 <strong style="color: #B8C4B8;">물가 ${d.inflationRate}%를 반영하면</strong> ${Y}년차 월배당 ${formatKRW(L.monthly)}원의 오늘 가치는 <strong>${formatKRW(L.monthlyReal)}원</strong>입니다. 배당성장률이 물가상승률을 이겨야 하는 이유가 여기에 있습니다.`;
+  desc += `<br><br>💡 이 결과는 세전 금액입니다. 같은 포트폴리오라도 어느 계좌에 담느냐에 따라 실제로 받는 돈이 달라집니다.`;
   document.getElementById('insight-title').innerHTML = title;
   document.getElementById('insight-desc').innerHTML = desc;
-}
-
-// ============================================================
-// 퇴직연금 (IRP·DC) 결과
-// ============================================================
-const pct = (v, d = 1) => (v * 100).toFixed(d) + '%';
-function renderRetireCalc(d) {
-  const el = document.getElementById('retire-calc');
-  const R = d && d.retire;
-  if (!R) { el.innerHTML = ''; return; }
-  if (R.unavailable) { el.innerHTML = `<span style="color:#B03A1A;">⚠️ STEP 02 종목 중 IRP·DC에 담을 수 있는 종목(국내상장 ETF)이 없어 계산할 수 없습니다.</span>`; return; }
-  if (R.empty) { el.innerHTML = '금액을 넣으면 퇴직소득세와 연금 수령 세율이 계산됩니다.'; return; }
-  const ladder = R.ladder.map(l => `${l.n === 1 ? '1~10년차' : l.n === 11 ? '11~20년차' : '21년차~'} <b>${pct(l.rate, 2)}</b>`).join(' · ');
-  const base = R.type === 'irp'
-    ? `퇴직금 ${formatKRW(R.B2)}원 · 근속 ${R.tenure}년 → 퇴직소득세(국세) <b>${formatKRW(R.T)}원</b>${R.taxManual != null ? ' (직접 입력)' : ' (간이 계산)'}, 지방세 포함 ${formatKRW(R.T * 1.1)}원 · 실효세율 <b>${pct(R.rate * 1.1, 2)}</b>`
-    : `${d.years}년 뒤 퇴직할 때 예상 적립금 <b>${formatKRW(R.B2)}원</b>(운용수익 포함) · 근속 ${R.tenure}년 → 퇴직소득세(국세) <b>${formatKRW(R.T)}원</b> (간이 계산) · 실효세율 <b>${pct(R.rate * 1.1, 2)}</b>`;
-  el.innerHTML = `${base}<br>연금으로 받으면 퇴직소득세를 <span class="em">70% → 60% → 50%</span>만 냅니다: ${ladder} (지방세 포함)`;
-}
-
-function renderRetire(d) {
-  const card = document.getElementById('retire-card');
-  const R = d.retire;
-  renderRetireCalc(d);
-  if (!R || R.empty) { card.style.display = 'none'; return; }
-  card.style.display = 'block';
-  const Y = d.years;
-  const isIRP = R.type === 'irp';
-  document.getElementById('rc-title').textContent = isIRP
-    ? '퇴직금(IRP) · 연금으로 받기 vs 일시금으로 받기'
-    : 'DC형 퇴직연금 · 퇴직할 때 연금으로 받기 vs 일시금으로 받기';
-  if (R.unavailable) {
-    document.getElementById('rc-sub').innerHTML = 'STEP 02 종목 중 IRP·DC에 담을 수 있는 종목(국내상장 ETF)이 없어 계산하지 않았습니다. 미국 직투·국내 개별주는 퇴직연금 계좌에서 살 수 없습니다.';
-    ['rc-grid', 'rc-body', 'rc-notes'].forEach(id => { document.getElementById(id).innerHTML = ''; });
-    card.querySelector('.rc-table').style.display = 'none';
-    return;
-  }
-  card.querySelector('.rc-table').style.display = '';
-  const P = R.pension, L = R.lump;
-  document.getElementById('rc-sub').innerHTML = isIRP
-    ? `퇴직금 ${formatKRW(R.balance)}원을 STEP 02 종목(퇴직연금에 담을 수 있는 종목만, 비중 그대로)으로 ${Y}년 굴린 뒤 배당을 꺼내 쓸 때입니다. 일시금은 퇴직소득세를 지금 다 내고 남은 돈을 일반계좌에서 굴린 경우입니다.`
-    : `DC 적립금 ${formatKRW(R.balance)}원에 매년 회사 부담금 ${formatKRW(R.annual)}원을 더해 ${Y}년 굴리고 퇴직하는 경우입니다. DC는 퇴직 전 운용수익까지 퇴직소득이라 적립금 전체(${formatKRW(R.B2)}원)에 퇴직소득세가 계산됩니다.`;
-
-  const better = P.monthly >= L.monthly ? 'p' : 'l';
-  const gap = Math.abs(P.monthly - L.monthly);
-  const cardHtml = (key, tag, title, value, sub, rows) => `
-    <div class="acct-card ${better === key ? 'best' : ''}">
-      ${better === key && gap >= 1 ? '<span class="best-badge">🏆 유리</span>' : ''}
-      <span class="acct-tag ${tag}">${title}</span>
-      <div class="acct-value">${formatKRW(value)}원</div>
-      <div class="acct-sub">${sub}</div>
-      <div class="acct-rows">${rows.map(([a, b, cls]) => `<div class="acct-row ${cls || ''}"><span>${a}</span><span>${b}</span></div>`).join('')}</div>
-    </div>`;
-  const pRows = [
-    ['총 자산', formatKRW(P.asset) + '원'],
-    [isIRP ? '굴리는 동안 낸 세금' : '퇴직 때 낸 세금', P.taxCum > 0 ? formatKRW(P.taxCum) + '원 (외국세)' : '0원 (과세이연)'],
-    ['배당에 붙는 세율', P.div > 0 ? pct(P.tax1 / P.div, 2) : '-'],
-  ];
-  const lRows = [
-    ['총 자산', formatKRW(L.asset) + '원'],
-    ['퇴직소득세 (지방세 포함)', '-' + formatKRW(L.upfront) + '원'],
-  ];
-  if (isIRP) lRows.push([`${Y}년간 배당세`, '-' + formatKRW(L.taxCum - L.upfront) + '원']);
-  lRows.push(['배당에 붙는 세율', '일반계좌 15.4% (과세분)']);
-  if (d.inflationOn) {
-    pRows.push(['오늘 가치 월배당', formatKRW(P.monthly / R.df) + '원', 'real']);
-    lRows.push(['오늘 가치 월배당', formatKRW(L.monthly / R.df) + '원', 'real']);
-  }
-  document.getElementById('rc-grid').innerHTML =
-    cardHtml('p', 'retire', '연금으로 받기 (IRP)', P.monthly, `${Y}년차 세후 월배당 · 연금 받는 첫해 기준`, pRows) +
-    cardHtml('l', 'lump', '일시금으로 받기', L.monthly, `${Y}년차 세후 월배당 · 남은 돈을 일반계좌에서`, lRows);
-
-  document.getElementById('rc-body').innerHTML = R.ladder.map(l => {
-    const part = l.gone ? `<span style="color:#B03A1A;">퇴직금 원금 소진 → 운용수익 과세</span>`
-      : (l.from3 > 0.5 ? `퇴직소득세의 ${Math.round(l.factor * 100)}% (일부 운용수익 과세)` : `퇴직소득세의 ${Math.round(l.factor * 100)}%`);
-    return `<tr class="${l.n === 1 ? 'cur' : ''}">
-      <td>${l.n === 1 ? '1년차' : l.n === 11 ? '11년차' : '21년차'}</td>
-      <td>${part}</td>
-      <td>${pct(l.effRate, 2)}</td>
-      <td style="color: var(--accent);">${formatKRW(l.monthly)}원</td>
-    </tr>`;
-  }).join('');
-
-  const notes = [];
-  const yearsOf2 = P.div > 0 ? Math.floor(R.B2 / P.div) : 0;
-  notes.push({ type: 'info', icon: '🔢', title: '배당만 꺼내 써도 ‘퇴직금’에서 먼저 빠진 것으로 봅니다',
-    desc: `같은 계좌 안에서는 인출 순서가 정해져 있어(과세제외 → <strong>이연퇴직소득</strong> → 세액공제분·운용수익) 배당만 빼 써도 퇴직금 원금에서 나간 것으로 계산됩니다. 그래서 감면된 퇴직소득세율(${pct(R.ladder[0].rate, 2)})이 붙고, 매년 이 정도(연 ${formatKRW(P.div)}원) 배당만 꺼낸다면 ${yearsOf2 >= 1 ? `약 <strong>${yearsOf2}년</strong>` : '<strong>1년이 안 돼</strong>'} 퇴직금 원금(${formatKRW(R.B2)}원)을 다 꺼내게 됩니다. 그 뒤의 배당은 운용수익으로 보아 연금소득세(${pct(withdrawRate)})가 붙고, 연 <strong>1,500만원을 넘으면 16.5% 분리과세</strong>(또는 종합과세)로 계산했습니다. 표의 11년차·21년차는 이 흐름을 반영한 값입니다.` });
-  if (R.ladder.some(l => l.from3 > 15000000)) notes.push({ type: 'warn', icon: '📢', title: '퇴직금 원금을 다 꺼낸 뒤에는 운용수익이 연 1,500만원을 넘습니다',
-    desc: `운용수익에서 받는 연금이 연 1,500만원을 넘으면 저율 연금소득세 대신 <strong>16.5% 분리과세 또는 종합과세</strong>가 됩니다. 표에서 원금 소진 뒤 세율이 크게 오르는 이유입니다. 운용수익 몫은 연 1,500만원 안으로 나눠 받고 나머지는 계좌에 남겨 두면 세금을 줄일 수 있습니다. 받는 순서와 금액은 <a href="https://ttokjaetv.github.io/pension-tax-sim/" target="_blank" rel="noopener" style="color: var(--accent); font-weight: 800;">연금 인출 세금 시뮬레이터</a>에서 연도별로 설계해 볼 수 있습니다.` });
-  notes.push({ type: 'info', icon: '✅', title: '퇴직금으로 받는 연금은 연 1,500만원 판정에서 빠집니다',
-    desc: `퇴직소득 재원 연금은 금액과 상관없이 분리과세로 끝나 <strong>연금저축 등 다른 사적연금의 1,500만원 판정에 합산되지 않습니다</strong>(퇴직금을 굴려 생긴 운용수익은 합산 대상). 사적연금 수령액은 건강보험료 부과 대상도 아닙니다. 반면 일시금을 일반계좌에서 굴려 받는 배당은 금융소득이라 종합과세·건보료 기준에 들어갑니다${L.genTaxable > 10000000 ? ` — 이 경우 ${Y}년차 과세 대상 배당이 연 <strong>${formatKRW(L.genTaxable)}원</strong>으로 1,000만원을 넘습니다` : ''}.` });
-  if (P.overLimit) notes.push({ type: 'warn', icon: '⚠️', title: '배당이 연금 1년차 수령한도를 넘습니다',
-    desc: `연금수령한도는 연초 평가액 ÷ (11 − 연금수령연차) × 120%라 1년차에는 평가액의 12%(${formatKRW(P.limit1)}원)입니다. ${Y}년차 배당 ${formatKRW(P.div)}원 중 넘는 부분은 연금외수령으로 퇴직소득세를 100% 내는 것으로 계산했습니다. 55세가 된 뒤 연금을 늦게 시작할수록 연차가 올라가 한도가 커지고, 11년차부터는 한도가 없습니다.` });
-  if (R.riskyShare > 0.7 + 1e-9) notes.push({ type: 'warn', icon: '📊', title: `IRP·DC는 위험자산을 70%까지만 — 지금 조합은 ${pct(R.riskyShare, 0)}`,
-    desc: `퇴직연금 계좌는 주식형 ETF 같은 위험자산을 <strong>적립금의 70%까지만</strong> 담을 수 있습니다. 나머지 30% 이상은 채권·채권혼합형·TDF 같은 안전자산으로 채워야 해서 실제 배당은 이 계산과 달라질 수 있습니다. (연금저축은 이 한도가 없습니다)` });
-  if (R.excluded.length) notes.push({ type: 'info', icon: '🚫', title: `퇴직연금 계좌에 못 담는 종목은 빼고 계산 — ${R.excluded.map(escapeHtml).join(', ')}`,
-    desc: `미국 직투·국내 개별주·레버리지 등은 IRP·DC에서 살 수 없어, 담을 수 있는 종목끼리 비중을 다시 나눠 계산했습니다(${R.names.map(escapeHtml).join(', ')}). 공정한 비교를 위해 일시금 쪽도 같은 종목으로 굴렸습니다.` });
-  notes.push({ type: 'info', icon: 'ℹ️', title: '퇴직소득세는 간이 계산입니다',
-    desc: `근속연수공제·환산급여공제(2023년 이후 기준)로 계산한 값이라 실제와 조금 다를 수 있습니다. ${isIRP ? '정확한 금액은 퇴직소득 원천징수영수증의 <strong>‘이연퇴직소득세’</strong>를 위 칸에 넣으면 됩니다.' : 'DC는 퇴직 시점 적립금을 예상해 계산한 값입니다.'} 감면 비율 50%(21년차부터)는 2026년 1월 이후 받는 연금부터 적용됩니다.` });
-  document.getElementById('rc-notes').innerHTML = notes.map(w => `
-    <div class="notice ${w.type}"><div class="notice-icon">${w.icon}</div>
-      <div><div class="notice-title">${w.title}</div><div class="notice-desc">${w.desc}</div></div></div>`).join('');
 }
 
 // ============================================================
@@ -3283,20 +2348,17 @@ function update() {
       : '⚠️ 초기 투자금과 월 적립금이 모두 0원입니다. <b>STEP 01</b>에서 금액을 입력하면 결과가 표시됩니다.';
     emptyBox.style.display = 'block';
     section.classList.remove('active');
-    renderRetireCalc(null);
     return;
   }
   emptyBox.style.display = 'none';
   section.classList.add('active');
   lastData = data;
-  if (!data.inflationOn) divMode = 'nom';
 
   renderResults(data);
   renderDivChart(data);
   renderAssetChart(data);
   renderStack(data);
   renderTable(data);
-  renderRetire(data);
   renderWhatIf(data);
 }
 
@@ -3305,7 +2367,7 @@ function update() {
 //  - 종목마다 슬라이더·숫자 입력. 직접 바꾼 종목은 🔒 고정
 //  - 고정 안 된 나머지 종목이 지금 비율대로 줄거나 늘어 합계 100% 유지
 // ============================================================
-let wiW = [], wiLock = [], wiYear = null, wiBase = null, wiBlocked = -1, wiSig = '', wiMetric = null, wiChart = null;
+let wiW = [], wiLock = [], wiYear = null, wiBase = null, wiBlocked = -1, wiSig = '', wiMetric = 'monthly', wiChart = null;
 const wiR1 = v => Math.round(v * 10) / 10;
 const wiFmtPct = v => wiR1(v).toString() + '%';
 function wiBaseWeights() {
@@ -3336,10 +2398,8 @@ function renderWhatIf(baseData) {
     wiBlocked = -1;
     wiSig = sig;
   }
-  const keys = availAccts(baseData);
-  if (!wiMetric || !baseData[wiMetric]) wiMetric = bestAcct(baseData);
-  document.getElementById('wi-metric').innerHTML = keys.map(k =>
-    `<button type="button" data-m="${k}" class="${k === wiMetric ? 'on' : ''}">${ACCT[k].name} 월배당</button>`).join('');
+  document.getElementById('wi-metric').innerHTML = [['monthly', '월배당'], ['asset', '총 자산']].map(([k, t]) =>
+    `<button type="button" data-m="${k}" class="${k === wiMetric ? 'on' : ''}">${t}</button>`).join('');
   const Y = baseData.years;
   const marks = [1]; for (let y = 5; y < Y; y += 5) marks.push(y); if (Y > 1) marks.push(Y);
   if (wiYear == null || wiYear > Y) wiYear = Y;
@@ -3388,38 +2448,27 @@ function wiRefresh() {
   document.querySelectorAll('#wi-seg button').forEach(x => x.classList.toggle('on', Number(x.dataset.year) === yr));
   const yIn = document.getElementById('wi-year');
   if (document.activeElement !== yIn) yIn.value = yr;
-  document.getElementById('wi-th-label').innerHTML = label + '<span class="wi-th-sub">세후 · 재투자 기준</span>';
-  const rows = [];
-  ACCT_KEYS.forEach(k => {
-    if (!wiBase[k]) return;
-    // 비중을 바꿔 연금·ISA에 담을 종목이 사라지면 그 계좌는 비교 불가
-    const a = wiBase[k].rows[yr - 1], b = alt && alt[k] ? alt[k].rows[yr - 1] : null;
-    rows.push([ACCT[k].name, '월배당', a.monthly, b ? b.monthly : null]);
-  });
-  ACCT_KEYS.forEach(k => {
-    if (!wiBase[k]) return;
-    const a = wiBase[k].rows[yr - 1], b = alt && alt[k] ? alt[k].rows[yr - 1] : null;
-    rows.push([ACCT[k].name, '총 자산', a.asset, b ? b.asset : null]);
-  });
-  document.getElementById('wi-body').innerHTML = rows.map(([acct, k, x, y]) => {
-    if (y == null) return `<tr><td>${k}<span class="wi-tag">${acct}</span></td><td>${formatKRW(x)}원</td><td class="zero">불가</td><td class="zero">–</td></tr>`;
+  document.getElementById('wi-th-label').innerHTML = label + '<span class="wi-th-sub">세전 · 재투자 기준</span>';
+  const a = wiBase.rows[yr - 1], b = alt.rows[yr - 1];
+  const rows = [['월배당', a.monthly, b.monthly], ['연배당', a.div, b.div], ['총 자산', a.asset, b.asset], ['누적 배당', a.cumDiv, b.cumDiv]];
+  document.getElementById('wi-body').innerHTML = rows.map(([k, x, y]) => {
     const dd = y - x;
     const cls = Math.abs(dd) < 1 ? 'zero' : (dd > 0 ? 'pos' : 'neg');
-    return `<tr><td>${k}<span class="wi-tag">${acct}</span></td><td>${formatKRW(x)}원</td><td class="new">${formatKRW(y)}원</td><td class="${cls}">${Math.abs(dd) < 1 ? '–' : (dd > 0 ? '+' : '−') + formatKRW(Math.abs(dd)) + '원'}</td></tr>`;
+    return `<tr><td>${k}</td><td>${formatKRW(x)}원</td><td class="new">${formatKRW(y)}원</td><td class="${cls}">${Math.abs(dd) < 1 ? '–' : (dd > 0 ? '+' : '−') + formatKRW(Math.abs(dd)) + '원'}</td></tr>`;
   }).join('');
   wiDrawChart(wiBase, alt, yr);
   document.getElementById('wi-apply').disabled = !changed;
   document.getElementById('wi-note').textContent = single
     ? '종목이 2개 이상일 때 쓸 수 있습니다. 위 STEP 02에서 [종목 추가]를 눌러 보세요.'
-    : '배당성장률·주가성장률과 과세 구조는 위에 넣은 값을 그대로 씁니다. 계좌·세금 조건(STEP 03)도 그대로 적용됩니다.';
+    : '배당률·배당성장률·주가성장률은 위에 넣은 값을 그대로 씁니다.';
 }
 
 function wiDrawChart(baseD, altD, yr) {
   const el = document.getElementById('wi-chart'); if (!el) return;
   const k = wiMetric;
-  const A = baseD[k].rows.map(r => Math.round(r.monthly));
-  const B = (altD && altD[k] ? altD[k] : baseD[k]).rows.map(r => Math.round(r.monthly));
-  const labels = baseD[k].rows.map(r => r.year + '년');
+  const A = baseD.rows.map(r => Math.round(r[k]));
+  const B = altD.rows.map(r => Math.round(r[k]));
+  const labels = baseD.rows.map(r => r.year + '년');
   const mobile = window.innerWidth < 768;
   const markPlugin = {
     id: 'wiMark',
@@ -3478,7 +2527,7 @@ function wiDrawChart(baseD, altD, yr) {
         tooltip: {
           backgroundColor: '#3A2F26', titleFont: { family: 'Pretendard', weight: 800 }, bodyFont: { family: 'Pretendard', weight: 600 },
           callbacks: {
-            title: items => items[0].label + ' 차 · ' + ACCT[wiMetric].name + ' 세후 월배당',
+            title: items => items[0].label + ' 차 · ' + (wiMetric === 'monthly' ? '월배당' : '총 자산'),
             label: c => ' ' + c.dataset.label + ': ' + formatKRWFull(c.parsed.y),
             afterBody: items => {
               if (items.length < 2) return '';
@@ -3550,72 +2599,6 @@ document.getElementById('wi-apply').addEventListener('click', () => {
   update();
   document.getElementById('whatif-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
-
-// 월배당 그래프: 명목 / 실질
-document.getElementById('div-mode').addEventListener('click', (e) => {
-  const b = e.target.closest('button[data-m]'); if (!b || b.disabled || !lastData) return;
-  divMode = b.dataset.m;
-  renderDivChart(lastData);
-});
-// 종목별 기여 그래프: 계좌 선택
-document.getElementById('stack-acct').addEventListener('click', (e) => {
-  const b = e.target.closest('button[data-a]'); if (!b || !lastData) return;
-  stackAcct = b.dataset.a;
-  renderStack(lastData);
-});
-
-// 계좌·세금 조건
-function bindSeg(id, set) {
-  const el = document.getElementById(id);
-  el.addEventListener('click', (e) => {
-    const b = e.target.closest('button[data-v]'); if (!b) return;
-    el.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-    set(Number(b.dataset.v));
-    update();
-  });
-}
-bindSeg('seg-income', v => { creditRate = v; });
-bindSeg('seg-isa', v => { isaExemptLimit = v; });
-bindSeg('seg-age', v => { withdrawRate = v; });
-
-// 퇴직연금 (IRP·DC)
-function syncRetireInputs() {
-  const dc = retireType === 'dc';
-  document.getElementById('rt-bal-label').textContent = dc ? '현재 DC 적립금' : '퇴직금 (IRP 입금액)';
-  document.getElementById('rt-annual-wrap').style.display = dc ? '' : 'none';
-  document.getElementById('rt-tax-wrap').style.display = dc ? 'none' : '';
-  document.getElementById('rt-tenure-label').textContent = dc ? '퇴직할 때 근속연수 (년)' : '근속연수 (년)';
-  document.getElementById('rt-tenure-hint').textContent = dc ? '지금 근속연수 + 투자 기간' : '입사일~퇴사일 (1년 미만은 1년)';
-  document.getElementById('rt-balance-hint').textContent = formatKRW(Number(document.getElementById('rt-balance').value) || 0) + '원';
-  document.getElementById('rt-annual-hint').textContent = '보통 연봉의 1/12 · ' + formatKRW(Number(document.getElementById('rt-annual').value) || 0) + '원';
-}
-document.getElementById('retire-toggle').addEventListener('change', (e) => {
-  document.getElementById('retire-box').style.display = e.target.checked ? 'block' : 'none';
-  update();
-});
-document.getElementById('seg-retire').addEventListener('click', (e) => {
-  const b = e.target.closest('button[data-v]'); if (!b) return;
-  document.querySelectorAll('#seg-retire button').forEach(x => x.classList.toggle('on', x === b));
-  retireType = b.dataset.v;
-  if (retireType === 'dc') {
-    // DC 기본값: 지금 근속 5년 가정 + 투자 기간
-    const t = document.getElementById('rt-tenure');
-    if (!t.dataset.touched) t.value = 5 + readYears(false);
-    const bal = document.getElementById('rt-balance');
-    if (!bal.dataset.touched) bal.value = 30000000;
-  } else {
-    const t = document.getElementById('rt-tenure'); if (!t.dataset.touched) t.value = 20;
-    const bal = document.getElementById('rt-balance'); if (!bal.dataset.touched) bal.value = 100000000;
-  }
-  syncRetireInputs();
-  update();
-});
-['rt-balance', 'rt-annual', 'rt-tenure', 'rt-tax'].forEach(id => document.getElementById(id).addEventListener('input', (e) => {
-  e.target.dataset.touched = '1';
-  syncRetireInputs();
-  update();
-}));
-syncRetireInputs();
 
 // 투자 조건
 ['initial', 'monthly', 'years'].forEach(id => document.getElementById(id).addEventListener('input', update));
