@@ -919,9 +919,20 @@
   .data-status { margin-top: 6px; font-size: 12px; color: var(--ink-mute); font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
   .ds-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--beige-gold); display: inline-block; margin-right: 4px; }
   .ds-dot.ok { background: #4E8B5F; }
+  .data-basis { margin: -8px 0 18px; font-size: 12.5px; font-weight: 700; color: var(--brown); background: #FBF7F0; border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; line-height: 1.5; word-break: keep-all; }
+  .data-basis b { color: var(--accent); }
   .ds-date { color: var(--ink-mute); font-weight: 500; }
 
   /* 성장률 기준 안내 */
+  .adv-set { margin-top: 24px; border: 1px solid var(--border); border-radius: 12px; background: #FBF7F0; padding: 0 18px; }
+  .adv-set > summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 14px 0; }
+  .adv-set > summary::-webkit-details-marker { display: none; }
+  .adv-set > summary::before { content: '+'; display: inline-flex; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; align-items: center; justify-content: center; font-size: 15px; }
+  .adv-set[open] > summary::before { content: '−'; }
+  .adv-set-title { font-weight: 800; font-size: 15px; color: var(--ink, #3A2F26); }
+  .adv-set-sum { font-size: 13px; font-weight: 700; color: var(--brown); }
+  .adv-set .growth-input-wrap { padding: 4px 0 4px; display: flex; flex-direction: column; gap: 6px; }
+  .adv-set .inflation-section { margin-top: 18px; padding-top: 18px; padding-bottom: 18px; }
   .growth-guide { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
   .growth-guide summary { cursor: pointer; font-weight: 700; color: var(--brown); padding: 6px 0; }
   .growth-guide table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
@@ -1058,6 +1069,12 @@
     .hold-table .nm { align-items: flex-start; }
     .hold-table .nm .dot { margin-top: 4px; }
   }
+
+  /* 표 내려받기 (CSV·엑셀) */
+  .dl-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 0 0 12px; }
+  .dl-btn { font-family: inherit; font-size: 13px; font-weight: 700; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--accent, #D9542B); background: #FBF7F0; color: var(--accent, #D9542B); cursor: pointer; line-height: 1.2; }
+  .dl-btn:hover { background: var(--accent, #D9542B); color: #fff; }
+  .dl-note { font-size: 12px; color: #8B7B6B; font-weight: 600; word-break: keep-all; }
 </style>
 </head>
 <body>
@@ -1131,6 +1148,14 @@
       </div>
     </div>
 
+    <!-- 상세 설정 (물가·적립금 증가율) — 접어 두고 현재 설정을 한 줄로 보여 준다 -->
+    <details class="adv-set" id="adv-set">
+      <summary><span class="adv-set-title">상세 설정</span><span class="adv-set-sum" id="adv-summary">물가 2.5% 반영 · 적립금 증가 없음</span></summary>
+    <div class="growth-input-wrap">
+      <label class="label">적립금 증가율 (%/년)</label>
+      <input type="number" id="contrib-growth" value="0" step="0.5" min="0" max="20" inputmode="decimal" style="max-width: 200px;">
+      <div class="input-hint">월 적립금을 해마다 이만큼 늘려 넣는다고 가정합니다 (연봉 인상 등). 0이면 매달 같은 금액</div>
+    </div>
     <!-- 물가상승률 옵션 -->
     <div class="inflation-section">
       <div class="inflation-toggle-wrap">
@@ -1152,6 +1177,7 @@
         <div class="input-hint" style="margin-top: 0;">한국 장기 평균 약 2.5%</div>
       </div>
     </div>
+    </details>
   </div>
 
   <!-- STEP 02: 포트폴리오 -->
@@ -1196,6 +1222,7 @@
       <div class="step-line"></div>
       <span class="step-text">STEP 03 / 시뮬레이션 결과</span>
     </div>
+    <div class="data-basis" id="data-basis">배당률 데이터를 불러오는 중…</div>
 
     <div class="result-head">
       <div class="result-head-label" id="rh-label">20년 후 월배당 (세전)</div>
@@ -1248,6 +1275,11 @@
     <div class="card">
       <div class="chart-title">연차별 Raw Data · 원금, 자산, 배당</div>
       <div class="chart-subtitle" id="table-sub">숫자로 보면 눈덩이가 언제부터 커지는지 정확히 보입니다 (가로 스크롤)</div>
+      <div class="dl-bar">
+        <button type="button" class="dl-btn" id="dl-csv">CSV 내려받기</button>
+        <button type="button" class="dl-btn" id="dl-xlsx">엑셀(.xlsx) 내려받기</button>
+        <span class="dl-note">엑셀에는 연도별 표와 종목별 표가 함께 들어갑니다 (원 단위 숫자 · 세전)</span>
+      </div>
       <div class="table-wrap">
         <table class="data-table mid">
           <thead>
@@ -1336,6 +1368,86 @@
 </div>
 
 <script>
+// ============== 표 내려받기 (CSV · 엑셀 .xlsx) — 외부 라이브러리 없이 동작 ==============
+// TJX.csv('파일이름', rows) · TJX.xlsx('파일이름', [{ name: '시트', rows, widths }])
+// rows = [[머리글...], [값...], ...]  숫자는 숫자 그대로 넣으면 엑셀에서 계산 가능한 숫자 칸이 됩니다
+const TJX = (() => {
+  const enc = new TextEncoder();
+  function csvText(rows) {
+    return '﻿' + rows.map(r => r.map(v => {
+      if (v == null) return '';
+      if (typeof v === 'number') return isFinite(v) ? String(Math.round(v * 100) / 100) : '';
+      const t = String(v);
+      return /[",\r\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+    }).join(',')).join('\r\n');
+  }
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(b) { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function zipStore(files) {   // 압축 없이 묶기 (엑셀은 이 형식도 그대로 엽니다)
+    const parts = [], central = []; let off = 0;
+    for (const f of files) {
+      const nm = enc.encode(f.name), d = enc.encode(f.text), c = crc32(d);
+      const lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true);
+      lh.setUint16(12, 0x21, true); lh.setUint32(14, c, true); lh.setUint32(18, d.length, true); lh.setUint32(22, d.length, true);
+      lh.setUint16(26, nm.length, true);
+      parts.push(new Uint8Array(lh.buffer), nm, d);
+      const ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true);
+      ch.setUint16(14, 0x21, true); ch.setUint32(16, c, true); ch.setUint32(20, d.length, true); ch.setUint32(24, d.length, true);
+      ch.setUint16(28, nm.length, true); ch.setUint32(42, off, true);
+      central.push(new Uint8Array(ch.buffer), nm);
+      off += 30 + nm.length + d.length;
+    }
+    const cs = central.reduce((s, a) => s + a.length, 0);
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+    end.setUint32(12, cs, true); end.setUint32(16, off, true);
+    return new Blob([...parts, ...central, new Uint8Array(end.buffer)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const colName = i => { let s = ''; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  function sheetXml(sh) {
+    const rows = sh.rows || [];
+    const nCol = rows.reduce((m, r) => Math.max(m, r.length), 1);
+    const widths = sh.widths || [];
+    const cols = Array.from({ length: nCol }, (_, i) => `<col min="${i + 1}" max="${i + 1}" width="${widths[i] || (i === 0 ? 12 : 16)}" customWidth="1"/>`).join('');
+    const body = rows.map((r, ri) => `<row r="${ri + 1}">` + r.map((v, ci) => {
+      const ref = colName(ci) + (ri + 1);
+      if (v == null || v === '') return '';
+      if (typeof v === 'number' && isFinite(v)) {
+        const st = ri === 0 ? 2 : (Math.abs(v - Math.round(v)) < 1e-9 ? 1 : 3);
+        return `<c r="${ref}" s="${st}"><v>${Math.round(v * 10000) / 10000}</v></c>`;
+      }
+      return `<c r="${ref}" t="inlineStr"${ri === 0 ? ' s="2"' : ''}><is><t xml:space="preserve">${esc(v)}</t></is></c>`;
+    }).join('') + '</row>').join('');
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${cols}</cols><sheetData>${body}</sheetData></worksheet>`;
+  }
+  function xlsxBlob(sheets) {
+    const W = 'http://schemas.openxmlformats.org';
+    const files = [
+      { name: '[Content_Types].xml', text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="${W}/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>` },
+      { name: '_rels/.rels', text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${W}/package/2006/relationships"><Relationship Id="rId1" Type="${W}/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+      { name: 'xl/workbook.xml', text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="${W}/spreadsheetml/2006/main" xmlns:r="${W}/officeDocument/2006/relationships"><sheets>${sheets.map((s, i) => `<sheet name="${esc(String(s.name || 'Sheet' + (i + 1)).replace(/[\\\/\?\*\[\]:]/g, ' ').slice(0, 31))}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets></workbook>` },
+      { name: 'xl/_rels/workbook.xml.rels', text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${W}/package/2006/relationships">${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="${W}/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="rId${sheets.length + 1}" Type="${W}/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>` },
+      { name: 'xl/styles.xml', text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="${W}/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="맑은 고딕"/></font><font><b/><sz val="11"/><name val="맑은 고딕"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>` },
+      ...sheets.map((s, i) => ({ name: `xl/worksheets/sheet${i + 1}.xml`, text: sheetXml(s) })),
+    ];
+    return zipStore(files);
+  }
+  function save(blob, name) {
+    const a = document.createElement('a'), u = URL.createObjectURL(blob);
+    a.href = u; a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(u); a.remove(); }, 1500);
+  }
+  const stamp = () => { const d = new Date(); return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`; };
+  return {
+    csvText, xlsxBlob,
+    csv(name, rows) { save(new Blob([csvText(rows)], { type: 'text/csv;charset=utf-8' }), `${name}_${stamp()}.csv`); },
+    xlsx(name, sheets) { save(xlsxBlob(sheets), `${name}_${stamp()}.xlsx`); },
+  };
+})();
+
 if (window.Chart) { Chart.defaults.font.family = "'Pretendard', -apple-system, sans-serif"; }
 // ============================================================
 // 데이터 정의
@@ -1984,7 +2096,17 @@ document.getElementById('add-holding-btn').addEventListener('click', () => {
 // ============================================================
 // 데이터 로드 (페이지는 즉시 동작, 데이터가 오면 실제 배당률로 교체)
 // ============================================================
+function renderDataBasis() {
+  const el = document.getElementById('data-basis');
+  if (!el) return;
+  const d = (DATA_STATE.krUpdated || DATA_STATE.usUpdated || '').slice(0, 10);
+  const loading = DATA_STATE.kr === 'loading' || DATA_STATE.us === 'loading';
+  el.innerHTML = d
+    ? `배당률 <b>${d} 기준</b> (최근 12개월 실제 지급액 ÷ 현재가 · 매일 갱신) · 실시간 시세 아님 · 배당·주가 성장률은 가정치`
+    : loading ? '배당률 데이터를 불러오는 중…' : '실데이터를 불러오지 못해 추천 프리셋 배당률로 계산했습니다 · 성장률은 가정치';
+}
 function renderDataStatus() {
+  renderDataBasis();
   const el = document.getElementById('data-status');
   if (!el) return;
   const krN = [...UNIVERSE.values()].filter(x => x.market === 'KR').length;
@@ -2051,6 +2173,7 @@ function simulate(hs = holdings) {
   const years = readYears(false);
   const inflationOn = document.getElementById('inflation-toggle').checked;
   const inflationRate = inflationOn ? readNonNeg('inflation-rate') / 100 : 0;
+  const contribGrowth = Math.min(0.2, readNonNeg('contrib-growth') / 100);   // 적립금 증가율 (연)
   const weightOf = h => Math.max(0, Number(h.weight) || 0);
   const totalWeight = hs.reduce((s, h) => s + weightOf(h), 0);
   if (!(totalWeight > 0)) return null;
@@ -2064,10 +2187,11 @@ function simulate(hs = holdings) {
     p: (Number(h.priceGrowth) || 0) / 100,
   }));
   const V = H.map(x => initial * x.w);
-  const annual = monthly * 12;
   let principal = initial, cumDiv = 0, realCumDiv = 0;
   const rows = [];
   for (let yr = 1; yr <= years; yr++) {
+    const contribMonthly = monthly * Math.pow(1 + contribGrowth, yr - 1);  // 그 해 월 적립금
+    const annual = contribMonthly * 12;
     principal += annual;
     const perH = H.map((x, i) => {
       const pf = Math.max(1 + x.p, 0);
@@ -2083,7 +2207,7 @@ function simulate(hs = holdings) {
     const df = Math.pow(1 + inflationRate, yr);
     cumDiv += div; realCumDiv += div / df;
     rows.push({
-      year: yr, principal, asset, div, monthly: div / 12, cumDiv,
+      year: yr, principal, asset, div, monthly: div / 12, cumDiv, contribMonthly,
       yoc: principal > 0 ? div / principal : 0,          // 원금 대비 배당률
       assetReal: asset / df, monthlyReal: div / 12 / df, realCumDiv,
       perH,
@@ -2091,8 +2215,8 @@ function simulate(hs = holdings) {
   }
   const last = rows[rows.length - 1];
   // 눈덩이 시점: 월배당이 월 적립금을 처음 넘는 해
-  const cross = monthly > 0 ? rows.find(r => r.monthly >= monthly) || null : null;
-  return { years, initial, monthly, inflationOn, inflationRate: Math.round(inflationRate * 1000) / 10, H, rows, last, cross };
+  const cross = monthly > 0 ? rows.find(r => r.monthly >= r.contribMonthly) || null : null;
+  return { years, initial, monthly, contribGrowth: Math.round(contribGrowth * 1000) / 10, inflationOn, inflationRate: Math.round(inflationRate * 1000) / 10, H, rows, last, cross };
 }
 
 // ============================================================
@@ -2161,7 +2285,7 @@ function renderDivChart(d) {
   const labels = d.rows.map(r => r.year + '년');
   const datasets = [lineDs('월배당', d.rows.map(r => Math.round(r.monthly)), '#D9542B', { borderWidth: 3, pointHoverRadius: 6 })];
   if (d.inflationOn) datasets.push(lineDs('월배당 · 실질', d.rows.map(r => Math.round(r.monthlyReal)), '#4A5A4A', { borderDash: [10, 5] }));
-  if (d.monthly > 0) datasets.push(lineDs('월 적립금', d.rows.map(() => d.monthly), '#9B9387', { borderWidth: 1.5, borderDash: [4, 4], pointHoverRadius: 0 }));
+  if (d.monthly > 0) datasets.push(lineDs('월 적립금', d.rows.map(r => Math.round(r.contribMonthly)), '#9B9387', { borderWidth: 1.5, borderDash: [4, 4], pointHoverRadius: 0 }));
   const mobile = window.innerWidth < 768;
   chartDiv = new Chart(document.getElementById('chart-div').getContext('2d'), {
     type: 'line',
@@ -2181,9 +2305,9 @@ function renderDivChart(d) {
   });
   const L = d.last;
   let sub = d.cross
-    ? `<strong style="color: var(--accent);">${d.cross.year}년차</strong>부터 월배당(${formatKRW(d.cross.monthly)}원)이 월 적립금(${formatKRW(d.monthly)}원)을 넘습니다. 이때부터는 내가 넣는 돈보다 배당이 더 많이 굴러 들어옵니다.`
+    ? `<strong style="color: var(--accent);">${d.cross.year}년차</strong>부터 월배당(${formatKRW(d.cross.monthly)}원)이 월 적립금(${formatKRW(d.cross.contribMonthly)}원)을 넘습니다. 이때부터는 내가 넣는 돈보다 배당이 더 많이 굴러 들어옵니다.`
     : d.monthly > 0
-      ? `${d.years}년 동안은 월배당(${formatKRW(L.monthly)}원)이 월 적립금(${formatKRW(d.monthly)}원)을 아직 넘지 못합니다. 기간을 늘리거나 비중을 바꿔 보세요.`
+      ? `${d.years}년 동안은 월배당(${formatKRW(L.monthly)}원)이 월 적립금(${formatKRW(L.contribMonthly)}원)을 아직 넘지 못합니다. 기간을 늘리거나 비중을 바꿔 보세요.`
       : `첫해 월 ${formatKRW(d.rows[0].monthly)}원이던 배당이 ${d.years}년차에는 월 ${formatKRW(L.monthly)}원이 됩니다.`;
   if (d.inflationOn) sub += ` 점선은 물가 ${d.inflationRate}%를 반영한 오늘 돈 가치입니다.`;
   document.getElementById('chart-div-sub').innerHTML = sub;
@@ -2261,6 +2385,37 @@ function renderStack(d) {
   document.getElementById('hold-foot').innerHTML = `<tr><td>합계</td><td>${formatKRW(L.asset)}원</td><td>100%</td><td style="color: var(--accent);">${formatKRW(L.monthly)}원</td></tr>`;
 }
 
+// ===== 내려받기용 표 (원 단위 숫자) =====
+function exportRows(d) {
+  const R = v => Math.round(v);
+  const head = ['연차', '그 해 월 적립금', '누적 원금', '총 자산', '연 배당', '월 배당', '누적 배당', '원금 대비 배당률(%)'];
+  if (d.inflationOn) head.push('총 자산(오늘 가치)', '월 배당(오늘 가치)');
+  const rows = [head];
+  d.rows.forEach(r => {
+    const row = [r.year, R(r.contribMonthly), R(r.principal), R(r.asset), R(r.div), R(r.monthly), R(r.cumDiv), Math.round(r.yoc * 1000) / 10];
+    if (d.inflationOn) row.push(R(r.assetReal), R(r.monthlyReal));
+    rows.push(row);
+  });
+  return rows;
+}
+function exportRowsByHolding(d) {
+  const head = ['연차'];
+  d.H.forEach(h => head.push(`${h.name} 자산`, `${h.name} 연 배당`));
+  const rows = [head];
+  d.rows.forEach(r => rows.push([r.year, ...r.perH.flatMap(x => [Math.round(x.asset), Math.round(x.div)])]));
+  return rows;
+}
+document.addEventListener('click', e => {
+  const id = e.target && e.target.id;
+  if (!lastData || (id !== 'dl-csv' && id !== 'dl-xlsx')) return;
+  const name = '배당눈덩이_연차별';
+  if (id === 'dl-csv') TJX.csv(name, exportRows(lastData));
+  else TJX.xlsx(name, [
+    { name: '연도별', rows: exportRows(lastData), widths: [7, 15, 15, 16, 14, 13, 15, 16, 17, 17] },
+    { name: '종목별', rows: exportRowsByHolding(lastData), widths: [7].concat(lastData.H.flatMap(() => [20, 18])) },
+  ]);
+});
+
 function renderTable(d) {
   const on = d.inflationOn;
   const cell = (v, real, cls) => `<td class="${cls || ''}">${formatKRW(v)}${on && real != null ? `<div class="real">실질 ${formatKRW(real)}</div>` : ''}</td>`;
@@ -2299,8 +2454,8 @@ function renderResults(d) {
   html += card('누적 배당 (재투자)', formatKRW(L.cumDiv), `${Y}년간 받아 다시 넣은 배당`, '', 'var(--accent)');
   if (d.monthly > 0) {
     html += d.cross
-      ? card('눈덩이 시점', d.cross.year + '년차', `월배당이 월 적립금 ${formatKRW(d.monthly)}원을 넘는 해`, 'accent-green')
-      : card('눈덩이 시점', `${Y}년 이후`, `아직 월배당이 적립금 ${formatKRW(d.monthly)}원보다 적음`, '', 'var(--brown)');
+      ? card('눈덩이 시점', d.cross.year + '년차', `월배당이 그 해 월 적립금 ${formatKRW(d.cross.contribMonthly)}원을 넘는 해`, 'accent-green')
+      : card('눈덩이 시점', `${Y}년 이후`, `아직 월배당이 적립금 ${formatKRW(L.contribMonthly)}원보다 적음`, '', 'var(--brown)');
   } else {
     html += card('원금 대비 배당률', (L.yoc * 100).toFixed(1) + '%', `${Y}년차 배당 ÷ 넣은 원금`, 'accent-green');
   }
@@ -2310,8 +2465,9 @@ function renderResults(d) {
 
 function renderInsight(d) {
   const Y = d.years, L = d.last, F = d.rows[0];
-  const money = d.initial > 0 && d.monthly > 0 ? `초기 ${formatKRW(d.initial)}원 + 월 ${formatKRW(d.monthly)}원을`
-    : d.initial > 0 ? `${formatKRW(d.initial)}원을 한 번에` : `월 ${formatKRW(d.monthly)}원씩`;
+  const gTxt = d.contribGrowth > 0 ? `(해마다 ${d.contribGrowth}%씩 늘려)` : '';
+  const money = d.initial > 0 && d.monthly > 0 ? `초기 ${formatKRW(d.initial)}원 + 월 ${formatKRW(d.monthly)}원${gTxt}을`
+    : d.initial > 0 ? `${formatKRW(d.initial)}원을 한 번에` : `월 ${formatKRW(d.monthly)}원씩${gTxt}`;
   const nH = d.H.filter(x => x.w > 0).length;
   const growth = F.monthly > 0 ? L.monthly / F.monthly : 0;
   const title = d.cross
@@ -2337,6 +2493,12 @@ function update() {
   document.getElementById('initial-hint').textContent = formatKRW(initial) + '원';
   document.getElementById('monthly-hint').textContent = '연간 ' + formatKRW(monthly * 12) + '원';
   document.getElementById('years-hint').textContent = years + '년 후 결과';
+  // 상세 설정 요약 한 줄 (접혀 있어도 무엇이 켜져 있는지 보이게)
+  const infOn = document.getElementById('inflation-toggle').checked;
+  const cg = readNonNeg('contrib-growth', true);
+  document.getElementById('adv-summary').textContent =
+    (infOn ? `물가 ${readNonNeg('inflation-rate')}% 반영` : '물가 미반영') + ' · ' +
+    (cg > 0 ? `적립금 매년 ${cg}% 증가` : '적립금 증가 없음') + ' · 세전 · 배당 재투자';
 
   const data = simulate();
   const section = document.getElementById('results-section');
@@ -2607,6 +2769,7 @@ document.getElementById('inflation-toggle').addEventListener('change', (e) => {
   update();
 });
 document.getElementById('inflation-rate').addEventListener('input', update);
+document.getElementById('contrib-growth').addEventListener('input', update);
 
 // 화면 폭이 바뀌면 끝점 라벨·여백을 다시 계산
 let resizeTimer = null, lastMobile = window.innerWidth < 768;
