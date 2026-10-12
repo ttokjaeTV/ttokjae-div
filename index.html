@@ -4,12 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>배당 눈덩이 시뮬레이터 · 똑재TV</title>
-<meta name="description" content="여러 배당 종목을 섞어 매달 적립하고 배당을 재투자하면 월배당이 언제 얼마나 커지는지 보여주는 배당 눈덩이 시뮬레이터. 국내·미국 전체 종목 검색, 실제 배당률 자동 입력.">
-<meta property="og:title" content="배당 눈덩이 시뮬레이터 - 월배당은 언제 적립금을 넘을까?">
+<meta name="description" content="여러 배당 종목을 섞어 매달 적립하고 배당을 재투자하면 월배당금이 언제 얼마나 커지는지 보여주는 배당 눈덩이 시뮬레이터. 국내·미국 전체 종목 검색, 실제 배당률 자동 입력.">
+<meta property="og:title" content="배당 눈덩이 시뮬레이터 - 월배당금은 언제 적립액을 넘을까?">
 <meta property="og:description" content="여러 종목을 섞어 배당을 재투자하면 월배당 눈덩이가 언제, 얼마나 커지는지 연도별로 보여드립니다.">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 <style>
   :root {
     --bg: #F5EFE6;
@@ -39,6 +38,8 @@
   }
 
   .container { max-width: 1200px; margin: 0 auto; }
+  .hub-back { display: inline-block; margin-bottom: 14px; font-size: 13px; font-weight: 600; color: var(--ink-mute); text-decoration: none; }
+  .hub-back:hover { color: var(--accent); }
 
   /* 헤더 */
   header {
@@ -1080,6 +1081,8 @@
 <body>
 <div class="container">
 
+  <a href="https://ttokjaetv.github.io/" class="hub-back">← 똑재TV 계산기 모음</a>
+
   <!-- 헤더 -->
   <header>
     <div class="logo">
@@ -1095,7 +1098,7 @@
   <div class="hero">
     <span class="tag">
       <span class="dot"></span>
-      배당 눈덩이 시뮬레이터 · 2026년 10월 세법 기준
+      배당 눈덩이 시뮬레이터
     </span>
     <h1 class="hero-title">
       배당을 다시 굴리면<br>
@@ -1103,7 +1106,7 @@
     </h1>
     <p class="hero-desc">
       여러 종목을 섞어 매달 적립하고 받은 배당을 다시 투자했을 때<br>
-      월배당과 자산이 해마다 어떻게 불어나는지 한눈에 보여드립니다.
+      월배당금과 자산이 해마다 어떻게 불어나는지 한눈에 보여드립니다.
     </p>
   </div>
 
@@ -1137,7 +1140,7 @@
         <div class="input-hint" id="initial-hint">0원</div>
       </div>
       <div>
-        <label class="label">월 적립금</label>
+        <label class="label">월 적립액</label>
         <input type="number" id="monthly" value="500000" step="100000" min="0" inputmode="numeric">
         <div class="input-hint" id="monthly-hint">연간 600만원</div>
       </div>
@@ -1150,11 +1153,11 @@
 
     <!-- 상세 설정 (물가·적립금 증가율) — 접어 두고 현재 설정을 한 줄로 보여 준다 -->
     <details class="adv-set" id="adv-set">
-      <summary><span class="adv-set-title">상세 설정</span><span class="adv-set-sum" id="adv-summary">물가 2.5% 반영 · 적립금 증가 없음</span></summary>
+      <summary><span class="adv-set-title">상세 설정</span><span class="adv-set-sum" id="adv-summary">물가 2.5% 반영 · 적립액 증가 없음</span></summary>
     <div class="growth-input-wrap">
-      <label class="label">적립금 증가율 (%/년)</label>
+      <label class="label">적립액 증가율 (연, %)</label>
       <input type="number" id="contrib-growth" value="0" step="0.5" min="0" max="20" inputmode="decimal" style="max-width: 200px;">
-      <div class="input-hint">월 적립금을 해마다 이만큼 늘려 넣는다고 가정합니다 (연봉 인상 등). 0이면 매달 같은 금액</div>
+      <div class="input-hint">월 적립액을 해마다 이만큼 늘려 넣는다고 가정합니다 (연봉 인상 등). 0이면 매달 같은 금액</div>
     </div>
     <!-- 물가상승률 옵션 -->
     <div class="inflation-section">
@@ -1162,7 +1165,7 @@
         <div class="inflation-text-area">
           <div class="inflation-title">💰 물가상승률 반영하기</div>
           <div class="inflation-desc">
-            ON으로 켜면 미래 월배당과 자산을 <strong>오늘 돈 가치(실질가치)</strong>로 함께 보여줍니다.
+            ON으로 켜면 미래 월배당금과 자산을 <strong>오늘 돈 가치(실질)</strong>로 함께 보여줍니다.
             "20년 뒤 월 100만원"이 지금 돈으로 얼마인지 확인해 보세요.
           </div>
         </div>
@@ -1172,7 +1175,7 @@
         </label>
       </div>
       <div class="inflation-input-wrap" id="inflation-input-wrap" style="display: flex;">
-        <label class="label" style="margin-bottom: 0;">연간 물가상승률 (%)</label>
+        <label class="label" style="margin-bottom: 0;">물가상승률 (연, %)</label>
         <input type="number" id="inflation-rate" value="2.5" step="0.1" min="0" max="20" style="max-width: 200px;">
         <div class="input-hint" style="margin-top: 0;">한국 장기 평균 약 2.5%</div>
       </div>
@@ -1202,7 +1205,7 @@
     <div id="holdings-container"></div>
     <details class="growth-guide">
       <summary>배당률·성장률은 어떻게 채워지나요?</summary>
-      <p><b>배당률</b>은 실제 데이터입니다. 최근 12개월 동안 실제로 지급된 배당·분배금 합계를 현재가로 나눈 값이며, 매일 갱신됩니다. 상장 1년이 안 됐거나 분배금이 최근 크게 바뀐 종목은 ‘최근 분배 연환산’ 값으로 바꿔 볼 수 있습니다.</p>
+      <p><b>배당률</b>은 실제 데이터입니다. 최근 12개월 동안 실제로 지급된 배당·분배금 합계를 종가로 나눈 값이며, 매주 갱신됩니다. 상장 1년이 안 됐거나 분배금이 최근 크게 바뀐 종목은 ‘최근 분배 연환산’ 값으로 바꿔 볼 수 있습니다.</p>
       <p><b>배당성장률·주가성장률</b>은 미래 예측이라 실데이터가 아닌 <b>가정치</b>입니다. 추천 종목은 프리셋 값을, 나머지는 아래 유형별 기본값을 넣습니다. 본인 판단에 맞게 직접 고쳐서 돌려보세요.</p>
       <table>
         <thead><tr><th>유형</th><th style="text-align:right">배당성장</th><th style="text-align:right">주가성장</th></tr></thead>
@@ -1225,7 +1228,7 @@
     <div class="data-basis" id="data-basis">배당률 데이터를 불러오는 중…</div>
 
     <div class="result-head">
-      <div class="result-head-label" id="rh-label">20년 후 월배당 (세전)</div>
+      <div class="result-head-label" id="rh-label">20년 후 월배당금 (세전)</div>
       <div class="result-head-value" id="rh-value">-</div>
       <div class="result-head-sub" id="rh-sub"></div>
     </div>
@@ -1239,7 +1242,7 @@
 
     <!-- 차트 1: 월배당 -->
     <div class="card">
-      <div class="chart-title">연도별 월배당 · 눈덩이가 커지는 속도</div>
+      <div class="chart-title">연도별 월배당금 · 눈덩이가 커지는 속도</div>
       <div class="chart-subtitle" id="chart-div-sub">-</div>
       <div class="chart-container lg">
         <canvas id="chart-div"></canvas>
@@ -1257,14 +1260,14 @@
 
     <!-- 차트 3: 종목별 기여 -->
     <div class="card">
-      <div class="chart-title">월배당은 어느 종목에서 나올까? · 종목별 기여</div>
-      <div class="chart-subtitle">연도별 월배당을 종목별로 쌓았습니다. 배당률이 높은 종목은 초반 기여가 크고, 배당성장률이 높은 종목은 뒤로 갈수록 몫이 커집니다.</div>
+      <div class="chart-title">월배당금은 어느 종목에서 나올까? · 종목별 기여</div>
+      <div class="chart-subtitle">연도별 월배당금을 종목별로 쌓았습니다. 배당률이 높은 종목은 초반 기여가 크고, 배당성장률이 높은 종목은 뒤로 갈수록 몫이 커집니다.</div>
       <div class="chart-container lg">
         <canvas id="chart-stack"></canvas>
       </div>
       <div class="table-wrap">
         <table class="hold-table">
-          <thead><tr><th id="ht-name">종목</th><th>자산</th><th>비중</th><th>월배당</th></tr></thead>
+          <thead><tr><th id="ht-name">종목</th><th>자산</th><th>비중</th><th>월배당금</th></tr></thead>
           <tbody id="hold-body"></tbody>
           <tfoot id="hold-foot"></tfoot>
         </table>
@@ -1288,7 +1291,7 @@
               <th>누적 원금</th>
               <th>총 자산</th>
               <th>연 배당</th>
-              <th>월 배당</th>
+              <th>월배당금</th>
               <th>누적 배당</th>
               <th>원금 대비 배당률</th>
             </tr>
@@ -1300,7 +1303,7 @@
 
     <!-- 비중 바꿔 보기 (what-if) -->
     <div class="card" id="whatif-card">
-      <div class="chart-title">비중 바꿔 보기 · 비중을 바꾸면 월배당이 어떻게 달라질까?</div>
+      <div class="chart-title">비중 바꿔 보기 · 비중을 바꾸면 월배당금이 어떻게 달라질까?</div>
       <div class="chart-subtitle">
         종목마다 슬라이더를 움직이거나 숫자를 직접 넣어 보세요. <strong style="color: var(--accent);">직접 바꾼 종목은 🔒 고정</strong>되고, 나머지 종목이 원래 비율대로 알아서 줄거나 늘어 합계 100%를 맞춥니다.<br>
         위쪽 포트폴리오는 그대로 두고 비교만 합니다. 마음에 드는 비중이면 [이 비중으로 적용]을 누르세요.
@@ -1361,8 +1364,8 @@
 
   <footer>
     ※ 본 시뮬레이터는 세금·수수료·환율 변동을 넣지 않은 세전 기준 참고용 계산 도구입니다. 배당에 붙는 세금은 계좌(일반계좌·연금저축·IRP·ISA)와 종목에 따라 달라질 수 있어 실제 수령액과 차이가 있습니다.<br>
-    ※ 배당률은 최근 12개월 실지급액 기준 실데이터(매일 갱신), 배당·주가 성장률은 가정치입니다. 과거 배당이 미래 배당을 보장하지 않으며, 투자 결정은 본인 판단으로 하시기 바랍니다.<br>
-    ※ 계산 방식: 그 해 배당은 연초 보유액 × 배당률(1년차는 현재 배당률)이며 연말에 받아 같은 종목에 재투자합니다. 초기 투자금은 1년차를 온전히 보유하고, 월 적립금은 연중 고르게 들어오므로 그 해에는 반년치만 배당·주가상승을 반영했습니다.
+    ※ 배당률은 최근 12개월 실지급액 ÷ 종가로 구한 실데이터(매주 갱신), 배당·주가 성장률은 가정치입니다. 과거 배당이 미래 배당을 보장하지 않으며, 투자 결정은 본인 판단으로 하시기 바랍니다.<br>
+    ※ 계산 방식: 그 해 배당은 연초 보유액 × 배당률(1년차는 현재 배당률)이며 연말에 받아 같은 종목에 재투자합니다. 초기 투자금은 1년차를 온전히 보유하고, 월 적립액은 연중 고르게 들어오므로 그 해에는 반년치만 배당·주가상승을 반영했습니다.
   </footer>
 
 </div>
@@ -1453,70 +1456,70 @@ if (window.Chart) { Chart.defaults.font.family = "'Pretendard', -apple-system, s
 // 데이터 정의
 // ============================================================
 // 추천 프리셋 (key = 'KR:코드' | 'US:티커')
-//  y: 배당률(실데이터 도착 전 임시값) · dg: 배당성장률 · pg: 주가성장률(가정치)
-//  성장률은 배당 재투자 계산기(rediv)와 같은 값을 쓴다
+//  y: 배당률(실데이터를 못 불러왔을 때만 쓰는 임시값 · portfolio-sheet-data 2026-10-03·10-07 배당수익률) · dg: 배당성장률 · pg: 주가성장률(가정치)
+//  배당 재투자 계산기(rediv)와 같은 목록·같은 값을 쓴다
 const PRESET_GROUPS = [
-  ['국내상장 국내ETF', [
-    ['KR:161510', 'PLUS 고배당주', 5.8, 10.5, 7.0],
-    ['KR:489030', 'PLUS 고배당주위클리커버드콜', 13.7, 1.0, 1.0],
-    ['KR:498400', 'KODEX 200타겟위클리커버드콜', 12.0, 0.5, 3.0],
+  ['국내상장 국내 ETF', [
+    ['KR:161510', 'PLUS 고배당주', 4.3, 10.5, 7.0],
+    ['KR:489030', 'PLUS 고배당주위클리커버드콜', 23.7, 1.0, 1.0],
+    ['KR:498400', 'KODEX 200타겟위클리커버드콜', 15.0, 0.5, 3.0],
     ['KR:498410', 'KODEX 금융고배당TOP10타겟위클리커버드콜', 16.5, 0.0, 0.0],
-    ['KR:472150', 'TIGER 배당커버드콜액티브', 12.0, 1.0, 1.0],
-    ['KR:466940', 'TIGER 은행고배당플러스TOP10', 6.5, 5.0, 6.0],
-    ['KR:441800', 'TIME Korea플러스배당액티브', 4.5, 8.0, 9.0],
-    ['KR:0052D0', 'TIGER 코리아배당다우존스', 4.2, 7.0, 7.0],
-    ['KR:091170', 'KODEX 은행', 5.5, 4.0, 5.5],
-    ['KR:484880', 'SOL 금융지주플러스고배당', 7.0, 5.0, 6.0],
-    ['KR:0153K0', 'KODEX 주주환원고배당주', 5.0, 7.0, 7.0],
-    ['KR:0089D0', 'KODEX 금융고배당TOP10', 6.2, 5.5, 6.0],
+    ['KR:472150', 'TIGER 배당커버드콜액티브', 22.3, 1.0, 1.0],
+    ['KR:466940', 'TIGER 은행고배당플러스TOP10', 4.0, 5.0, 6.0],
+    ['KR:441800', 'TIME Korea플러스배당액티브', 8.0, 8.0, 9.0],
+    ['KR:0052D0', 'TIGER 코리아배당다우존스', 4.4, 7.0, 7.0],
+    ['KR:091170', 'KODEX 은행', 4.0, 4.0, 5.5],
+    ['KR:484880', 'SOL 금융지주플러스고배당', 3.8, 5.0, 6.0],
+    ['KR:0153K0', 'KODEX 주주환원고배당주', 2.4, 7.0, 7.0],
+    ['KR:0089D0', 'KODEX 금융고배당TOP10', 4.3, 5.5, 6.0],
   ]],
-  ['국내상장 해외ETF', [
-    ['KR:489250', 'KODEX 미국배당다우존스', 3.7, 8.0, 8.0],
-    ['KR:458730', 'TIGER 미국배당다우존스', 3.2, 9.0, 8.0],
-    ['KR:0046Y0', 'ACE 미국배당퀄리티', 3.0, 9.0, 8.0],
-    ['KR:441640', 'KODEX 미국배당커버드콜액티브', 9.4, 1.5, 4.5],
-    ['KR:458760', 'TIGER 미국배당다우존스타겟커버드콜2호', 11.6, 1.0, 4.0],
-    ['KR:494300', 'KODEX 미국나스닥100데일리커버드콜OTM', 19.7, 0.0, 1.5],
-    ['KR:491620', 'RISE 미국테크100데일리고정커버드콜', 20.7, 0.0, 0.5],
-    ['KR:490600', 'RISE 미국배당100데일리고정커버드콜', 16.4, 2.0, 2.0],
-    ['KR:441680', 'TIGER 미국나스닥100커버드콜(합성)', 11.3, 0.5, 3.0],
-    ['KR:473330', 'SOL 미국30년국채커버드콜(합성)', 10.1, 0.5, 2.0],
-    ['KR:0040Y0', 'SOL 팔란티어커버드콜OTM채권혼합', 26.2, 0.0, 0.0],
+  ['국내상장 해외 ETF', [
+    ['KR:489250', 'KODEX 미국배당다우존스', 3.0, 9.0, 8.0],
+    ['KR:458730', 'TIGER 미국배당다우존스', 3.1, 9.0, 8.0],
+    ['KR:0046Y0', 'ACE 미국배당퀄리티', 1.4, 9.0, 8.0],
+    ['KR:441640', 'KODEX 미국배당커버드콜액티브', 9.8, 1.5, 4.5],
+    ['KR:458760', 'TIGER 미국배당다우존스타겟커버드콜2호', 10.7, 1.0, 4.0],
+    ['KR:494300', 'KODEX 미국나스닥100데일리커버드콜OTM', 22.6, 0.0, 1.5],
+    ['KR:491620', 'RISE 미국테크100데일리고정커버드콜', 21.4, 0.0, 0.5],
+    ['KR:490600', 'RISE 미국배당100데일리고정커버드콜', 17.3, 2.0, 2.0],
+    ['KR:441680', 'TIGER 미국나스닥100커버드콜(합성)', 12.6, 0.5, 3.0],
+    ['KR:473330', 'SOL 미국30년국채커버드콜(합성)', 13.4, 0.5, 2.0],
+    ['KR:0040Y0', 'SOL 팔란티어커버드콜OTM채권혼합', 27.7, 0.0, 0.0],
   ]],
   ['국내 개별주', [
-    ['KR:005930', '삼성전자', 2.5, 4.0, 6.0],
-    ['KR:000660', 'SK하이닉스', 1.0, 5.0, 12.0],
-    ['KR:033780', 'KT&G', 5.5, 4.0, 4.0],
-    ['KR:105560', 'KB금융', 4.5, 8.0, 7.0],
-    ['KR:055550', '신한지주', 4.8, 7.0, 6.5],
-    ['KR:086790', '하나금융지주', 6.0, 6.0, 6.0],
-    ['KR:316140', '우리금융지주', 6.5, 5.0, 5.0],
-    ['KR:024110', '기업은행', 7.0, 4.0, 4.5],
-    ['KR:005380', '현대차', 4.0, 5.0, 7.0],
-    ['KR:000270', '기아', 4.5, 5.0, 7.0],
-    ['KR:017670', 'SK텔레콤', 5.5, 3.0, 4.0],
-    ['KR:030200', 'KT', 5.0, 4.0, 4.5],
-    ['KR:005490', 'POSCO홀딩스', 3.5, 4.0, 5.0],
+    ['KR:005930', '삼성전자', 0.5, 4.0, 6.0],
+    ['KR:000660', 'SK하이닉스', 0.2, 5.0, 12.0],
+    ['KR:033780', 'KT&G', 3.7, 4.0, 4.0],
+    ['KR:105560', 'KB금융', 2.9, 8.0, 7.0],
+    ['KR:055550', '신한지주', 2.8, 7.0, 6.5],
+    ['KR:086790', '하나금융지주', 3.5, 6.0, 6.0],
+    ['KR:316140', '우리금융지주', 4.2, 5.0, 5.0],
+    ['KR:024110', '기업은행', 6.2, 4.0, 4.5],
+    ['KR:005380', '현대차', 2.9, 5.0, 7.0],
+    ['KR:000270', '기아', 6.0, 5.0, 7.0],
+    ['KR:017670', 'SK텔레콤', 1.9, 3.0, 4.0],
+    ['KR:030200', 'KT', 4.6, 4.0, 4.5],
+    ['KR:005490', 'POSCO홀딩스', 2.9, 4.0, 5.0],
   ]],
-  ['미국 주식·ETF', [
-    ['US:SCHD', 'SCHD (배당성장 ETF)', 3.5, 11.0, 8.0],
-    ['US:JEPI', 'JEPI (월배당 고배당 ETF)', 7.5, 2.0, 4.0],
-    ['US:JEPQ', 'JEPQ (월배당 나스닥 ETF)', 9.5, 3.0, 6.0],
-    ['US:VYM', 'VYM (안정 고배당 ETF)', 3.0, 7.0, 7.0],
-    ['US:VOO', 'VOO (S&P500 ETF)', 1.3, 6.0, 10.0],
-    ['US:QQQ', 'QQQ (나스닥100 ETF)', 0.6, 8.0, 12.0],
-    ['US:O', 'O (리얼티인컴 · 월배당 리츠)', 5.5, 4.0, 3.0],
-    ['US:KO', 'KO (코카콜라)', 3.1, 5.0, 6.0],
-    ['US:PEP', 'PEP (펩시코)', 3.5, 6.0, 6.0],
-    ['US:JNJ', 'JNJ (존슨앤존슨)', 3.0, 6.0, 6.0],
-    ['US:PG', 'PG (P&G)', 2.5, 5.0, 7.0],
-    ['US:MCD', 'MCD (맥도날드)', 2.4, 8.0, 8.0],
-    ['US:MO', 'MO (알트리아)', 8.0, 4.0, 2.0],
-    ['US:XOM', 'XOM (엑슨모빌)', 3.5, 4.0, 5.0],
-    ['US:CVX', 'CVX (셰브론)', 4.2, 5.0, 5.0],
-    ['US:T', 'T (AT&T)', 6.5, 1.0, 3.0],
-    ['US:VZ', 'VZ (버라이즌)', 6.8, 2.0, 3.0],
-    ['US:AAPL', 'AAPL (애플)', 0.5, 5.0, 12.0],
+  ['미국 직투 (주식·ETF)', [
+    ['US:SCHD', 'SCHD (배당성장 ETF)', 3.2, 9.0, 8.0],
+    ['US:JEPI', 'JEPI (월배당 고배당 ETF)', 8.1, 2.0, 4.0],
+    ['US:JEPQ', 'JEPQ (월배당 나스닥 ETF)', 11.2, 3.0, 6.0],
+    ['US:VYM', 'VYM (안정 고배당 ETF)', 2.3, 7.0, 7.0],
+    ['US:VOO', 'VOO (S&P500 ETF)', 1.0, 6.0, 10.0],
+    ['US:QQQ', 'QQQ (나스닥100 ETF)', 0.4, 8.0, 12.0],
+    ['US:O', 'O (리얼티인컴 · 월배당 리츠)', 6.0, 4.0, 3.0],
+    ['US:KO', 'KO (코카콜라)', 2.4, 5.0, 6.0],
+    ['US:PEP', 'PEP (펩시코)', 4.6, 6.0, 6.0],
+    ['US:JNJ', 'JNJ (존슨앤존슨)', 2.1, 6.0, 6.0],
+    ['US:PG', 'PG (P&G)', 2.9, 5.0, 7.0],
+    ['US:MCD', 'MCD (맥도날드)', 3.2, 8.0, 8.0],
+    ['US:MO', 'MO (알트리아)', 6.2, 4.0, 2.0],
+    ['US:XOM', 'XOM (엑슨모빌)', 2.5, 4.0, 5.0],
+    ['US:CVX', 'CVX (셰브론)', 3.4, 5.0, 5.0],
+    ['US:T', 'T (AT&T)', 4.5, 1.0, 3.0],
+    ['US:VZ', 'VZ (버라이즌)', 6.1, 2.0, 3.0],
+    ['US:AAPL', 'AAPL (애플)', 0.3, 5.0, 12.0],
     ['US:MSFT', 'MSFT (마이크로소프트)', 0.7, 10.0, 13.0],
   ]],
 ];
@@ -1534,7 +1537,9 @@ const CHART_COLORS = ['#D9542B', '#E89A6F', '#8B6F47', '#C4A57B', '#5A6B5A', '#3
 const DATA_BASE = 'https://ttokjaetv.github.io/portfolio-sheet-data/data/';
 const UNIVERSE = new Map();     // 'KR:161510' | 'US:SCHD' → 종목 정보
 let UNIVERSE_LIST = [];
-const DATA_STATE = { kr: 'loading', us: 'loading', krUpdated: '', usUpdated: '' };
+const DATA_STATE = { kr: 'loading', us: 'loading', krUpdated: '', usUpdated: '', krDivUpdated: '', usDivUpdated: '' };
+// 배당 CSV 의 갱신시각(가장 늦은 값) — 배당률(배당수익률 열)은 이 시점의 종가로 나눈 값이다
+const maxStamp = rows => rows.reduce((m, r) => ((r['갱신시각'] || '') > m ? r['갱신시각'] : m), '');
 
 function parseCSV(text) {
   const rows = []; let row = [], field = '', q = false;
@@ -1596,6 +1601,7 @@ async function loadKR() {
   }));
   stocks.forEach(r => mk(r['종목코드'], r['종목명'], '국내주식', num(r['현재가']), {}));
   DATA_STATE.krUpdated = (etfs[0] && etfs[0]['갱신시각']) || '';
+  DATA_STATE.krDivUpdated = maxStamp(divs);
 }
 
 async function loadUS() {
@@ -1612,6 +1618,7 @@ async function loadUS() {
     });
   });
   DATA_STATE.usUpdated = (prices[0] && prices[0]['갱신시각']) || '';
+  DATA_STATE.usDivUpdated = maxStamp(divs);
 }
 
 // ============================================================
@@ -1628,6 +1635,7 @@ const TYPE_DEFAULTS = {
   currency:  { label: '통화',                   dg: 0,   pg: 1.0 },
   etc:       { label: '기타',                   dg: 0,   pg: 3.0 },
   krDivEtf:  { label: '배당주 ETF(국내상장)',   dg: 6.0, pg: 6.0 },
+  usDiv100:  { label: '미국배당다우존스(SCHD형)', dg: 9.0, pg: 8.0 },
   overseasEtf:{ label: '해외주식 ETF(국내상장)', dg: 6.0, pg: 8.0 },
   krEqEtf:   { label: '국내주식 ETF',           dg: 5.0, pg: 6.0 },
   krStock:   { label: '국내 개별주',            dg: 4.0, pg: 5.0 },
@@ -1649,6 +1657,7 @@ function classify(it) {
     if (it.asset === '원자재') return 'commod';
     if (it.asset === '통화') return RATE_RE.test(n) ? 'rate' : 'currency';
     if (it.asset === '기타') return RATE_RE.test(n) ? 'rate' : 'etc';
+    if (/미국배당다우존스/.test(n)) return 'usDiv100';   // Dow Jones U.S. Dividend 100 추종(커버드콜·타겟형은 위에서 cc)
     if (/배당/.test(n)) return 'krDivEtf';
     if (/미국|나스닥|S&P|글로벌|선진|일본|중국|차이나|인도|베트남|유럽|신흥|MSCI|필라델피아|월드/i.test(n)) return 'overseasEtf';
     return 'krEqEtf';
@@ -1815,7 +1824,7 @@ function renderComboList(listEl, query) {
   if (!q) {
     html += `<div class="combo-opt custom" data-key="CUSTOM" data-idx="${idx++}"><div class="opt-name">⚙️ 직접 입력</div><div class="opt-sub"><span>배당률·성장률을 직접 넣는 종목</span></div></div>`;
     html += `<div class="combo-hint">종목명이나 코드를 입력하면 <b>국내·미국 전체 종목</b>에서 찾습니다</div>`;
-    PRESET_GROUPS.forEach(([g, , rows]) => {
+    PRESET_GROUPS.forEach(([g, rows]) => {
       const keys = rows.map(r => r[0]).filter(k => searchMarket === 'ALL' || k.startsWith(searchMarket + ':'));
       if (!keys.length) return;
       html += `<div class="combo-group">추천 · ${escapeHtml(g)}</div>`;
@@ -1856,7 +1865,7 @@ function metaHtml(h) {
   const dateTxt = it.updated ? ` · ${it.updated.slice(0, 10)} 기준` : '';
   let yl = '';
   if (h.yieldSrc === 'ttm') {
-    yl = `<span>배당률 = <b>최근 12개월 실제 지급액 ÷ 현재가</b>${dateTxt}</span>`;
+    yl = `<span>배당률 = <b>최근 12개월 실제 지급액 ÷ 종가</b>${dateTxt}</span>`;
     if (it.yieldFwd && it.yieldTTM > 0 && Math.abs(it.yieldFwd - it.yieldTTM) / it.yieldTTM > 0.1) {
       yl += ` <button type="button" class="meta-btn" data-act="fwd" data-id="${h.id}">최근 분배 연환산 ${fmtYield(it.yieldFwd)} 적용</button>`;
     }
@@ -2099,10 +2108,12 @@ document.getElementById('add-holding-btn').addEventListener('click', () => {
 function renderDataBasis() {
   const el = document.getElementById('data-basis');
   if (!el) return;
-  const d = (DATA_STATE.krUpdated || DATA_STATE.usUpdated || '').slice(0, 10);
+  // 배당률 기준일 = 배당 CSV 갱신일 (국내 dividends.csv · 미국 us_dividends.csv, 주 1회 갱신)
+  const k = (DATA_STATE.krDivUpdated || '').slice(0, 10), u = (DATA_STATE.usDivUpdated || '').slice(0, 10);
+  const d = k && u && k !== u ? `국내 ${k} · 미국 ${u}` : (k || u);
   const loading = DATA_STATE.kr === 'loading' || DATA_STATE.us === 'loading';
   el.innerHTML = d
-    ? `배당률 <b>${d} 기준</b> (최근 12개월 실제 지급액 ÷ 현재가 · 매일 갱신) · 실시간 시세 아님 · 배당·주가 성장률은 가정치`
+    ? `배당률 = 최근 12개월 분배금 ÷ 종가 (<b>${d} 기준</b> · 매주 갱신) · 실시간 시세 아님 · 배당·주가 성장률은 가정치`
     : loading ? '배당률 데이터를 불러오는 중…' : '실데이터를 불러오지 못해 추천 프리셋 배당률로 계산했습니다 · 성장률은 가정치';
 }
 function renderDataStatus() {
@@ -2173,7 +2184,7 @@ function simulate(hs = holdings) {
   const years = readYears(false);
   const inflationOn = document.getElementById('inflation-toggle').checked;
   const inflationRate = inflationOn ? readNonNeg('inflation-rate') / 100 : 0;
-  const contribGrowth = Math.min(0.2, readNonNeg('contrib-growth') / 100);   // 적립금 증가율 (연)
+  const contribGrowth = Math.min(0.2, readNonNeg('contrib-growth') / 100);   // 적립액 증가율 (연)
   const weightOf = h => Math.max(0, Number(h.weight) || 0);
   const totalWeight = hs.reduce((s, h) => s + weightOf(h), 0);
   if (!(totalWeight > 0)) return null;
@@ -2190,7 +2201,7 @@ function simulate(hs = holdings) {
   let principal = initial, cumDiv = 0, realCumDiv = 0;
   const rows = [];
   for (let yr = 1; yr <= years; yr++) {
-    const contribMonthly = monthly * Math.pow(1 + contribGrowth, yr - 1);  // 그 해 월 적립금
+    const contribMonthly = monthly * Math.pow(1 + contribGrowth, yr - 1);  // 그 해 월 적립액
     const annual = contribMonthly * 12;
     principal += annual;
     const perH = H.map((x, i) => {
@@ -2283,9 +2294,9 @@ const lineDs = (label, data, color, opt = {}) => Object.assign({
 function renderDivChart(d) {
   if (chartDiv) chartDiv.destroy();
   const labels = d.rows.map(r => r.year + '년');
-  const datasets = [lineDs('월배당', d.rows.map(r => Math.round(r.monthly)), '#D9542B', { borderWidth: 3, pointHoverRadius: 6 })];
-  if (d.inflationOn) datasets.push(lineDs('월배당 · 실질', d.rows.map(r => Math.round(r.monthlyReal)), '#4A5A4A', { borderDash: [10, 5] }));
-  if (d.monthly > 0) datasets.push(lineDs('월 적립금', d.rows.map(r => Math.round(r.contribMonthly)), '#9B9387', { borderWidth: 1.5, borderDash: [4, 4], pointHoverRadius: 0 }));
+  const datasets = [lineDs(d.inflationOn ? '월배당금 · 명목' : '월배당금', d.rows.map(r => Math.round(r.monthly)), '#D9542B', { borderWidth: 3, pointHoverRadius: 6 })];
+  if (d.inflationOn) datasets.push(lineDs('월배당금 · 실질', d.rows.map(r => Math.round(r.monthlyReal)), '#4A5A4A', { borderDash: [10, 5] }));
+  if (d.monthly > 0) datasets.push(lineDs('월 적립액', d.rows.map(r => Math.round(r.contribMonthly)), '#9B9387', { borderWidth: 1.5, borderDash: [4, 4], pointHoverRadius: 0 }));
   const mobile = window.innerWidth < 768;
   chartDiv = new Chart(document.getElementById('chart-div').getContext('2d'), {
     type: 'line',
@@ -2301,13 +2312,13 @@ function renderDivChart(d) {
           callbacks: { title: (it) => it[0]?.label + ' 차', label: (c) => '  ' + c.dataset.label + ': ' + formatKRWFull(c.parsed.y) } },
       },
     },
-    plugins: [makeEndLabelPlugin(t => t.replace('월배당 · 실질', '실질').replace('월 적립금', '적립금'))],
+    plugins: [makeEndLabelPlugin(t => t.replace('월배당금 · 명목', '명목').replace('월배당금 · 실질', '실질').replace('월 적립액', '적립액'))],
   });
   const L = d.last;
   let sub = d.cross
-    ? `<strong style="color: var(--accent);">${d.cross.year}년차</strong>부터 월배당(${formatKRW(d.cross.monthly)}원)이 월 적립금(${formatKRW(d.cross.contribMonthly)}원)을 넘습니다. 이때부터는 내가 넣는 돈보다 배당이 더 많이 굴러 들어옵니다.`
+    ? `<strong style="color: var(--accent);">${d.cross.year}년차</strong>부터 월배당금(${formatKRW(d.cross.monthly)}원)이 월 적립액(${formatKRW(d.cross.contribMonthly)}원)을 넘습니다. 이때부터는 내가 넣는 돈보다 배당이 더 많이 굴러 들어옵니다.`
     : d.monthly > 0
-      ? `${d.years}년 동안은 월배당(${formatKRW(L.monthly)}원)이 월 적립금(${formatKRW(L.contribMonthly)}원)을 아직 넘지 못합니다. 기간을 늘리거나 비중을 바꿔 보세요.`
+      ? `${d.years}년 동안은 월배당금(${formatKRW(L.monthly)}원)이 월 적립액(${formatKRW(L.contribMonthly)}원)을 아직 넘지 못합니다. 기간을 늘리거나 비중을 바꿔 보세요.`
       : `첫해 월 ${formatKRW(d.rows[0].monthly)}원이던 배당이 ${d.years}년차에는 월 ${formatKRW(L.monthly)}원이 됩니다.`;
   if (d.inflationOn) sub += ` 점선은 물가 ${d.inflationRate}%를 반영한 오늘 돈 가치입니다.`;
   document.getElementById('chart-div-sub').innerHTML = sub;
@@ -2318,7 +2329,7 @@ function renderAssetChart(d) {
   const labels = d.rows.map(r => r.year + '년');
   const datasets = [
     lineDs('누적 원금', d.rows.map(r => Math.round(r.principal)), '#9B9387', { borderWidth: 1.5, borderDash: [4, 4] }),
-    lineDs('총 자산', d.rows.map(r => Math.round(r.asset)), '#D9542B', { borderWidth: 3, pointHoverRadius: 6 }),
+    lineDs(d.inflationOn ? '총 자산 · 명목' : '총 자산', d.rows.map(r => Math.round(r.asset)), '#D9542B', { borderWidth: 3, pointHoverRadius: 6 }),
   ];
   if (d.inflationOn) datasets.push(lineDs('총 자산 · 실질', d.rows.map(r => Math.round(r.assetReal)), '#4A5A4A', { borderDash: [10, 5] }));
   const mobile = window.innerWidth < 768;
@@ -2336,7 +2347,7 @@ function renderAssetChart(d) {
           callbacks: { title: (it) => it[0]?.label + ' 차', label: (c) => '  ' + c.dataset.label + ': ' + formatKRWFull(c.parsed.y) } },
       },
     },
-    plugins: [makeEndLabelPlugin(t => t.replace('누적 원금', '원금').replace('총 자산 · 실질', '실질').replace('총 자산', '자산'))],
+    plugins: [makeEndLabelPlugin(t => t.replace('누적 원금', '원금').replace('총 자산 · 명목', '명목').replace('총 자산 · 실질', '실질').replace('총 자산', '자산'))],
   });
   const L = d.last;
   const gain = L.asset - L.principal;
@@ -2363,7 +2374,7 @@ function renderStack(d) {
         legend: { labels: { font: { family: 'Pretendard', size: 12, weight: 600 }, color: '#1A1A1A', usePointStyle: true, padding: 14, boxWidth: 8 } },
         tooltip: { ...tooltipBase, itemSort: (a, b) => b.parsed.y - a.parsed.y,
           callbacks: {
-            title: (it) => it[0]?.label + ' 차 · 월배당',
+            title: (it) => it[0]?.label + ' 차 · 월배당금',
             label: (c) => '  ' + c.dataset.label + ': ' + formatKRWFull(c.parsed.y),
             footer: (it) => '  합계: ' + formatKRWFull(it.reduce((s, x) => s + x.parsed.y, 0)),
           } },
@@ -2388,8 +2399,8 @@ function renderStack(d) {
 // ===== 내려받기용 표 (원 단위 숫자) =====
 function exportRows(d) {
   const R = v => Math.round(v);
-  const head = ['연차', '그 해 월 적립금', '누적 원금', '총 자산', '연 배당', '월 배당', '누적 배당', '원금 대비 배당률(%)'];
-  if (d.inflationOn) head.push('총 자산(오늘 가치)', '월 배당(오늘 가치)');
+  const head = ['연차', '그 해 월 적립액', '누적 원금', '총 자산', '연 배당', '월배당금', '누적 배당', '원금 대비 배당률(%)'];
+  if (d.inflationOn) head.push('총 자산(오늘 가치)', '월배당금(오늘 가치)');
   const rows = [head];
   d.rows.forEach(r => {
     const row = [r.year, R(r.contribMonthly), R(r.principal), R(r.asset), R(r.div), R(r.monthly), R(r.cumDiv), Math.round(r.yoc * 1000) / 10];
@@ -2430,14 +2441,14 @@ function renderTable(d) {
       <td class="col-gap">${(r.yoc * 100).toFixed(1)}%</td>
     </tr>`).join('');
   let sub = '원금 대비 배당률은 그 해 배당 ÷ 그때까지 넣은 원금입니다';
-  if (d.cross) sub += ` · <span style="color: var(--accent); font-weight: 700;">색칠된 ${d.cross.year}년차</span>는 월배당이 월 적립금을 처음 넘는 해`;
-  if (on) sub += ` · 작은 글씨는 물가 ${d.inflationRate}%를 반영한 오늘 돈 가치`;
+  if (d.cross) sub += ` · <span style="color: var(--accent); font-weight: 700;">색칠된 ${d.cross.year}년차</span>는 월배당금이 월 적립액을 처음 넘는 해`;
+  if (on) sub += ` · 큰 글씨는 미래 금액(명목), 작은 글씨는 물가 ${d.inflationRate}%를 반영한 오늘 돈 가치(실질)`;
   document.getElementById('table-sub').innerHTML = sub + ' (가로 스크롤)';
 }
 
 function renderResults(d) {
   const Y = d.years, L = d.last;
-  document.getElementById('rh-label').textContent = `${Y}년 후 월배당 (세전)`;
+  document.getElementById('rh-label').textContent = `${Y}년 후 월배당금 (세전)`;
   document.getElementById('rh-value').innerHTML = `매달 <em>${formatKRW(L.monthly)}원</em>`;
   let sub = `총 자산 <strong>${formatKRW(L.asset)}원</strong> · 넣은 돈의 <strong>${(L.principal > 0 ? L.asset / L.principal : 0).toFixed(2)}배</strong>`;
   if (d.inflationOn) sub += ` · 오늘 돈 가치로는 <strong>월 ${formatKRW(L.monthlyReal)}원</strong>`;
@@ -2454,8 +2465,8 @@ function renderResults(d) {
   html += card('누적 배당 (재투자)', formatKRW(L.cumDiv), `${Y}년간 받아 다시 넣은 배당`, '', 'var(--accent)');
   if (d.monthly > 0) {
     html += d.cross
-      ? card('눈덩이 시점', d.cross.year + '년차', `월배당이 그 해 월 적립금 ${formatKRW(d.cross.contribMonthly)}원을 넘는 해`, 'accent-green')
-      : card('눈덩이 시점', `${Y}년 이후`, `아직 월배당이 적립금 ${formatKRW(L.contribMonthly)}원보다 적음`, '', 'var(--brown)');
+      ? card('눈덩이 시점', d.cross.year + '년차', `월배당금이 그 해 월 적립액 ${formatKRW(d.cross.contribMonthly)}원을 넘는 해`, 'accent-green')
+      : card('눈덩이 시점', `${Y}년 이후`, `아직 월배당금이 적립액 ${formatKRW(L.contribMonthly)}원보다 적음`, '', 'var(--brown)');
   } else {
     html += card('원금 대비 배당률', (L.yoc * 100).toFixed(1) + '%', `${Y}년차 배당 ÷ 넣은 원금`, 'accent-green');
   }
@@ -2472,11 +2483,11 @@ function renderInsight(d) {
   const growth = F.monthly > 0 ? L.monthly / F.monthly : 0;
   const title = d.cross
     ? `${d.cross.year}년차부터 <span style="color: var(--accent);">배당이 내가 넣는 돈보다 많아집니다</span>`
-    : `${Y}년 후 월배당 <span style="color: var(--accent);">${formatKRW(L.monthly)}원</span>`;
+    : `${Y}년 후 월배당금 <span style="color: var(--accent);">${formatKRW(L.monthly)}원</span>`;
   let desc = `${money} ${nH > 1 ? nH + '개 종목에 나눠 ' : ''}${Y}년 동안 넣고 배당을 모두 다시 투자하면, 첫해 월 <strong>${formatKRW(F.monthly)}원</strong>이던 배당이 ${Y}년차에는 월 <strong style="color: var(--accent);">${formatKRW(L.monthly)}원</strong>${growth > 1.05 ? `으로 <strong>${growth.toFixed(1)}배</strong>` : ''} 커집니다. ` +
     `넣은 돈은 ${formatKRW(L.principal)}원인데 자산은 <strong>${formatKRW(L.asset)}원</strong>, 그중 다시 넣은 배당만 ${formatKRW(L.cumDiv)}원입니다.`;
-  if (d.cross) desc += ` 월배당이 적립금을 넘는 순간부터는 배당이 다시 배당을 낳는 속도가 내 저축 속도를 앞지릅니다. 이게 배당 눈덩이입니다.`;
-  if (d.inflationOn) desc += `<br><br>📉 <strong style="color: #B8C4B8;">물가 ${d.inflationRate}%를 반영하면</strong> ${Y}년차 월배당 ${formatKRW(L.monthly)}원의 오늘 가치는 <strong>${formatKRW(L.monthlyReal)}원</strong>입니다. 배당성장률이 물가상승률을 이겨야 하는 이유가 여기에 있습니다.`;
+  if (d.cross) desc += ` 월배당금이 적립액을 넘는 순간부터는 배당이 다시 배당을 낳는 속도가 내 저축 속도를 앞지릅니다. 이게 배당 눈덩이입니다.`;
+  if (d.inflationOn) desc += `<br><br>📉 <strong style="color: #B8C4B8;">물가 ${d.inflationRate}%를 반영하면</strong> ${Y}년차 월배당금 ${formatKRW(L.monthly)}원의 오늘 가치는 <strong>${formatKRW(L.monthlyReal)}원</strong>입니다. 배당성장률이 물가상승률을 이겨야 하는 이유가 여기에 있습니다.`;
   desc += `<br><br>💡 이 결과는 세전 금액입니다. 같은 포트폴리오라도 어느 계좌에 담느냐에 따라 실제로 받는 돈이 달라집니다.`;
   document.getElementById('insight-title').innerHTML = title;
   document.getElementById('insight-desc').innerHTML = desc;
@@ -2498,7 +2509,7 @@ function update() {
   const cg = readNonNeg('contrib-growth', true);
   document.getElementById('adv-summary').textContent =
     (infOn ? `물가 ${readNonNeg('inflation-rate')}% 반영` : '물가 미반영') + ' · ' +
-    (cg > 0 ? `적립금 매년 ${cg}% 증가` : '적립금 증가 없음') + ' · 세전 · 배당 재투자';
+    (cg > 0 ? `적립액 매년 ${cg}% 증가` : '적립액 증가 없음') + ' · 세전 · 배당 재투자';
 
   const data = simulate();
   const section = document.getElementById('results-section');
@@ -2507,7 +2518,7 @@ function update() {
     const totalWeight = holdings.reduce((s, h) => s + Math.max(0, Number(h.weight) || 0), 0);
     emptyBox.innerHTML = !(totalWeight > 0)
       ? '⚠️ 종목 비중 합계가 0%입니다. <b>STEP 02</b>에서 비중을 입력하면 결과가 표시됩니다.'
-      : '⚠️ 초기 투자금과 월 적립금이 모두 0원입니다. <b>STEP 01</b>에서 금액을 입력하면 결과가 표시됩니다.';
+      : '⚠️ 초기 투자금과 월 적립액이 모두 0원입니다. <b>STEP 01</b>에서 금액을 입력하면 결과가 표시됩니다.';
     emptyBox.style.display = 'block';
     section.classList.remove('active');
     return;
@@ -2560,7 +2571,7 @@ function renderWhatIf(baseData) {
     wiBlocked = -1;
     wiSig = sig;
   }
-  document.getElementById('wi-metric').innerHTML = [['monthly', '월배당'], ['asset', '총 자산']].map(([k, t]) =>
+  document.getElementById('wi-metric').innerHTML = [['monthly', '월배당금'], ['asset', '총 자산']].map(([k, t]) =>
     `<button type="button" data-m="${k}" class="${k === wiMetric ? 'on' : ''}">${t}</button>`).join('');
   const Y = baseData.years;
   const marks = [1]; for (let y = 5; y < Y; y += 5) marks.push(y); if (Y > 1) marks.push(Y);
@@ -2612,7 +2623,7 @@ function wiRefresh() {
   if (document.activeElement !== yIn) yIn.value = yr;
   document.getElementById('wi-th-label').innerHTML = label + '<span class="wi-th-sub">세전 · 재투자 기준</span>';
   const a = wiBase.rows[yr - 1], b = alt.rows[yr - 1];
-  const rows = [['월배당', a.monthly, b.monthly], ['연배당', a.div, b.div], ['총 자산', a.asset, b.asset], ['누적 배당', a.cumDiv, b.cumDiv]];
+  const rows = [['월배당금', a.monthly, b.monthly], ['연배당', a.div, b.div], ['총 자산', a.asset, b.asset], ['누적 배당', a.cumDiv, b.cumDiv]];
   document.getElementById('wi-body').innerHTML = rows.map(([k, x, y]) => {
     const dd = y - x;
     const cls = Math.abs(dd) < 1 ? 'zero' : (dd > 0 ? 'pos' : 'neg');
@@ -2689,7 +2700,7 @@ function wiDrawChart(baseD, altD, yr) {
         tooltip: {
           backgroundColor: '#3A2F26', titleFont: { family: 'Pretendard', weight: 800 }, bodyFont: { family: 'Pretendard', weight: 600 },
           callbacks: {
-            title: items => items[0].label + ' 차 · ' + (wiMetric === 'monthly' ? '월배당' : '총 자산'),
+            title: items => items[0].label + ' 차 · ' + (wiMetric === 'monthly' ? '월배당금' : '총 자산'),
             label: c => ' ' + c.dataset.label + ': ' + formatKRWFull(c.parsed.y),
             afterBody: items => {
               if (items.length < 2) return '';
