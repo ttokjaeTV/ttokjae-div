@@ -148,6 +148,10 @@
     font-size: 12px; color: var(--ink-mute);
     margin-top: 6px; font-weight: 600;
   }
+  /* 숫자 바로 뒤에 붙는 단위 (원·년·%) — 위치는 JS(placeUnits)가 글자 폭을 재서 맞춘다 */
+  .unit-wrap { display: block; position: relative; }
+  .input-unit { position: absolute; top: 50%; transform: translateY(-50%); left: 0; pointer-events: none;
+    font-size: 15px; font-weight: 700; color: var(--ink-mute); white-space: nowrap; visibility: hidden; }
 
   /* 물가상승률 섹션 */
   .inflation-section {
@@ -782,7 +786,7 @@
       gap: 8px;
       padding: 12px;
     }
-    .inflation-input-wrap input { max-width: 100% !important; }
+    .inflation-input-wrap input, .inflation-input-wrap .unit-wrap { max-width: 100% !important; }
 
     /* 결과 카드 */
     .stat-card { padding: 16px !important; border-radius: 14px !important; }
@@ -1136,17 +1140,17 @@
     <div class="grid-3">
       <div>
         <label class="label">초기 투자금</label>
-        <input type="number" id="initial" value="0" step="1000000" min="0" inputmode="numeric">
+        <span class="unit-wrap"><input type="number" id="initial" data-unit="원" value="0" step="1000000" min="0" inputmode="numeric"></span>
         <div class="input-hint" id="initial-hint">0원</div>
       </div>
       <div>
         <label class="label">월 적립액</label>
-        <input type="number" id="monthly" value="500000" step="100000" min="0" inputmode="numeric">
+        <span class="unit-wrap"><input type="number" id="monthly" data-unit="원" value="500000" step="100000" min="0" inputmode="numeric"></span>
         <div class="input-hint" id="monthly-hint">연간 600만원</div>
       </div>
       <div>
         <label class="label">투자 기간</label>
-        <input type="number" id="years" value="20" min="1" max="50" inputmode="numeric">
+        <span class="unit-wrap"><input type="number" id="years" data-unit="년" value="20" min="1" max="50" inputmode="numeric"></span>
         <div class="input-hint" id="years-hint">20년 후 결과</div>
       </div>
     </div>
@@ -1156,7 +1160,7 @@
       <summary><span class="adv-set-title">상세 설정</span><span class="adv-set-sum" id="adv-summary">물가 2.5% 반영 · 적립액 증가 없음</span></summary>
     <div class="growth-input-wrap">
       <label class="label">적립액 증가율 (연, %)</label>
-      <input type="number" id="contrib-growth" value="0" step="0.5" min="0" max="20" inputmode="decimal" style="max-width: 200px;">
+      <span class="unit-wrap" style="width: 100%; max-width: 200px;"><input type="number" id="contrib-growth" data-unit="%" value="0" step="0.5" min="0" max="20" inputmode="decimal"></span>
       <div class="input-hint">월 적립액을 해마다 이만큼 늘려 넣는다고 가정합니다 (연봉 인상 등). 0이면 매달 같은 금액</div>
     </div>
     <!-- 물가상승률 옵션 -->
@@ -1176,7 +1180,7 @@
       </div>
       <div class="inflation-input-wrap" id="inflation-input-wrap" style="display: flex;">
         <label class="label" style="margin-bottom: 0;">물가상승률 (연, %)</label>
-        <input type="number" id="inflation-rate" value="2.5" step="0.1" min="0" max="20" style="max-width: 200px;">
+        <span class="unit-wrap" style="width: 100%; max-width: 200px;"><input type="number" id="inflation-rate" data-unit="%" value="2.5" step="0.1" min="0" max="20"></span>
         <div class="input-hint" style="margin-top: 0;">한국 장기 평균 약 2.5%</div>
       </div>
     </div>
@@ -1897,6 +1901,28 @@ function refreshMeta(h) {
 // ============================================================
 // 종목 입력 렌더링
 // ============================================================
+// ============== 입력칸 숫자 뒤 단위 ==============
+// input에 data-unit이 있으면 입력한 숫자 바로 뒤에 단위(원·년·%)를 붙여 보여 준다.
+const unitCanvas = document.createElement('canvas').getContext('2d');
+function placeUnits() {
+  document.querySelectorAll('.unit-wrap input[data-unit]').forEach(inp => {
+    let tag = inp.parentNode.querySelector('.input-unit');
+    if (!tag) { tag = document.createElement('span'); tag.className = 'input-unit'; tag.textContent = inp.dataset.unit; inp.after(tag); }
+    const cs = getComputedStyle(inp);
+    // 값이 비었거나, 숨어 있거나, 숫자가 이미 칸을 넘쳐 잘려 보이면 단위를 감춘다
+    if (inp.value === '' || !inp.offsetWidth || inp.scrollWidth > inp.clientWidth + 1) { tag.style.visibility = 'hidden'; return; }
+    unitCanvas.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const w = unitCanvas.measureText(inp.value).width;
+    const left = parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth) + w + 4 - inp.scrollLeft;
+    tag.style.left = Math.round(left) + 'px';
+    tag.style.fontSize = cs.fontSize;
+    // 마우스 화면의 숫자칸은 오른쪽 안쪽에 위·아래 화살표(약 16px)가 뜬다 → 그 자리까지 오면 감춘다
+    const spin = inp.type === 'number' && matchMedia('(hover: hover) and (pointer: fine)').matches ? 16 : 0;
+    const limit = inp.clientWidth - parseFloat(cs.paddingRight) + (spin ? -spin : 8);
+    tag.style.visibility = left + tag.offsetWidth < limit ? 'visible' : 'hidden';
+  });
+}
+
 function renderHoldings() {
   const container = document.getElementById('holdings-container');
   container.innerHTML = '';
@@ -1923,19 +1949,19 @@ function renderHoldings() {
         </div>
         <div>
           <label class="label">비중 (%)</label>
-          <input type="number" data-id="${h.id}" data-field="weight" value="${h.weight}" min="0" max="100" title="포트폴리오 내 이 종목의 비중. 모든 종목의 합이 100%가 되어야 합니다.">
+          <span class="unit-wrap"><input type="number" data-unit="%" data-id="${h.id}" data-field="weight" value="${h.weight}" min="0" max="100" title="포트폴리오 내 이 종목의 비중. 모든 종목의 합이 100%가 되어야 합니다."></span>
         </div>
         <div>
           <label class="label">배당률 (%)</label>
-          <input type="number" data-id="${h.id}" data-field="dividendYield" value="${h.dividendYield}" step="0.1" title="현재 시가배당률. 종목을 고르면 최근 12개월 실제 지급액 기준으로 자동 입력됩니다.">
+          <span class="unit-wrap"><input type="number" data-unit="%" data-id="${h.id}" data-field="dividendYield" value="${h.dividendYield}" step="0.1" title="현재 시가배당률. 종목을 고르면 최근 12개월 실제 지급액 기준으로 자동 입력됩니다."></span>
         </div>
         <div>
           <label class="label">배당성장 (%)</label>
-          <input type="number" data-id="${h.id}" data-field="dividendGrowth" value="${h.dividendGrowth}" step="0.5" title="배당금이 매년 얼마나 늘어나는지(가정치). 커버드콜 ETF는 0~1%가 일반적입니다.">
+          <span class="unit-wrap"><input type="number" data-unit="%" data-id="${h.id}" data-field="dividendGrowth" value="${h.dividendGrowth}" step="0.5" title="배당금이 매년 얼마나 늘어나는지(가정치). 커버드콜 ETF는 0~1%가 일반적입니다."></span>
         </div>
         <div>
           <label class="label">주가성장 (%)</label>
-          <input type="number" data-id="${h.id}" data-field="priceGrowth" value="${h.priceGrowth}" step="0.5" title="주가가 매년 얼마나 오를지의 연평균 예상치(가정치). 총 자산 계산의 핵심 지표입니다.">
+          <span class="unit-wrap"><input type="number" data-unit="%" data-id="${h.id}" data-field="priceGrowth" value="${h.priceGrowth}" step="0.5" title="주가가 매년 얼마나 오를지의 연평균 예상치(가정치). 총 자산 계산의 핵심 지표입니다."></span>
         </div>
         <button class="btn-icon" data-remove="${h.id}" ${holdings.length <= 1 ? 'disabled' : ''} aria-label="종목 삭제">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
@@ -1949,6 +1975,7 @@ function renderHoldings() {
   updateWeightTotal();
   document.getElementById('add-holding-btn').disabled = holdings.length >= MAX_HOLDINGS;
 
+  placeUnits();
   if (pendingFocusId != null) {
     const el = container.querySelector(`.combo-input[data-id="${pendingFocusId}"]`);
     pendingFocusId = null;
@@ -2504,6 +2531,7 @@ function update() {
   document.getElementById('initial-hint').textContent = formatKRW(initial) + '원';
   document.getElementById('monthly-hint').textContent = '연간 ' + formatKRW(monthly * 12) + '원';
   document.getElementById('years-hint').textContent = years + '년 후 결과';
+  placeUnits();   // 보정해 되돌려 쓴 값에 맞춰 단위 위치 갱신
   // 상세 설정 요약 한 줄 (접혀 있어도 무엇이 켜져 있는지 보이게)
   const infOn = document.getElementById('inflation-toggle').checked;
   const cg = readNonNeg('contrib-growth', true);
@@ -2799,6 +2827,9 @@ document.getElementById('growth-guide-body').innerHTML = Object.values(TYPE_DEFA
 renderHoldings();
 update();
 loadAllData();
+{ let ut; window.addEventListener('resize', () => { clearTimeout(ut); ut = setTimeout(placeUnits, 200); }); }
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeUnits);   // 웹폰트가 늦게 뜨면 폭을 다시 잰다
+document.getElementById('adv-set').addEventListener('toggle', placeUnits);   // 접힌 상세 설정을 열 때 위치 계산
 </script>
 </body>
 </html>
