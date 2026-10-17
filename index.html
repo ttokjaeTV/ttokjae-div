@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script src="https://ttokjaetv.github.io/member-lock.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>월배당 적립 계산기 · 똑재TV</title>
 <meta name="description" content="여러 배당 종목을 섞어 매달 적립하고 배당을 재투자하면 월배당금이 언제 얼마나 커지는지 보여주는 월배당 적립 계산기. 국내·미국 전체 종목 검색, 실제 배당률 자동 입력.">
@@ -1214,7 +1215,7 @@
     <!-- 상세 설정 (물가·적립금 증가율) — 접어 두고 현재 설정을 한 줄로 보여 준다 -->
     <details class="adv-set" id="adv-set">
       <summary><span class="adv-set-title">상세 설정</span><span class="adv-set-sum" id="adv-summary">물가 2.5% 반영 · 적립액 증가 없음 · 비중 맞추기 없음</span></summary>
-    <div class="growth-input-wrap">
+    <div class="growth-input-wrap" data-member="적립 증가·리밸런싱">
       <label class="label">적립액 증가율 (연, %)</label>
       <span class="unit-wrap" style="width: 100%; max-width: 200px;"><input type="number" id="contrib-growth" data-unit="%" value="0" step="0.5" min="0" max="20" inputmode="decimal"></span>
       <div class="input-hint">월 적립액을 해마다 이만큼 늘려 넣는다고 가정합니다 (연봉 인상 등). 0이면 매달 같은 금액</div>
@@ -1241,7 +1242,7 @@
       </div>
     </div>
     <!-- 리밸런싱 옵션 -->
-    <div class="inflation-section">
+    <div class="inflation-section" data-member="적립 증가·리밸런싱">
       <div class="inflation-toggle-wrap">
         <div class="inflation-text-area">
           <div class="inflation-title">⚖️ 1년에 한 번 비중 맞추기 (리밸런싱)</div>
@@ -1343,7 +1344,7 @@
     </div>
 
     <!-- 차트 3: 종목별 기여 -->
-    <div class="card">
+    <div class="card" data-member="종목별 기여">
       <div class="chart-title">월배당금은 어느 종목에서 나올까? · 종목별 기여</div>
       <div class="chart-subtitle">연도별 월배당금을 종목별로 쌓았습니다. 배당률이 높은 종목은 초반 기여가 크고, 배당성장률이 높은 종목은 뒤로 갈수록 몫이 커집니다.</div>
       <div class="chart-container lg">
@@ -1360,12 +1361,12 @@
     </div>
 
     <!-- 연차별 표 -->
-    <div class="card">
+    <div class="card" data-member="연차별 표와 엑셀">
       <div class="chart-title">연차별 Raw Data · 원금, 자산, 배당</div>
       <div class="chart-subtitle" id="table-sub">숫자로 보면 눈덩이가 언제부터 커지는지 정확히 보입니다 (가로 스크롤)</div>
       <div class="dl-bar">
-        <button type="button" class="dl-btn" id="dl-csv">CSV 내려받기</button>
-        <button type="button" class="dl-btn" id="dl-xlsx">엑셀(.xlsx) 내려받기</button>
+        <button type="button" class="dl-btn" id="dl-csv" data-member-click="엑셀 내려받기">CSV 내려받기</button>
+        <button type="button" class="dl-btn" id="dl-xlsx" data-member-click="엑셀 내려받기">엑셀(.xlsx) 내려받기</button>
         <span class="dl-note">엑셀에는 연도별 표·종목별 표·조건 바꿔 보기 표가 함께 들어갑니다 (원 단위 숫자 · 세전)</span>
       </div>
       <div class="table-wrap">
@@ -1387,7 +1388,7 @@
     </div>
 
     <!-- 조건을 하나씩 바꾸면? -->
-    <div class="card" id="scenario-card">
+    <div class="card" id="scenario-card" data-member="조건을 하나씩 바꾸면">
       <div class="chart-title">조건을 하나씩 바꾸면? · 무엇이 눈덩이를 가장 크게 키울까</div>
       <div class="chart-subtitle">지금 조건에서 <strong style="color: var(--accent);">한 가지만</strong> 바꿔 다시 계산했습니다. 위에 넣은 입력은 그대로 둡니다. 눈덩이 시점은 월배당금이 그 해 월 적립액을 처음 넘는 해입니다.</div>
       <div class="table-wrap">
@@ -1400,7 +1401,7 @@
     </div>
 
     <!-- 비중 바꿔 보기 (what-if) -->
-    <div class="card" id="whatif-card">
+    <div class="card" id="whatif-card" data-member="비중 바꿔 보기">
       <div class="chart-title">비중 바꿔 보기 · 비중을 바꾸면 월배당금이 어떻게 달라질까?</div>
       <div class="chart-subtitle">
         종목마다 슬라이더를 움직이거나 숫자를 직접 넣어 보세요. <strong style="color: var(--accent);">직접 바꾼 종목은 🔒 고정</strong>되고, 나머지 종목이 원래 비율대로 알아서 줄거나 늘어 합계 100%를 맞춥니다.<br>
@@ -2325,6 +2326,7 @@ function handleHoldingChange(e) {
 // 종목 추가 → 바로 검색창에 포커스
 document.getElementById('add-holding-btn').addEventListener('click', () => {
   if (holdings.length >= MAX_HOLDINGS) return;
+  if (holdings.length >= 3 && window.TJLock && !TJLock.allow('종목 4개 이상')) return;   // 멤버십: 무료는 3종목까지
   const newId = Math.max(...holdings.map(h => h.id)) + 1;
   const h = { id: newId, key: 'CUSTOM', customName: '', weight: 0 };
   applySelection(h, 'CUSTOM');
