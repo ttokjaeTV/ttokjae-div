@@ -1469,7 +1469,7 @@
       <li>첫 달 배당은 투자금 × 배당률 ÷ 12입니다. 이후 주당 배당은 배당성장률만큼, 주가는 주가성장률만큼 오른다고 봅니다(12개월 뒤 정확히 그만큼). 그래서 둘의 차이만큼 시가배당률이 조금씩 바뀝니다.</li>
       <li>연차별 표의 월배당금은 그 해 12개월 배당 합계 ÷ 12(그 해 월평균)입니다.</li>
       <li>기본은 리밸런싱 없이 종목마다 받은 배당을 그 종목에 다시 넣습니다. 그래서 배당률 높은 종목의 비중이 점점 커집니다. 상세 설정에서 ‘1년에 한 번 비중 맞추기’를 켜면 매년 말 처음 비중으로 다시 나눕니다(사고파는 비용·세금 없음).</li>
-      <li>‘눈덩이 시점’은 그 해 월배당금(월평균)이 그 해 월 적립액을 처음 넘는 해입니다. 물가를 켜면 오늘 돈 가치로 바꾼 월배당금이 지금의 월 적립액을 넘는 해도 함께 보여줍니다.</li>
+      <li>‘눈덩이 시점’은 그 해 월배당금(월평균)이 그 해 월 적립액을 처음 넘는 해입니다. 물가를 켜면 오늘 돈 가치로 바꾼 월배당금이 지금의 월 적립액(적립액을 늘리면 그 해 월 적립액의 오늘 가치가 더 클 때는 그 금액)을 넘는 해도 함께 보여줍니다.</li>
       <li>종목 아래 경고는 계산을 바꾸지 않습니다. [보정값 적용]을 눌러야 그 종목의 배당성장률·주가성장률이 보수적 기준 값으로 바뀝니다.</li>
       <li>물가를 켜면 미래 금액을 해마다 물가상승률만큼 깎아 오늘 돈 가치로 바꿉니다 (예: 물가 2.5%면 20년 뒤 100만원 ≈ 오늘 61만원).</li>
       <li>‘조건을 하나씩 바꾸면?’ 표의 ‘재투자하지 않으면’은 같은 가정에서 배당만 다시 사지 않고 현금으로 모아 둔 경우입니다(이자 없음).</li>
@@ -2463,9 +2463,12 @@ function runSim(H, o) {
   const last = rows[rows.length - 1];
   // 눈덩이 시점: 월배당이 그 해 월 적립금을 처음 넘는 해(명목)
   const cross = o.monthly > 0 ? rows.find(r => r.monthly >= r.contribMonthly) || null : null;
-  // 물가 반영 눈덩이 시점: 오늘 돈 가치로 바꾼 월배당이 지금의 월 적립액을 처음 넘는 해
-  const crossReal = o.monthly > 0 && (o.inflationRate || 0) > 0 ? rows.find(r => r.monthlyReal >= o.monthly) || null : null;
-  return { rows, last, cross, crossReal };
+  // 물가 반영 눈덩이 시점: 오늘 돈 가치로 바꾼 월배당이 지금의 월 적립액과 그 해 월 적립액(오늘 돈 가치) 중
+  //  큰 쪽을 처음 넘는 해. 모두 오늘 돈 가치로 비교하므로 적립액이 물가보다 빨리 늘어도 명목 시점보다 앞서지 않음
+  const realBar = r => Math.max(o.monthly, r.contribMonthly / Math.pow(1 + (o.inflationRate || 0), r.year));
+  const crossReal = o.monthly > 0 && (o.inflationRate || 0) > 0 ? rows.find(r => r.monthlyReal >= realBar(r)) || null : null;
+  const crossRealBar = crossReal ? realBar(crossReal) : o.monthly;
+  return { rows, last, cross, crossReal, crossRealBar };
 }
 
 function holdingParams(hs) {
@@ -2777,8 +2780,8 @@ function renderResults(d) {
   html += card('누적 배당 (재투자)', formatKRW(L.cumDiv), `${Y}년간 받아 다시 넣은 배당`, '', 'var(--accent)');
   if (d.monthly > 0) {
     const realTxt = !d.inflationOn ? ''
-      : d.crossReal ? `<br>물가 반영 시 ${d.crossReal.year}년차 (오늘 돈 가치로 월 ${formatKRW(d.monthly)}원 돌파)`
-      : `<br>물가 반영 시 ${Y}년 안엔 오늘 돈 가치로 월 ${formatKRW(d.monthly)}원을 못 넘음`;
+      : d.crossReal ? `<br>물가 반영 시 ${d.crossReal.year}년차 (오늘 돈 가치로 월 ${formatKRW(d.crossRealBar)}원 돌파)`
+      : `<br>물가 반영 시 ${Y}년 안엔 오늘 돈 가치로 ${d.contribGrowth > d.inflationRate ? '그 해 월 적립액을' : `월 ${formatKRW(d.monthly)}원을`} 못 넘음`;
     html += d.cross
       ? card('눈덩이 시점', d.cross.year + '년차', `월배당금이 그 해 월 적립액 ${formatKRW(d.cross.contribMonthly)}원을 넘는 해${realTxt}`, 'accent-green')
       : card('눈덩이 시점', `${Y}년 이후`, `아직 월배당금이 적립액 ${formatKRW(L.contribMonthly)}원보다 적음${realTxt}`, '', 'var(--brown)');
@@ -2803,7 +2806,7 @@ function renderInsight(d) {
     `넣은 돈은 ${formatKRW(L.principal)}원인데 자산은 <strong>${formatKRW(L.asset)}원</strong>, 그중 다시 넣은 배당만 ${formatKRW(L.cumDiv)}원입니다.`;
   if (d.cross) desc += ` 월배당금이 적립액을 넘는 순간부터는 배당이 다시 배당을 낳는 속도가 내 저축 속도를 앞지릅니다. 이게 배당 눈덩이입니다.`;
   if (d.inflationOn) desc += `<br><br>📉 <strong style="color: #B8C4B8;">물가 ${d.inflationRate}%를 반영하면</strong> ${Y}년차 월배당금 ${formatKRW(L.monthly)}원의 오늘 가치는 <strong>${formatKRW(L.monthlyReal)}원</strong>입니다.` +
-    (d.cross ? (d.crossReal ? (d.crossReal.year !== d.cross.year ? ` 오늘 돈 가치로 월 적립액 ${formatKRW(d.monthly)}원을 넘는 건 ${d.crossReal.year}년차부터입니다.` : '') : ` 오늘 돈 가치로는 ${Y}년 안에 월 적립액 ${formatKRW(d.monthly)}원을 넘지 못합니다.`) : '') +
+    (d.cross ? (d.crossReal ? (d.crossReal.year !== d.cross.year ? ` 오늘 돈 가치로 월 적립액 ${formatKRW(d.crossRealBar)}원을 넘는 건 ${d.crossReal.year}년차부터입니다.` : '') : ` 오늘 돈 가치로는 ${Y}년 안에 월 적립액 ${formatKRW(d.monthly)}원을 넘지 못합니다.`) : '') +
     ` 배당성장률이 물가상승률을 이겨야 하는 이유가 여기에 있습니다.`;
   desc += `<br><br>💡 이 결과는 세전 금액입니다. 같은 포트폴리오라도 어느 계좌에 담느냐에 따라 실제로 받는 돈이 달라집니다.`;
   document.getElementById('insight-title').innerHTML = title;
