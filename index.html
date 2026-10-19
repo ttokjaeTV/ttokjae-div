@@ -2826,8 +2826,9 @@ function buildScenarios(d) {
   out.push({ key: 'base', label: '지금 조건', sub: '입력한 그대로', ...pick(d.last, d.cross, d.last.asset) });
   const nr = simulateNoReinvest(hs, base);
   if (nr) out.push({ key: 'noreinvest', label: '배당을 재투자하지 않으면', sub: `받은 배당은 쓰지 않고 모아 둠(이자 없음) · 총 자산 = 남은 자산 ${formatKRW(nr.last.asset)}원 + 받은 배당 ${formatKRW(nr.last.cumDiv)}원`, ...pick(nr.last, nr.cross, nr.last.total) });
-  const g0 = simulate(hs.map(h => ({ ...h, dividendGrowth: 0 })), base);
-  if (g0) out.push({ key: 'g0', label: '배당성장률 0%', sub: '모든 종목의 주당 배당이 지금 수준에서 늘지 않음', ...pick(g0.last, g0.cross, g0.last.asset) });
+  // 늘던 배당만 0%로 멈춤 — 이미 줄어드는 종목(커버드콜 등)은 그대로 둠 (0%로 올리면 배당만 버티고 주가는 빠져 배당률이 비정상으로 커짐)
+  const g0 = simulate(hs.map(h => ({ ...h, dividendGrowth: Math.min(Number(h.dividendGrowth) || 0, 0) })), base);
+  if (g0) out.push({ key: 'g0', label: '배당성장 멈춤', sub: '늘던 주당 배당이 지금 수준에서 멈춤 (이미 줄어드는 종목은 그대로)', ...pick(g0.last, g0.cross, g0.last.asset) });
   if (d.monthly > 0) {
     const m2 = simulate(hs, { ...base, monthly: d.monthly * 2 });
     if (m2) out.push({ key: 'm2', label: '월 적립금 2배', sub: `월 ${formatKRW(d.monthly)}원 → ${formatKRW(d.monthly * 2)}원`, ...pick(m2.last, m2.cross, m2.last.asset) });
@@ -2960,10 +2961,11 @@ function update() {
   renderChecks(years);
   // 상세 설정 요약 한 줄 (접혀 있어도 무엇이 켜져 있는지 보이게)
   const infOn = document.getElementById('inflation-toggle').checked;
-  const cg = readNonNeg('contrib-growth', true);
+  const cgIn = readNonNeg('contrib-growth', true);
+  const cg = Math.min(20, cgIn);   // simulate()와 같은 상한 (연 20%)
   document.getElementById('adv-summary').textContent =
     (infOn ? `물가 ${readNonNeg('inflation-rate')}% 반영` : '물가 미반영') + ' · ' +
-    (cg > 0 ? `적립액 매년 ${cg}% 증가` : '적립액 증가 없음') + ' · ' +
+    (cg > 0 ? `적립액 매년 ${cg}% 증가${cgIn > cg ? '(최대 20%로 계산)' : ''}` : '적립액 증가 없음') + ' · ' +
     (document.getElementById('rebalance-toggle').checked ? '매년 비중 맞춤' : '비중 맞추기 없음') + ' · 세전 · 배당 재투자';
 
   const data = simulate();
