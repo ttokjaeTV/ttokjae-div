@@ -1237,7 +1237,7 @@
       </div>
       <div class="inflation-input-wrap" id="inflation-input-wrap" style="display: flex;">
         <label class="label" style="margin-bottom: 0;">물가상승률 (연, %)</label>
-        <span class="unit-wrap" style="width: 100%; max-width: 200px;"><input type="number" id="inflation-rate" data-unit="%" value="2.5" step="0.1" min="0" max="20"></span>
+        <span class="unit-wrap" style="width: 100%; max-width: 200px;"><input type="number" id="inflation-rate" data-unit="%" value="2.5" step="0.1" min="0" max="20"></span> <!-- rules-ok: 물가 가정 기본값(제도 아님) -->
         <div class="input-hint" style="margin-top: 0;">한국 장기 평균 약 2.5%</div>
       </div>
     </div>
@@ -3073,6 +3073,7 @@ function wiRefresh() {
 
   const changed = !single && wiW.some((v, i) => Math.abs(v - base[i]) >= 0.05);
   const alt = changed ? simulate(holdings.map((h, i) => ({ ...h, weight: wiW[i] }))) : wiBase;
+  if (!wiBase || !alt) return;   // 결과가 없는 입력(금액 0원 등)이면 비교를 그리지 않음 — 결과 영역도 숨겨져 있음
   const Y = wiBase.years;
   const yr = Math.min(Math.max(1, wiYear || Y), Y);
   const label = yr === 1 ? '첫해' : yr + '년차';
