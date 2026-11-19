@@ -1099,6 +1099,7 @@
     .hold-table { font-size: 12.5px; min-width: 0; }
     .hold-table th, .hold-table td { padding: 9px 6px; }
     .hold-table .nm { align-items: flex-start; }
+    .hold-table td:first-child, .hold-table th:first-child { min-width: 112px; } /* 종목명이 69px로 눌려 3줄로 쪼개지던 것을 막는다(표 안에서 옆으로 민다) */
     .hold-table .nm .dot { margin-top: 4px; }
   }
 
@@ -1139,7 +1140,8 @@
     .copy-hint { display: none; }
   }
   .scroll-hint { display: none; margin: 12px 0 -8px; text-align: center; font-size: 12px; font-weight: 700; color: var(--ink-mute); }
-  @media (max-width: 400px) { .scroll-hint { display: block; } }
+  @media (max-width: 425px) { .scroll-hint.sh-425 { display: block; } }
+  @media print { .scroll-hint { display: none !important; } }
 </style>
 </head>
 <body>
@@ -1354,7 +1356,7 @@
         <canvas id="chart-stack"></canvas>
       </div>
       <div class="wbar" id="wbar"></div>
-      <p class="scroll-hint" aria-hidden="true">← 옆으로 밀어 보세요 →</p>
+      <p class="scroll-hint sh-425" aria-hidden="true">← 옆으로 밀어 보세요 →</p>
       <div class="table-wrap">
         <table class="hold-table">
           <thead><tr><th id="ht-name">종목</th><th>자산</th><th id="ht-weight">비중</th><th>월배당금</th></tr></thead>
