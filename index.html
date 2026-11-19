@@ -1141,6 +1141,7 @@
   }
   .scroll-hint { display: none; margin: 12px 0 -8px; text-align: center; font-size: 12px; font-weight: 700; color: var(--ink-mute); }
   @media (max-width: 425px) { .scroll-hint.sh-425 { display: block; } }
+  @media (max-width: 676px), (min-width: 769px) and (max-width: 924px) { .scroll-hint.sh-924 { display: block; } }
   @media print { .scroll-hint { display: none !important; } }
 </style>
 </head>
@@ -1375,6 +1376,7 @@
         <button type="button" class="dl-btn" id="dl-xlsx" data-member-click="엑셀 내려받기">엑셀(.xlsx) 내려받기</button>
         <span class="dl-note">엑셀에는 연도별 표·종목별 표·조건 바꿔 보기 표가 함께 들어갑니다 (원 단위 숫자 · 세전)</span>
       </div>
+      <p class="scroll-hint sh-924" aria-hidden="true">← 옆으로 밀어 보세요 →</p>
       <div class="table-wrap">
         <table class="data-table mid">
           <thead>
